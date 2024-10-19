@@ -7,7 +7,7 @@ module Sisimai::Lhost
 
       Indicators = Sisimai::Lhost.INDICATORS
       Boundaries = ['Content-Type: message/rfc822'].freeze
-      MarkingsOf = { message: ['Your mail sent on:', 'Your mail attempted to be delivered on:'] }.freeze
+      StartingOf = { message: ['Your mail sent on:', 'Your mail attempted to be delivered on:'] }.freeze
       MessagesOf = {
         'mailboxfull' => ['As their mailbox is full'],
         'norelaying'  => ['Due to the following SMTP relay error'],
@@ -40,7 +40,7 @@ module Sisimai::Lhost
           # line of the beginning of the original message.
           if readcursor == 0
             # Beginning of the bounce message or delivery status part
-            readcursor |= Indicators[:deliverystatus] if MarkingsOf[:message].any? { |a| e.start_with?(a) }
+            readcursor |= Indicators[:deliverystatus] if StartingOf[:message].any? { |a| e.start_with?(a) }
             next
           end
           next if (readcursor & Indicators[:deliverystatus]) == 0
