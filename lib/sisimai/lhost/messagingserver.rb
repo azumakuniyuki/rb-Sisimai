@@ -62,7 +62,8 @@ module Sisimai::Lhost
 
           if Sisimai::String.aligned(e, ['  Recipient address: ', '@', '.']) ||
              Sisimai::String.aligned(e, ['  Original address: ',  '@', '.'])
-            #   Recipient address: kijitora@example.jp
+            #   Recipient address: @smtp.example.net:kijitora@server
+            #   Original address: kijitora@example.jp
             cv = Sisimai::Address.s3s4(e[e.rindex(' ') + 1, e.size])
             next unless Sisimai::Address.is_emailaddress(cv)
 
