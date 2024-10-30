@@ -70,7 +70,7 @@ module Sisimai::Lhost
       MessagesOf = {
         # qmail-local.c:589|  strerr_die1x(100,"Sorry, no mailbox here by that name. (#5.1.1)");
         # qmail-remote.c:253|  out("s"); outhost(); out(" does not like recipient.\n");
-        'userunknown'  => ['no mailbox here by that name', 'does not like recipient.'],
+        'userunknown'  => ['no mailbox here by that name'],
         # error_str.c:192|  X(EDQUOT,"disk quota exceeded")
         'mailboxfull'  => ['disk quota exceeded'],
         # qmail-qmtpd.c:233| ... result = "Dsorry, that message size exceeds my databytes limit (#5.3.4)";
@@ -196,30 +196,26 @@ module Sisimai::Lhost
               # To decide the reason require pattern match with Sisimai::Reason::* modules
               e['reason'] = 'onhold'
             else
-              MessagesOf.each_key do |r|
-                # Verify each regular expression of session errors
-                if e['alterrors']
-                  # Check the value of "alterrors"
-                  next unless MessagesOf[r].any? { |a| e['alterrors'].include?(a) }
-                  e['reason'] = r
-                end
+              # Check that the error message includes any of message patterns or not
+              [e['alterrors'], e['diagnosis']].each do |f|
+                # Try to detect an error reason
                 break if e['reason']
-
-                next unless MessagesOf[r].any? { |a| e['diagnosis'].include?(a) }
-                e['reason'] = r
-                break
-              end
-
-              unless e['reason']
-                FailOnLDAP.each_key do |r|
-                  # Verify each regular expression of LDAP errors
-                  next unless FailOnLDAP[r].any? { |a| e['diagnosis'].include?(a) }
+                next unless f
+                MessagesOf.each_key do |r|
+                  # The key is a bounce reason name
+                  next unless MessagesOf[r].any? { |a| f.include?(a) }
                   e['reason'] = r
                   break
                 end
-              end
+                break if e['reason']
 
-              unless e['reason']
+                FailOnLDAP.each_key do |r|
+                  # The key is a bounce reason name
+                  next unless FailOnLDAP[r].any? { |a| f.include?(a) }
+                  e['reason'] = r
+                  break
+                end
+                break if e['reason']
                 e['reason'] = 'expired' if e['diagnosis'].include?(HasExpired)
               end
             end
