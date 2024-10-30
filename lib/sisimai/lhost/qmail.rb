@@ -139,7 +139,7 @@ module Sisimai::Lhost
           # Giving up on 192.0.2.153.
           v = dscontents[-1]
 
-          if e.start_with?('<') && Sisimai::String.aligned(e, ['<', '@', '>', ':'])
+          if e.start_with?('<') && Sisimai::String.aligned(e, ['<', '@', '>:'])
             # <kijitora@example.jp>:
             if v['recipient']
               # There are multiple recipient addresses in the message body.
@@ -151,7 +151,6 @@ module Sisimai::Lhost
 
           elsif dscontents.size == recipients
             # Append error message
-            next if e.empty?
             v['diagnosis'] ||= ''
             v['diagnosis'] << e + ' '
             v['alterrors'] = e if e.start_with?(StartingOf[:error][0])
