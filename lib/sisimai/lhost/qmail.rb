@@ -45,9 +45,14 @@ module Sisimai::Lhost
       OnHoldPair = [' does not like recipient.', 'this message has been in the queue too long.'].freeze
       FailOnLDAP = {
         # qmail-ldap-1.03-20040101.patch:19817 - 19866
-        'suspend'     => ['Mailaddress is administrative?le?y disabled'],   # 5.2.1
-        'userunknown' => ['Sorry, no mailbox here by that name'],           # 5.1.1
         'exceedlimit' => ['The message exeeded the maximum size the user accepts'], # 5.2.3
+        'userunknown' => ['Sorry, no mailbox here by that name'],           # 5.1.1
+        'suspend'     => [ # 5.2.1
+            'Mailaddress is administrativly disabled',
+            'Mailaddress is administrativley disabled',
+            'Mailaddress is administratively disabled',
+            'Mailaddress is administrativeley disabled',
+        ],
         'systemerror' => [
             'Automatic homedir creator crashed',                # 4.3.0
             'Illegal value in LDAP attribute',                  # 5.3.5
