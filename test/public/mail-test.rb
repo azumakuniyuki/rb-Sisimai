@@ -3,7 +3,7 @@ require 'sisimai/mail'
 
 class MailTest < Minitest::Test
   Methods = { class: %w[new], object: %w[path kind data] }
-  Samples = ['./set-of-emails/mailbox/mbox-0', './set-of-emails/maildir/err']
+  Samples = ['./set-of-emails/mailbox/mbox-0', './set-of-emails/maildir/dos']
   Normals = './set-of-emails/maildir/not'
 
   Mailbox = Sisimai::Mail.new(Samples[0])
@@ -117,7 +117,7 @@ class MailTest < Minitest::Test
       assert_instance_of String, r
       refute_empty r
     end
-    assert_equal 37, ci
+    assert_equal 64, ci
 
     ci = 0
     while r = MailString.data.read do
