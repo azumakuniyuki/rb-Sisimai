@@ -22,7 +22,6 @@ module Sisimai
           'replycode'    => nil,  # SMTP Reply code
           'diagnosis'    => nil,  # The value of Diagnostic-Code header
           'recipient'    => nil,  # The value of Final-Recipient header
-          'hardbounce'   => nil,  # Hard bounce or not
           'feedbacktype' => nil,  # Feedback Type
         }
       end
