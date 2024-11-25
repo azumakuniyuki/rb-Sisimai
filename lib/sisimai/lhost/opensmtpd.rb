@@ -106,7 +106,7 @@ module Sisimai::Lhost
           #    Below is a copy of the original message:
           v = dscontents[-1]
 
-          if e.include?('@') && Sisimai::String.aligned(e, ['@', ' '])
+          if Sisimai::String.aligned(e, ['@', ' '])
             # kijitora@example.jp: 550 5.2.2 <kijitora@example>... Mailbox Full
             if v['recipient']
               # There are multiple recipient addresses in the message body.

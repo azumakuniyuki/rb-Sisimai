@@ -66,7 +66,7 @@ module Sisimai::Lhost
             issuedcode = e[e.index('(') + 1, e.size]
             recipients += 1
 
-          elsif f = Sisimai::RFC1894.match(e)
+          elsif Sisimai::RFC1894.match(e)
             # "e" matched with any field defined in RFC3464
             o = Sisimai::RFC1894.field(e)
             unless o

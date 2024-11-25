@@ -151,6 +151,7 @@ module Sisimai::Lhost
         return nil unless mhead['from'].end_with?('<mailer-daemon@googlemail.com>')
         return nil unless mhead['subject'].start_with?('Delivery Status Notification')
 
+        require 'sisimai/address'
         dscontents = [Sisimai::Lhost.DELIVERYSTATUS]
         emailparts = Sisimai::RFC5322.part(mbody, Boundaries)
         bodyslices = emailparts[0].split("\n")
@@ -204,35 +205,39 @@ module Sisimai::Lhost
         end
         return nil unless recipients > 0
 
+        require 'sisimai/string'
+        require 'sisimai/rfc1123'
         dscontents.each do |e|
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
 
-          unless e['rhost']
+          if Sisimai::String.aligned(e['diagnosis'], [' by ', '. [', ']. '])
             # Get the value of remote host
-            if Sisimai::String.aligned(e['diagnosis'], [' by ', '. [', ']. '])
-              # Google tried to deliver your message, but it was rejected by the server for the recipient
-              # domain example.jp by mx.example.jp. [192.0.2.153].
-              p1 = e['diagnosis'].rindex(' by ') || -1
-              p2 = e['diagnosis'].rindex('. [' ) || -1
-              hostname = e['diagnosis'][p1 + 4, p2 - p1 - 4]
-              ipv4addr = e['diagnosis'][p2 + 3, e['diagnosis'].rindex(']. ') - p2 - 3]
-              lastchar = hostname[-1, 1].upcase.ord
+            # Google tried to deliver your message, but it was rejected by the server for the recipient
+            # domain example.jp by mx.example.jp. [192.0.2.153].
+            p1 = e['diagnosis'].rindex(' by ') || -1
+            p2 = e['diagnosis'].rindex('. [' ) || -1
+            hostname = e['diagnosis'][p1 + 4, p2 - p1 - 4]
+            ipv4addr = e['diagnosis'][p2 + 3, e['diagnosis'].rindex(']. ') - p2 - 3]
 
-              e['rhost']   = hostname if lastchar > 64 && lastchar < 91
-              e['rhost'] ||= ipv4addr
-            end
+            e['rhost']   = hostname if Sisimai::RFC1123.is_validhostname(hostname)
+            e['rhost'] ||= ipv4addr
           end
 
-          p1 = e['diagnosis'].rindex(' ') || -1
-          p2 = e['diagnosis'].rindex(')') || -1
-          statecode0 = e['diagnosis'][p1 + 1, p2 - p1 - 1] || 0
+          while true do
+            # Find "(state 18)" and pick "18" as a key of statetable
+            p1 = e['diagnosis'].rindex(' (state ');   break unless p1
+            p2 = e['diagnosis'].rindex(')');          break unless p2
+                                                      break if p1 > p2
+            cu = e['diagnosis'][p1 + 8, p2 - p1 - 8]
+            break if cu.empty?
+            break unless StateTable[cu]
+            e['reason']  = StateTable[cu]['reason']
+            e['command'] = StateTable[cu]['command']
+            break
+          end
 
-          if StateTable[statecode0]
-            # (state *)
-            e['reason']  = StateTable[statecode0]['reason']
-            e['command'] = StateTable[statecode0]['command']
-          else
-            # No state code
+          if e['reason'].nil?
+            # There is no no state code in the error message
             MessagesOf.each_key do |r|
               # Verify each regular expression of session errors
               next unless MessagesOf[r].any? { |a| e['diagnosis'].include?(a) }
@@ -240,7 +245,7 @@ module Sisimai::Lhost
               break
             end
           end
-          next unless e['reason']
+          e['reason'] ||= ''; next if e['reason'].empty?
 
           # Set pseudo status code
           e['status'] = Sisimai::SMTP::Status.find(e['diagnosis']) || ''

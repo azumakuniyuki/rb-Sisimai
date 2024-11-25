@@ -60,19 +60,20 @@ module Sisimai::Lhost
           #   Remote system: dns;mx.example.jp (TCP|17.111.174.67|47323|192.0.2.225|25) (6jo.example.jp ESMTP SENDMAIL-VM)
           v = dscontents[-1]
 
-          if e.start_with?('  Recipient address: ') && e.index('@') > 1
-            #   Recipient address: kijitora@example.jp
-            if v['recipient']
+          if Sisimai::String.aligned(e, ['  Recipient address: ', '@', '.']) ||
+             Sisimai::String.aligned(e, ['  Original address: ',  '@', '.'])
+            #   Recipient address: @smtp.example.net:kijitora@server
+            #   Original address: kijitora@example.jp
+            cv = Sisimai::Address.s3s4(e[e.rindex(' ') + 1, e.size])
+            next unless Sisimai::Address.is_emailaddress(cv)
+
+            if v['recipient'] && cv != v['recipient']
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] = Sisimai::Address.s3s4(e[e.rindex(' ') + 1, e.size])
+            v['recipient'] = cv
             recipients += 1
-
-          elsif e.start_with?('  Original address: ') && e.index('@') > 1
-            #   Original address: kijitora@example.jp
-            v['recipient'] = Sisimai::Address.s3s4(e[e.rindex(' ') + 1, e.size])
 
           elsif e.start_with?('  Date: ')
             #   Date: Fri, 21 Nov 2014 23:34:45 +0900

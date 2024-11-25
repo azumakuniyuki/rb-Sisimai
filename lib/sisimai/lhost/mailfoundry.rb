@@ -55,17 +55,14 @@ module Sisimai::Lhost
             v['recipient'] = e[e.index('<'), e.size]
             recipients += 1
           else
-            # Error message
+            # Error messages
             if e == StartingOf[:error][0]
               # Delivery failed for the following reason:
               v['diagnosis'] = e
             else
               # Detect error message
-              next if e.empty?
               next if v['diagnosis'].nil? || v['diagnosis'].empty?
               next if e.start_with?('-')
-
-              # Server mx22.example.org[192.0.2.222] failed with: 550 <kijitora@example.org> No such user here
               v['diagnosis'] << ' ' << e
             end
           end
