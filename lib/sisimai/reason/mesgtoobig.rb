@@ -8,6 +8,7 @@ module Sisimai
       class << self
         Index = [
           'exceeded maximum inbound message size',
+          'exceeded the maximum incoming message size',
           'line limit exceeded',
           'max message size exceeded',
           'message file too big',
