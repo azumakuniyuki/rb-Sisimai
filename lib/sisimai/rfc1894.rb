@@ -127,7 +127,7 @@ module Sisimai
         return nil if argv0.empty?
         label = Sisimai::RFC1894.label(argv0)
         group = FieldGroup[label] || ''
-        parts = argv0.split(":", 2)
+        parts = argv0.split(":", 2); parts[1] = parts[1].nil? ? "" : Sisimai::String.sweep(parts[1])
 
         return nil if group.empty?
         return nil unless CapturesOn[group]
@@ -163,7 +163,8 @@ module Sisimai
           # When the value is invalid, convert to an available value defined in "Correction"
           v = parts[1].downcase
           table[2] = v if ActionList.any? { |a| v == a }
-          table[2] = Correction[v] if table[2].empty?
+          table[2] = Correction[:action][v] if table[2].empty?
+          table[2] ||= ""
 
         else
           # Other groups such as Status:, Arrival-Date:, or X-Original-Message-ID:.
