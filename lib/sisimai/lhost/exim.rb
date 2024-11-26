@@ -257,13 +257,13 @@ module Sisimai::Lhost
                 # "e" matched with any field defined in RFC3464
                 next unless o = Sisimai::RFC1894.field(e)
 
-                if o[-1] == 'addr'
+                if o[3] == 'addr'
                   # Final-Recipient: rfc822; kijitora@example.jp
                   # X-Actual-Recipient: rfc822; kijitora@example.co.jp
                   next unless o[0] == 'final-recipient'
                   v['spec'] ||= o[2].include?('@') ? 'SMTP' : 'X-UNIX'
 
-                elsif o[-1] == 'code'
+                elsif o[3] == 'code'
                   # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
                   v['spec'] = o[1]
                   v['diagnosis'] = o[2]

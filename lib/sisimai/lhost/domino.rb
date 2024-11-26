@@ -96,9 +96,9 @@ module Sisimai::Lhost
             elsif f = Sisimai::RFC1894.match(e)
               # There are some fields defined in RFC3464, try to match 
               o = Sisimai::RFC1894.field(e) || next
-              next if o[-1] == 'addr'
+              next if o[3] == 'addr'
 
-              if o[-1] == 'code'
+              if o[3] == 'code'
                 # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
                 v['spec']      = o[1] if v['spec'].to_s.empty?
                 v['diagnosis'] = o[2] if v['diagnosis'].to_s.empty?
