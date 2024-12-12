@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'sisimai/rfc1123'
 
 class RFC1123Test < Minitest::Test
-  Methods = { class: %w[is_validhostname] }
+  Methods = { class: %w[is_internethost] }
 
   Hostnames0 = [
     '',
@@ -23,19 +23,19 @@ class RFC1123Test < Minitest::Test
     'a.jp',
   ]
 
-  def test_is_validhostname
+  def test_is_internethost
     Hostnames0.each do |e|
       # Invalid hostnames
-      assert_equal false, Sisimai::RFC1123.is_validhostname(e)
+      assert_equal false, Sisimai::RFC1123.is_internethost(e)
     end
 
     Hostnames1.each do |e|
       # Valid hostnames
-      assert_equal true,  Sisimai::RFC1123.is_validhostname(e)
+      assert_equal true,  Sisimai::RFC1123.is_internethost(e)
     end
 
     ce = assert_raises ArgumentError do
-      Sisimai::RFC1123.is_validhostname(nil, nil)
+      Sisimai::RFC1123.is_internethost(nil, nil)
     end
   end
 

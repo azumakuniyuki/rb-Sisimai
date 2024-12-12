@@ -219,7 +219,7 @@ module Sisimai::Lhost
             hostname = e['diagnosis'][p1 + 4, p2 - p1 - 4]
             ipv4addr = e['diagnosis'][p2 + 3, e['diagnosis'].rindex(']. ') - p2 - 3]
 
-            e['rhost']   = hostname if Sisimai::RFC1123.is_validhostname(hostname)
+            e['rhost']   = hostname if Sisimai::RFC1123.is_internethost(hostname)
             e['rhost'] ||= ipv4addr
           end
 

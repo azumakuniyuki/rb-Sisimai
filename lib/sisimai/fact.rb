@@ -203,7 +203,7 @@ module Sisimai
           recv.reverse.each do |re|
             # Check the Received: headers backwards and get a remote hostname
             cv = Sisimai::RFC5322.received(re)[0]
-            next unless Sisimai::RFC1123.is_validhostname(cv)
+            next unless Sisimai::RFC1123.is_internethost(cv)
             piece['rhost'] = cv
             break
           end
@@ -215,7 +215,7 @@ module Sisimai
           recv.each do |le|
             # Check the Received: headers backwards and get a local hostname
             cv = Sisimai::RFC5322.received(le)[0]
-            next unless Sisimai::RFC1123.is_validhostname(cv)
+            next unless Sisimai::RFC1123.is_internethost(cv)
             piece['lhost'] = cv
             break
           end
