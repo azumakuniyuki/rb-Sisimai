@@ -40,6 +40,12 @@ module Sisimai
         return false unless argv0
         return false if argv0.size <   4
         return false if argv0.size > 255
+        return false if argv0.include?(".") == false
+        return false if argv0.include?("..")
+        return false if argv0.include?("--")
+        return false if argv0.start_with?(".")
+        return false if argv0.start_with?("-")
+        return false if argv0.end_with?("-")
 
         hostnameok = true
         characters = argv0.upcase.split("")
@@ -68,10 +74,10 @@ module Sisimai
       # @return   string        A valid internet hostname found in the argument
       # @since v5.2.0
       def find(argv1 = "")
-        return "" unless argv0
-        return "" unless argv0.size > 4
+        return "" unless argv1
+        return "" unless argv1.size > 4
 
-        sourcetext = argv0.downcase
+        sourcetext = argv1.downcase
         sourcelist = []
         foundtoken = []
         thelongest = 0
