@@ -3,7 +3,7 @@ module Sisimai
   module RFC1894
     class << self
       require 'sisimai/string'
-      FieldNames = {
+      FieldNames = [
         # https://tools.ietf.org/html/rfc3464#section-2.2
         #   Some fields of a DSN apply to all of the delivery attempts described by that DSN. At
         #   most, these fields may appear once in any DSN. These fields are used to correlate the
@@ -16,10 +16,12 @@ module Sisimai
         #   The following fields are not used in Sisimai:
         #     - Original-Envelope-Id
         #     - DSN-Gateway
-        'arrival-date'          => ':',
-        'received-from-mta'     => ';',
-        'reporting-mta'         => ';',
-        'x-original-message-id' => '@',
+        {
+          'arrival-date'          => ':',
+          'received-from-mta'     => ';',
+          'reporting-mta'         => ';',
+          'x-original-message-id' => '@',
+        },
 
         # https://tools.ietf.org/html/rfc3464#section-2.3
         #   A DSN contains information about attempts to deliver a message to one or more recipi-
@@ -33,15 +35,17 @@ module Sisimai
         #   The following fields are not used in Sisimai:
         #     - Will-Retry-Until
         #     - Final-Log-ID
-        'action'                => 'e',
-        'diagnostic-code'       => ';',
-        'final-recipient'       => ';',
-        'last-attempt-date'     => ':',
-        'original-recipient'    => ';',
-        'remote-mta'            => ';',
-        'status'                => '.',
-        'x-actual-recipient'    => ';',
-      }.freeze
+        {
+          'action'                => 'e',
+          'diagnostic-code'       => ';',
+          'final-recipient'       => ';',
+          'last-attempt-date'     => ':',
+          'original-recipient'    => ';',
+          'remote-mta'            => ';',
+          'status'                => '.',
+          'x-actual-recipient'    => ';',
+        }
+      ].freeze
 
       CapturesOn = {
         "addr" => ["Final-Recipient", "Original-Recipient", "X-Actual-Recipient"],
@@ -99,15 +103,29 @@ module Sisimai
 
       # Check the argument matches with a field defined in RFC3464
       # @param    [String] argv0 A line including field and value defined in RFC3464
-      # @return   [Boolean]      false: did not matched, true: matched
+      # @return   [Integer]      0: did not matched
+      #                          1: Matched with per-message field
+      #                          2: Matched with per-recipient field
       # @since v4.25.0
       def match(argv0 = '')
-        label = Sisimai::RFC1894.label(argv0)
+        label = Sisimai::RFC1894.label(argv0); return false unless label
+        match = 0
 
-        return false unless label
-        return false unless FieldNames.has_key?(label)
-        return false unless argv0.include?(FieldNames[label])
-        return true
+        FieldNames[0].each_key do |e|
+          # Per-Message fields
+          next unless label == e
+          next unless argv0.include?(FieldNames[0][label])
+          match = 1; break
+        end
+        return match if match > 0
+
+        FieldNames[1].each_key do |e|
+          # Per-Recipient field
+          next unless label == e
+          next unless argv0.include?(FieldNames[0][label])
+          match = 2; break
+        end
+        return match
       end
 
       # Returns a field name as a lqbel from the given string

@@ -55,10 +55,10 @@ class RFC1894Test < Minitest::Test
   end
 
   def test_match
-    Field01.each { |e| assert_equal true,  Sisimai::RFC1894.match(e) }
-    Field02.each { |e| assert_equal true,  Sisimai::RFC1894.match(e) }
-    Field03.each { |e| assert_equal true,  Sisimai::RFC1894.match(e) }
-    Field99.each { |e| assert_equal false, Sisimai::RFC1894.match(e) }
+    Field01.each { |e| assert_equal 1,    Sisimai::RFC1894.match(e) }
+    Field02.each { |e| assert_equal 2,    Sisimai::RFC1894.match(e) }
+    Field03.each { |e| assert_equal true, Sisimai::RFC1894.match(e) > 0}
+    Field99.each { |e| assert_equal 0,    Sisimai::RFC1894.match(e) }
 
     ce = assert_raises ArgumentError do
       Sisimai::RFC1894.match(nil, nil)
