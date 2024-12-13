@@ -20,8 +20,13 @@ module Sisimai
       Fields5965 = Sisimai::RFC5965.FIELDINDEX.freeze
       FieldIndex = [Fields1894.flatten, Fields5322.flatten, Fields5965.flatten].flatten.freeze
       FieldTable = FieldIndex.map { |e| [e.downcase, e] }.to_h.freeze
-      ReplacesAs = { 'Content-Type' => [%w[message/xdelivery-status message/delivery-status]] }.freeze
       Boundaries = ['Content-Type: message/rfc822', 'Content-Type: text/rfc822-headers'].freeze
+      ReplacesAs = {
+        "Content-Type" => [
+          %w[message/xdelivery-status message/delivery-status],
+          %w[message/message/disposition-notification message/delivery-status],
+        ]
+      }.freeze
 
       # Read an email message and convert to structured format
       # @param         [Hash] argvs       Module to be loaded
