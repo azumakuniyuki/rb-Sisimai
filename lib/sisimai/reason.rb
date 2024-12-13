@@ -49,8 +49,8 @@ module Sisimai
       ClassOrder = [
         %w[
           MailboxFull MesgTooBig ExceedLimit Suspend HasMoved NoRelaying AuthFailure UserUnknown
-          Filtered RequirePTR NotCompliantRFC BadReputation Rejected HostUnknown SpamDetected Speeding
-          TooManyConn Blocked
+          Filtered RequirePTR NotCompliantRFC BadReputation ContentError Rejected HostUnknown
+          SpamDetected Speeding TooManyConn Blocked
         ],
         %w[
           MailboxFull AuthFailure BadReputation Speeding SpamDetected VirusDetected PolicyViolation 
