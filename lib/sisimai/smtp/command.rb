@@ -3,9 +3,14 @@ module Sisimai
     # Sisimai::SMTP::Transcript is an SMTP Command related utilities
     module Command
       class << self
+        Availables = [
+          "HELO", "EHLO", "MAIL", "RCPT", "DATA", "QUIT", "RSET", "NOOP", "VRFY", "ETRN", "EXPN",
+          "HELP", "AUTH", "STARTTLS", "XFORWARD",
+          "CONN", # CONN is a pseudo SMTP command used only in Sisimai
+        ].freeze
         Detectable = [
-          'HELO', 'EHLO', 'STARTTLS', 'AUTH PLAIN', 'AUTH LOGIN', 'AUTH CRAM-', 'AUTH DIGEST-',
-          'MAIL F', 'RCPT', 'RCPT T', 'DATA', 'QUIT', 'XFORWARD',
+          "HELO", "EHLO", "STARTTLS", "AUTH PLAIN", "AUTH LOGIN", "AUTH CRAM-", "AUTH DIGEST-",
+          "MAIL F", "RCPT", "RCPT T", "DATA", "QUIT", "XFORWARD",
         ].freeze
 
         # Check that an SMTP command in the argument is valid or not
