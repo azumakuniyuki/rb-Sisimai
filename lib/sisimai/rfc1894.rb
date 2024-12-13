@@ -108,7 +108,9 @@ module Sisimai
       #                          2: Matched with per-recipient field
       # @since v4.25.0
       def match(argv0 = '')
-        label = Sisimai::RFC1894.label(argv0); return false unless label
+        return 0 unless argv0
+        return 0 unless argv0.size > 0
+        label = Sisimai::RFC1894.label(argv0); return 0 unless label
         match = 0
 
         FieldNames[0].each_key do |e|
@@ -122,7 +124,7 @@ module Sisimai
         FieldNames[1].each_key do |e|
           # Per-Recipient field
           next unless label == e
-          next unless argv0.include?(FieldNames[0][label])
+          next unless argv0.include?(FieldNames[1][label])
           match = 2; break
         end
         return match
