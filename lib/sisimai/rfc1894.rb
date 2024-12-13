@@ -59,7 +59,7 @@ module Sisimai
 
       SubtypeSet = { "addr" => "RFC822", "cdoe" => "SMTP", "host" => "DNS" }.freeze
       ActionList = %w[delayed deliverable delivered expanded expired failed failure relayed].freeze
-      Correction = { action: { 'deliverable' => 'delivered', 'expired' => 'delayed', 'failure' => 'failed' }}
+      Correction = { 'deliverable' => 'delivered', 'expired' => 'delayed', 'failure' => 'failed' }
       FieldGroup = {
         'original-recipient'    => 'addr',
         'final-recipient'       => 'addr',
@@ -183,8 +183,7 @@ module Sisimai
           # When the value is invalid, convert to an available value defined in "Correction"
           v = parts[1].downcase
           table[2] = v if ActionList.any? { |a| v == a }
-          table[2] = Correction[:action][v] if table[2].empty?
-          table[2] ||= ""
+          table[2] = Correction[v] if table[2].empty?
 
         else
           # Other groups such as Status:, Arrival-Date:, or X-Original-Message-ID:.
