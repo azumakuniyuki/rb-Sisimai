@@ -90,6 +90,7 @@ module Sisimai
           ['the ip', ' is blacklisted'],
           ['veuillez essayer plus tard. service refused, please try later. ', '103'],
           ['veuillez essayer plus tard. service refused, please try later. ', '510'],
+          ["your access ip", " has been rejected"],
           ["your sender's ip address is listed at ", '.abuseat.org'],
         ].freeze
 

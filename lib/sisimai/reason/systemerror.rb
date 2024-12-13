@@ -9,6 +9,7 @@ module Sisimai
     #   message has been in the queue too long.
     module SystemError
       class << self
+        require 'sisimai/string'
         Index = [
           'aliasing/forwarding loop broken',
           "can't create user output file",
@@ -33,6 +34,9 @@ module Sisimai
           'timeout waiting for input',
           'transaction failed ',
         ].freeze
+        Pairs = [
+          ['unable to connect ', 'daemon'],
+        ].freeze
 
         def text; return 'systemerror'; end
         def description; return 'Email returned due to system error on the remote host'; end
@@ -44,6 +48,7 @@ module Sisimai
         def match(argv1)
           return nil unless argv1
           return true if Index.any? { |a| argv1.include?(a) }
+          return true if Pairs.any? { |a| Sisimai::String.aligned(argv1, a) }
           return false
         end
 

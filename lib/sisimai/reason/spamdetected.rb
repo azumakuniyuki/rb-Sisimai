@@ -104,6 +104,7 @@ module Sisimai
         ].freeze
         Pairs = [
           ['greylisted', ' please try again in'],
+          ['mail score (', ' over '],
           ['mail rejete. mail rejected. ', '506'],
           ['our filters rate at and above ', ' percent probability of being spam'],
           ['rejected by ', ' (spam)'],

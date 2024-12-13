@@ -38,7 +38,13 @@ module Sisimai
         # @return   [True,False]            true: rejected due to content error
         #                                   false: is not content error
         # @see      http://www.ietf.org/rfc/rfc2822.txt
-        def true(_argvs); return nil; end
+        def true(argvs)
+          require 'sisimai/reason/spamdetected'
+          return true  if argvs["reason"] == "blocked"
+          return false if Sisimai::Reason::SpamDetected.true(argvs)
+          return true  if Sisimai::SMTP::Status.name(argvs["deliverystatus"]).to_s == "contenterror"
+          return match(argvs["diagnosticcode"].downcase)
+        end
 
       end
     end
