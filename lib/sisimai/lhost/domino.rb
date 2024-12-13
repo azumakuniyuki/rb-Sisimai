@@ -68,6 +68,7 @@ module Sisimai::Lhost
 
           if e.start_with?('was not delivered to:')
             # was not delivered to:
+            #   kijitora@example.net
             if v['recipient']
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
@@ -83,6 +84,7 @@ module Sisimai::Lhost
 
           elsif e.start_with?('because:')
             # because:
+            #   User some.name (kijitora@example.net) not listed in Domino Directory
             v['diagnosis'] = e
           else
             if v['diagnosis'].to_s == 'because:'
@@ -93,9 +95,10 @@ module Sisimai::Lhost
               #   Subject: Nyaa
               subjecttxt = e[11, e.size]
 
-            elsif f = Sisimai::RFC1894.match(e)
-              # There are some fields defined in RFC3464, try to match 
-              o = Sisimai::RFC1894.field(e) || next
+            else
+              # Other fields defined in RFC3464
+              f = Sisimai::RFC1894.match(e); next if f < 1
+              o = Sisimai::RFC1894.field(e); next if o.nil?
               next if o[3] == 'addr'
 
               if o[3] == 'code'
@@ -107,13 +110,8 @@ module Sisimai::Lhost
                 next unless fieldtable[o[0]]
                 v[fieldtable[o[0]]] = o[2]
 
-                next unless f
+                next unless f == 1
                 permessage[fieldtable[o[0]]] = o[2]
-              end
-            else
-              if v['diagnosis'] && e.start_with?("\s", "\t")
-                # The line is a continued line of "Diagnostic-Code:" field
-                v['diagnosis'] += e.sub(/\A[\s\t]+/, '')
               end
             end
           end
