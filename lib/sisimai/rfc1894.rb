@@ -130,7 +130,7 @@ module Sisimai
         return match
       end
 
-      # Returns a field name as a lqbel from the given string
+      # Returns a field name as a label from the given string
       # @param    [String] argv0 A line including field and value defined in RFC3464
       # @return   [String]       Field name as a label
       # @since v4.25.15
