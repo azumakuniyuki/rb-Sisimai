@@ -20,10 +20,7 @@ module Sisimai
         def test(argv0 = '')
           return nil  if argv0.empty?
           return nil  if argv0.size < 4
-
-          table = %w[HELO EHLO MAIL RCPT DATA QUIT RSET NOOP VRFY ETRN EXPN HELP AUTH STARTTLS XFORWARD]
-          return true if table.any? { |a| argv0.include?(a) }
-          return true if argv0.include?('CONN') # CONN is a pseudo SMTP command used only in Sisimai
+          return true if Availables.any? { |a| argv0.include?(a) }
           return false
         end
 
