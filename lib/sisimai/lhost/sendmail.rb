@@ -62,7 +62,8 @@ module Sisimai::Lhost
           next if (readcursor & Indicators[:deliverystatus]) == 0
           next if e.empty?
 
-          if f = Sisimai::RFC1894.match(e)
+          f = Sisimai::RFC1894.match(e)
+          if f > 0
             # "e" matched with any field defined in RFC3464
             o = Sisimai::RFC1894.field(e) || next
             v = dscontents[-1]
@@ -92,7 +93,7 @@ module Sisimai::Lhost
               next unless fieldtable[o[0]]
               v[fieldtable[o[0]]] = o[2]
 
-              next unless f
+              next unless f == 1
               permessage[fieldtable[o[0]]] = o[2]
             end
           else

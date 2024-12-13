@@ -173,7 +173,7 @@ module Sisimai::Lhost
           else
             if endoferror
               # After "Original message headers:"
-              next unless f = Sisimai::RFC1894.match(e)
+              next unless f = Sisimai::RFC1894.match(e); next if f < 1
               next unless o = Sisimai::RFC1894.field(e)
               next unless fieldtable[o[0]]
 
@@ -183,7 +183,7 @@ module Sisimai::Lhost
                 next if o[0] =~ /\A(?:diagnostic-code|final-recipient)\z/
                 v[fieldtable[o[0]]] = o[2]
 
-                next unless f
+                next unless f == 1
                 permessage[fieldtable[o[0]]] = o[2]
               else
                 # Capture "Diagnostic-Code:" field because no error messages have been captured

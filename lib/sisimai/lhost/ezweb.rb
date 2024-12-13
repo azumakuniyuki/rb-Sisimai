@@ -89,6 +89,7 @@ module Sisimai::Lhost
 
           elsif f = Sisimai::RFC1894.match(e)
             # "e" matched with any field defined in RFC3464
+            next unless f > 0
             next unless o = Sisimai::RFC1894.field(e)
             next unless fieldtable[o[0]]
             v[fieldtable[o[0]]] = o[2]

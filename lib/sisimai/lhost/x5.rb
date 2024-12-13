@@ -62,7 +62,8 @@ module Sisimai::Lhost
           next if e.empty?
 
           v = dscontents[-1]
-          if f = Sisimai::RFC1894.match(e)
+          f = Sisimai::RFC1894.match(e)
+          if f > 0
             # "e" matched with any field defined in RFC3464
             next unless o = Sisimai::RFC1894.field(e)
             v = dscontents[-1]

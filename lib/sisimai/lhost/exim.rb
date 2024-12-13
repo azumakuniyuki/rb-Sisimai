@@ -253,7 +253,7 @@ module Sisimai::Lhost
               # --NNNNNNNNNN-eximdsn-MMMMMMMMMM
               # Content-type: message/delivery-status
               # ...
-              if Sisimai::RFC1894.match(e)
+              if Sisimai::RFC1894.match(e) > 0
                 # "e" matched with any field defined in RFC3464
                 next unless o = Sisimai::RFC1894.field(e)
 
