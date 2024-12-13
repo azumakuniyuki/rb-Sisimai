@@ -277,6 +277,7 @@ module Sisimai
         iso2022set = %r/charset=["']?(iso-2022-[-a-z0-9]+)['"]?\b/
         multiparts = levelout(argv0, argv1)
         flattenout = ''
+        delimiters = ["/delivery-status", "/rfc822", "/feedback-report", "/partial"]
 
         while e = multiparts.shift do
           # Pick only the following parts Sisimai::Lhost will use, and decode each part
@@ -352,7 +353,7 @@ module Sisimai
             bodystring << bodyinside
           end
 
-          if mediatypev.include?('/delivery-status') || mediatypev.include?('/feedback-report') || mediatypev.include?('/rfc822')
+          if delimiters.any? { |a| mediatypev.include?(a) }
             # Add Content-Type: header of each part (will be used as a delimiter at Sisimai::Lhost)
             # into the body inside when the value of Content-Type: field is message/delivery-status,
             # message/rfc822, or text/rfc822-headers
