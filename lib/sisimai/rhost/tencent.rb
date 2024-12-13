@@ -50,6 +50,7 @@ module Sisimai
         # @param    [Sisimai::Fact] argvs   Decoded email object
         # @return   [String]                The bounce reason at Tencent QQ
         def find(argvs)
+          return argvs['reason'] unless argvs['reason'].empty?
           issuedcode = argvs['diagnosticcode'].downcase
           reasontext = ''
 

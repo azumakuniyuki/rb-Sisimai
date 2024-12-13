@@ -130,6 +130,7 @@ module Sisimai
         # @see      https://www.cox.com/residential/support/email-error-codes.html
         # @since v4.25.8
         def find(argvs)
+          return "" if argvs["diagnosticcode"].empty?
           issuedcode = argvs['diagnosticcode']
           codenumber = 0
 

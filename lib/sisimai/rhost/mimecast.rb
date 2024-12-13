@@ -282,6 +282,7 @@ module Sisimai
         # @param    [Sisimai::Fact] argvs   Decoded email object
         # @return   [String]                The bounce reason for mimecast.com
         def find(argvs)
+          return argvs['reason'] unless argvs['reason'].empty?
           return '' unless Sisimai::SMTP::Reply.test(argvs['replycode'])
 
           issuedcode = argvs['diagnosticcode'].downcase || ''

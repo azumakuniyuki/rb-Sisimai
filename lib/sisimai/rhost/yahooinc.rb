@@ -88,6 +88,7 @@ module Sisimai
         #           https://www.postmastery.com/yahoo-postmaster/
         # @since v5.1.0
         def find(argvs)
+          return argvs['reason'] unless argvs['reason'].empty?
           issuedcode = argvs['diagnosticcode'].downcase
           reasontext = ''
 
