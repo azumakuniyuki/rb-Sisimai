@@ -24,18 +24,19 @@ module Sisimai
       # @param    [Hash]   argvs  Decoded email data
       # @return   [String]        The value of bounce reason
       def find(argvs)
-        return nil if argvs['diagnosticcode'].empty?
+        return nil if argvs["diagnosticcode"].empty?
 
-        remotehost = argvs['rhost'].downcase
-        domainpart = argvs['destination'].downcase
+        clienthost = argvs["lhost"].downcase
+        remotehost = argvs["rhost"].downcase
+        domainpart = argvs["destination"].downcase
         return nil if (remotehost + domainpart).empty?
 
         rhostmatch = nil
-        rhostclass = ''
-        modulename = ''
+        rhostclass = ""
+        modulename = ""
 
         RhostClass.each_key do |e|
-          # Try to match with each value of RhostClass
+          # Try to match the remote host and the domain part with each value of RhostClass
           rhostmatch   = true if RhostClass[e].any? { |a| remotehost.end_with?(a) }
           rhostmatch ||= true if RhostClass[e].any? { |a| a.end_with?(domainpart) }
           next unless rhostmatch
@@ -43,6 +44,16 @@ module Sisimai
           modulename = 'Sisimai::Rhost::' << e
           rhostclass = 'sisimai/rhost/' << e.downcase
           break
+        end
+        if rhostclass.empty?
+          # Neither the remote host nor the destination did not matched with any value of RhostClass
+          RhostClass.each_key do |e|
+            # Try to match the client host with each value of RhostClass
+            next unless grep RhostClass[e].any? { |a| clienthost.end_with?(a) }
+            modulename = 'Sisimai::Rhost::' << e
+            rhostclass = 'sisimai/rhost/' << e.downcase
+            break
+          end
         end
         return nil if rhostclass.empty?
 
