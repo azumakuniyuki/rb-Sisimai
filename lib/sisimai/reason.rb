@@ -15,6 +15,16 @@ module Sisimai
         ]
       end
 
+      # @abstract is_explicit() returns 0 when the argument is empty or is "undefined" or is "onhold"
+      # @param    string argv1  Reason name
+      # @return   bool          false: The reaosn is not explicit
+      def is_explicit(argv1 = '')
+        return false if argv1.nil?
+        return false if argv1.empty?
+        return false if argv1 == "undefined" || argv1 == "onhold" || argv1.empty?
+        return true
+      end
+
       # @abstract Returns Sisimai::Reason::* module path table
       # @return   [Hash] Module path table
       # @since    v4.25.6

@@ -3,7 +3,7 @@ require 'sisimai/reason'
 require 'sisimai'
 
 class ReasonTest < Minitest::Test
-  Methods = { class:  %w[find path retry index match] }
+  Methods = { class:  %w[find path retry index match is_explicit] }
   Message = [
     'smtp; 550 5.1.1 <kijitora@example.co.jp>... User Unknown',
     'smtp; 550 Unknown user kijitora@example.jp',
@@ -172,6 +172,25 @@ class ReasonTest < Minitest::Test
 
     assert_nil Sisimai::Reason.match(nil)
     assert_equal 'mailererror', Sisimai::Reason.match('X-Unix; 77')
+  end
+
+  def test_is_explicit
+    %w[undefined onhold].each do |e|
+      assert_equal false, Sisimai::Reason.is_explicit(e)
+    end
+    assert_equal false, Sisimai::Reason.is_explicit("")
+
+    Sisimai::Reason.index.each do |e|
+      next if e == "undefined" || e == "onhold"
+      assert_equal true, Sisimai::Reason.is_explicit(e)
+    end
+
+    ce = assert_raises ArgumentError do
+      Sisimai::Reason.is_explicit(nil)
+      Sisimai::Reason.is_explicit(nil, nil)
+    end
+
+
   end
 
 end
