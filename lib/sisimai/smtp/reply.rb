@@ -112,7 +112,7 @@ module Sisimai
 
         # Check whether a reply code is a valid code or not
         # @param    [String] argv1  Reply Code(DSN)
-        # @return   [Boolean]       0 = Invalid reply code, 1 = Valid reply code
+        # @return   [Boolean]       false = Invalid reply code, true = Valid reply code
         # @see      code
         # @since v5.0.0
         def test(argv1 = '')
