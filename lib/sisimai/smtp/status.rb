@@ -492,7 +492,7 @@ module Sisimai
           '4.1.7'  => 'rejected',       # Bad sender's mailbox address syntax
           '4.1.8'  => 'rejected',       # Bad sender's system address
           '4.1.9'  => 'systemerror',    # Message relayed to non-compliant mailer
-          '4.2.1'  => 'suspend',        # Mailbox disabled, not accepting messages
+          '4.2.1'  => 'blocked',        # Mailbox disabled, not accepting messages
           '4.2.2'  => 'mailboxfull',    # Mailbox full
           '4.2.3'  => 'exceedlimit',    # Message length exceeds administrative limit
           '4.2.4'  => 'filtered',       # Mailing list expansion problem
