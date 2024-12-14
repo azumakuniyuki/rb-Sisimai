@@ -811,10 +811,13 @@ module Sisimai
             next if characters[6] > 47 && characters[6] < 58
             statuscode << readbuffer
           end
-
           statuscode << anotherone if anotherone.size > 0
-          return nil if statuscode.size == 0
-          return statuscode.shift
+          return "" if statuscode.size == 0
+
+          # Select one from picked status codes
+          cv = statuscode.shift; statuscode.each { |e| cv = Sisimai::SMTP::Status.prefer(cv, e, "") }
+
+          return cv
         end
 
         # Return the preferred value selected from the arguments
