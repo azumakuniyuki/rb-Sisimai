@@ -3,400 +3,280 @@ module Sisimai
   module RFC3464
     class << self
       require 'sisimai/lhost'
+      require 'sisimai/string'
       require 'sisimai/address'
       require 'sisimai/rfc1894'
+      require 'sisimai/rfc2045'
+      require 'sisimai/rfc5322'
+      require 'sisimai/rfc3464/thirdparty'
 
-      # http://tools.ietf.org/html/rfc3464
       Indicators = Sisimai::Lhost.INDICATORS
-      StartingOf = {
-        message: [
-          'content-type: message/delivery-status',
-          'content-type: message/disposition-notification',
-          'content-type: text/plain; charset=',
-          'the original message was received at ',
-          'this report relates to your message',
-          'your message could not be delivered',
-          'your message was not delivered to ',
-          'your message was not delivered to the following recipients',
-        ],
-        rfc822: [
-          'content-type: message/rfc822',
-          'content-type: text/rfc822-headers',
-          'return-path: <'
-        ],
-      }.freeze
-      ReadUntil0 = [
-        # Stop reading when the following string have appeared at the first of a line
-        'a copy of the original message below this line:',
-        'content-type: message/delivery-status',
-        'for further assistance, please contact ',
-        'here is a copy of the first part of the message',
-        'received:',
-        'received-from-mta:',
-        'reporting-mta:',
-        'reporting-ua:',
-        'return-path:',
-        'the non-delivered message is attached to this message',
+      Boundaries = [
+        # When the new value added, the part of the value should be listed in delimiters variable
+        # defined at Sisimai::RFC2045.makeFlat() method
+        "Content-Type: message/rfc822",
+        "Content-Type: text/rfc822-headers",
+        "Content-Type: message/partial",
+        "Content-Disposition: inline", # See lhost-amavis-*.eml, lhost-facebook-*.eml
       ].freeze
-      ReadUntil1 = [
-        # Stop reading when the following string have appeared in a line
-        'attachment is a copy of the message',
-        'below is a copy of the original message:',
-        'below this line is a copy of the message',
-        'message contains ',
-        'message text follows: ',
-        'original message follows',
-        'the attachment contains the original mail headers',
-        'the first ',
-        'unsent message below',
-        'your message reads (in part):',
-      ].freeze
-      ReadAfter0 = [
-        # Do not read before the following strings
-        '	the postfix ',
-        'a summary of the undelivered message you sent follows:',
-        'the following is the error message',
-        'the message that you sent was undeliverable to the following',
-        'your message was not delivered to ',
-      ].freeze
-      DoNotRead0 = ['   -----', ' -----', '--', '|--', '*'].freeze
-      DoNotRead1 = ['mail from:', 'message-id:', '  from: '].freeze
-      ReadEmail0 = [' ', '"', '<',].freeze
-      ReadEmail1 = [
-        # There is an email address around the following strings
-        'address:',
-        'addressed to',
-        'could not be delivered to:',
-        'delivered to',
-        'delivery failed:',
-        'did not reach the following recipient:',
-        'error-for:',
-        'failed recipient:',
-        'failed to deliver to',
-        'intended recipient:',
-        'mailbox is full:',
-        'recipient:',
-        'rcpt to:',
-        'smtp server <',
-        'the following recipients returned permanent errors:',
-        'the following addresses had permanent errors',
-        'the following message to',
-        'to: ',
-        'unknown user:',
-        'unable to deliver mail to the following recipient',
-        'undeliverable to',
-        'undeliverable address:',
-        'you sent mail to',
-        'your message has encountered delivery problems to the following recipients:',
-        'was automatically rejected',
-        'was rejected due to',
-      ].freeze
+      StartingOf = { message: ["Content-Type: message/delivery-status"] }.freeze
+      FieldTable = Sisimai::RFC1894.FIELDTABLE
 
-      # Detect an error for RFC3464
+      # Decode a bounce mail which have fields defined in RFC3464
       # @param  [Hash] mhead    Message headers of a bounce email
       # @param  [String] mbody  Message body of a bounce email
       # @return [Hash]          Bounce data list and message/rfc822 part
       # @return [Nil]           it failed to decode or the arguments are missing
       def inquire(mhead, mbody)
-        fieldtable = Sisimai::RFC1894.FIELDTABLE
-        permessage = {}     # (Hash) Store values of each Per-Message field
 
+        if Boundaries.any? { |a| mbody.include?(a) } == false
+          # There is no "Content-Type: message/rfc822" line in the message body
+          # Insert "Content-Type: message/rfc822" before "Return-Path:" of the original message
+          p0 = mbody.index("\n\nReturn-Path:")
+          mbody = sprintf("%s%s%s", mbody[0, p0], Boundaries[0], mbody[p0 + 1, mbody.size]) if p0
+        end
+
+        permessage = {}
         dscontents = [Sisimai::Lhost.DELIVERYSTATUS]
-        bodyslices = mbody.scrub('?').split("\n")
-        readslices = ['']
-        rfc822text = ''   # (String) message/rfc822 part text
-        maybealias = nil  # (String) Original-Recipient Field
-        lowercased = ''   # (String) Lowercased each line of the loop
-        blanklines = 0    # (Integer) The number of blank lines
-        readcursor = 0    # (Integer) Points the current cursor position
-        recipients = 0    # (Integer) The number of 'Final-Recipient' header
-        itisbounce = false
-        connheader = {
-          'date'  => nil, # The value of Arrival-Date header
-          'rhost' => nil, # The value of Reporting-MTA header
-          'lhost' => nil, # The value of Received-From-MTA header
-        }
+        alternates = Sisimai::Lhost.DELIVERYSTATUS
+        emailparts = Sisimai::RFC5322.part(mbody, Boundaries)
+        readslices = [""]
+        readcursor = 0      # (Integer) Points the current cursor position
+        recipients = 0      # (Integer) The number of 'Final-Recipient' header
+        beforemesg = ""     # (String) String before StartingOf[:message]
+        goestonext = false  # (Bool) Flag: do not append the line into beforemesg
+        isboundary = [Sisimai::RFC2045.boundary(mhead["content-type"], 0)]; isboundary[0] ||= ""
         v = nil
 
+        while emailparts[0].index('@').nil? do
+          # There is no email address in the first element of emailparts
+          # There is a bounce message inside of message/rfc822 part at lhost-x5-*
+          p0 = -1 # The index of the boundary string found first
+          p1 =  0 # Offset position of the message body after the boundary string
+          ct = "" # Boundary string found first such as "Content-Type: message/rfc822"
+
+          Boundaries.each do |e|
+            # Look for a boundary string from the message body
+            p0 = mbody.index(e + "\n"); next if p0.nil?
+            p1 = p0 + e.size + 2
+            ct = e; break
+          end
+          break if p0.nil?
+
+          cx = mbody[p1, mbody.size]
+          p2 = cx.index("\n\n")
+          cv = cx[p2 + 2, mbody.size]
+          emailparts = Sisimai::RFC5322.part(cv, [ct], 0)
+          break
+        end
+
+        if emailparts[0].index(StartingOf[:message][0]) == nil
+          # There is no "Content-Type: message/delivery-status" line in the message body
+          # Insert "Content-Type: message/delivery-status" before "Reporting-MTA:" field
+          cv = "\nReporting-MTA:"
+          e0 = emailparts[0]
+          p0 = e0.index(cv)
+          emailparts[0] = sprintf("%s\n\n%s%s", e0[0, p0], StartingOf[:message][0], e0[p0, e0.size]) if p0
+        end
+
+        %w[Final-Recipient Original-Recipient].each do |e|
+          # Fix the malformed field "Final-Recipient: <kijitora@example.jp>"
+          cv = "\n" + e + ": "
+          cx = cv + "<"
+          p0 = emailparts[0].index(cx); next if p0.nil?
+
+          emailparts[0] = emailparts[0].sub(": <", ": rfc822; ")
+          p1 = emailparts[0].index(">\n", p0 + 2); emailparts[0][p1, 1] = ""
+        end
+
+        bodyslices = mbody.scrub('?').split("\n")
         while e = bodyslices.shift do
           # Read error messages and delivery status lines from the head of the email to the previous
           # line of the beginning of the original message.
           readslices << e # Save the current line for the next loop
-          lowercased = e.downcase
 
           if readcursor == 0
             # Beginning of the bounce message or delivery status part
-            if StartingOf[:message].any? { |a| lowercased.start_with?(a) }
-              readcursor |= Indicators[:deliverystatus]
-              next
-            end
-          end
+            readcursor |= Indicators[:deliverystatus] if e.start_with?(StartingOf[:message][0])
 
-          if (readcursor & Indicators[:'message-rfc822']) == 0
-            # Beginning of the original message part
-            if StartingOf[:rfc822].any? { |a| lowercased == a }
-              readcursor |= Indicators[:'message-rfc822']
-              next
-            end
-          end
+            while true do
+              # Append each string before startingof["message"][0] except the following patterns
+              # for the later reference
+              break if e.empty?   # Blank line
+              break if goestonext # Skip if the part is text/html, image/icon, in multipart/*
 
-          if readcursor & Indicators[:'message-rfc822'] > 0
-            # Inside of the original message part
-            if e.empty?
-              blanklines += 1
-              break if blanklines > 1
-              next
-            end
-            rfc822text << e << "\n"
-          else
-            # Error message part
-            next unless readcursor & Indicators[:deliverystatus] > 0
-            next if e.empty?
-
-            v = dscontents[-1]
-            if f = Sisimai::RFC1894.match(e)
-              # "e" matched with any field defined in RFC3464
-              next unless o = Sisimai::RFC1894.field(e)
-
-              if o[3] == 'addr'
-                # Final-Recipient: rfc822; kijitora@example.jp
-                # X-Actual-Recipient: rfc822; kijitora@example.co.jp
-                if o[0] == 'final-recipient' || o[0] == 'original-recipient'
-                  # Final-Recipient: rfc822; kijitora@example.jp
-                  if o[0] == 'original-recipient'
-                    # Original-Recipient: ...
-                    maybealias = o[2]
-                  else
-                    # Final-Recipient: ...
-                    x = v['recipient'] || ''
-                    y = Sisimai::Address.s3s4(o[2])
-                    y = maybealias unless Sisimai::Address.is_emailaddress(y)
-
-                    if !x.empty? && x != y
-                      # There are multiple recipient addresses in the message body.
-                      dscontents << Sisimai::Lhost.DELIVERYSTATUS
-                      v = dscontents[-1]
-                    end
-                    v['recipient'] = y
-                    recipients  += 1
-                    itisbounce ||= true
-
-                    v['alias'] ||= maybealias
-                    maybealias = nil
-                  end
-                elsif o[0] == 'x-actual-recipient'
-                  # X-Actual-Recipient: RFC822; |IFS=' ' && exec procmail -f- || exit 75 ...
-                  # X-Actual-Recipient: rfc822; kijitora@neko.example.jp 
-                  v['alias'] = o[2] unless o[2].include?(' ')
+              # This line is a boundary kept in "multiparts" as a string, when the end of the boundary
+              # appeared, the condition above also returns true.
+              if isboundary.any? { |a| e == a } then goestonext = true; break; end
+              if e.start_with?("Content-Type:")
+                # Content-Type: field in multipart/*
+                if e.include?("multipart/")
+                  # Content-Type: multipart/alternative; boundary=aa00220022222222ffeebb
+                  # Pick the boundary string and store it into "isboucdary"
+                  isboundary << Sisimai::RFC2045.boundary(e, 0)
+                elsif e.include?("text/plain")
+                  # Content-Type: "text/plain"
+                  goestonext = false
+                else
+                  # Other types: for example, text/html, image/jpg, and so on
+                  goestonext = true
                 end
-              elsif o[3] == 'code'
-                # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
-                v['spec']      = o[1]
-                v['diagnosis'] = o[2]
-              else
-                # Other DSN fields defined in RFC3464
-                next unless fieldtable[o[0]]
-                v[fieldtable[o[0]]] = o[2]
-
-                next unless f
-                permessage[fieldtable[o[0]]] = o[2]
-              end
-            else
-              # The line did not match with any fields defined in RFC3464
-              if e.start_with?('Diagnostic-Code: ') && e.include?(';') == false
-                # There is no value of "diagnostic-type" such as Diagnostic-Code: 554 ...
-                v['diagnosis'] = e[e.index(' ') + 1, e.size]
-
-              elsif e.start_with?('Status: ') && Sisimai::SMTP::Reply.find(e[8, 3])
-                # Status: 553 Exceeded maximum inbound message size
-                v['alterrors'] = e[8, e.size]
-
-              elsif readslices[-2].start_with?('Diagnostic-Code:') && cv = e.start_with?(' ')
-                # Continued line of the value of Diagnostic-Code header
-                v['diagnosis'] << ' ' << e
-                readslices[-1] = 'Diagnostic-Code: ' << e
-              else
-                # Get error messages which is written in the message body directly
-                next if e.start_with?(' ', '	', 'X')
-                cr = Sisimai::SMTP::Reply.find(e) || ''
-                ca = Sisimai::Address.find(e)     || []
-                co = Sisimai::String.aligned(e, ['<', '@', '>']) 
-
-                if cr.size > 0 || (ca.size > 0 && co)
-                  v['alterrors'] ||= ' '
-                  v['alterrors']  << ' ' << e
-                end
-              end
-            end
-          end # End of if: rfc822
-        end
-
-        # -----------------------------------------------------------------------------------------
-        while true
-          # Fallback, decode the entire message body
-          break if recipients > 0
-
-          # Failed to get a recipient address at code above
-          returnpath = (mhead['return-path'] || '').downcase
-          headerfrom = (mhead['from']        || '').downcase
-          errortitle = (mhead['subject']     || '').downcase
-          patternsof = {
-            'from'        => ['postmaster@', 'mailer-daemon@', 'root@'],
-            'return-path' => ['<>', 'mailer-daemon'],
-            'subject'     => ['delivery fail', 'delivery report', 'failure notice', 'mail delivery',
-                              'mail failed', 'mail error', 'non-delivery', 'returned mail',
-                              'undeliverable mail', 'warning: '],
-          }
-
-          match   = nil
-          match ||= patternsof['from'].any?        { |v| headerfrom.include?(v) }
-          match ||= patternsof['subject'].any?     { |v| errortitle.include?(v) }
-          match ||= patternsof['return-path'].any? { |v| returnpath.include?(v) }
-          break unless match
-
-          b = dscontents[-1]
-          hasmatched = 0  # There may be an email address around the line
-          readslices = [] # Previous line of this loop
-
-          ReadAfter0.each do |e|
-            # Cut strings from the begining of "mbody" to the strings defined in ReadAfter0
-            i = mbody.downcase.index(e)
-            next unless i
-            mbody = mbody[i, mbody.size - i]
-          end
-          lowercased = mbody.downcase
-          bodyslices = mbody.split("\n")
-
-          while e = bodyslices.shift do
-            # Get the recipient's email address and error messages.
-            next if e.empty?
-            hasmatched = 0
-            lowercased = e.downcase
-            readslices << lowercased
-
-            break if StartingOf[:rfc822].include?(lowercased)
-            break if ReadUntil0.any? { |v| lowercased.start_with?(v) }
-            break if ReadUntil1.any? { |v| lowercased.include?(v) }
-            next  if DoNotRead0.any? { |v| lowercased.start_with?(v) }
-            next  if DoNotRead1.any? { |v| lowercased.include?(v) }
-
-            while true do
-              # There is an email address with an error message at this line(1)
-              break unless ReadEmail0.any? { |v| lowercased.start_with?(v) }
-              break unless lowercased.include?('@')
-
-              hasmatched = 1
-              break
-            end
-
-            while true do
-              # There is an email address with an error message at this line(2)
-              break if hasmatched > 0
-              break unless ReadEmail1.any? { |v| lowercased.include?(v) }
-              break unless lowercased.include?('@')
-
-              hasmatched = 2
-              break
-            end
-
-            while true do
-              # There is an email address without an error message at this line
-              break if hasmatched > 0
-              break if readslices.size < 2
-              break unless ReadEmail1.any? { |v| readslices[-2].include?(v) }
-              break unless lowercased.include?('@') # Must contain '@'
-              break unless lowercased.include?('.') # Must contain '.'
-              break if     lowercased.include?('$')
-
-              hasmatched = 3
-              break
-            end
-
-            if hasmatched > 0 && lowercased.include?('@')
-              # May be an email address
-              w = e.split(' ')
-              x = b['recipient'] || ''
-              y = ''
-
-              w.each do |ee|
-                # Find an email address (including "@")
-                next unless ee.include?('@')
-                y = Sisimai::Address.s3s4(ee)
-                next unless Sisimai::Address.is_emailaddress(y)
                 break
               end
-              
-              if !x.empty? && x != y
-                # There are multiple recipient addresses in the message body.
-                dscontents << Sisimai::Lhost.DELIVERYSTATUS
-                b = dscontents[-1]
-              end
-              b['recipient'] = y
-              recipients += 1
-              itisbounce ||= true
 
-            elsif e.include?('(expanded from') || e.include?('(generated from')
-              # (expanded from: neko@example.jp)
-              b['alias'] = Sisimai::Address.s3s4(e[e.rindex(' ') + 1, e.size])
+              break if e.start_with?("Content-")        # Content-Disposition, ...
+              break if e.start_with?("This is a MIME")  # This is a MIME-formatted message.
+              break if e.start_with?("This is a multi") # This is a multipart message in MIME format
+              break if e.start_with?("This is an auto") # This is an automatically generated ...
+              break if e.start_with?("This multi-part") # This multi-part MIME message contains...
+              break if e.start_with?("###")             # A frame like #####
+              break if e.start_with?("***")             # A frame like *****
+              break if e.start_with?("--")              # Boundary string
+              break if e.include?("--- The follow")     # ----- The following addresses had delivery problems -----
+              break if e.include?("--- Transcript")     # ----- Transcript of session follows -----
+              beforemesg << e + " "; break
             end
-            b['diagnosis'] ||= ''
-            b['diagnosis']  << ' ' << e
+            next
           end
+          next if (readcursor & Indicators[:deliverystatus]) == 0
+          next if e.empty?
 
-          break
-        end
-        return nil unless itisbounce
+          f = Sisimai::RFC1894.match(e)
+          if f > 0
+            # "e" matched with any field defined in RFC3464
+            next unless o = Sisimai::RFC1894.field(e)
+            v = dscontents[-1]
 
-        p1 = rfc822text.index("\nTo: ")     || -1
-        p2 = rfc822text.index("\n", p1 + 6) || -1
-        if recipients == 0 && p1 > 0
-          # Try to get a recipient address from "To:" header of the original message
-          if r = Sisimai::Address.find(rfc822text[p1 + 5, p2 - p1 - 5], true)
-            # Found a recipient address
-            dscontents << Sisimai::Lhost.DELIVERYSTATUS if dscontents.size == recipients
-            b = dscontents[-1]
-            b['recipient'] = r[0][:address]
-            recipients += 1
+            if o[3] == "addr"
+              # Final-Recipient: rfc822; kijitora@example.jp
+              # X-Actual-Recipient: rfc822; kijitora@example.co.jp
+              if o[0] == "final-recipient"
+                # Final-Recipient: rfc822; kijitora@example.jp
+                # Final-Recipient: x400; /PN=...
+                cv = Sisimai::Address.s3s4(o[2]); next unless Sisimai::Address.is_emailaddress(cv)
+                cw = dscontents.size;             next if cw > 0 && cv == dscontents[cw - 1]["recipient"]
+
+                if v["recipient"]
+                  # There are multiple recipient addresses in the message body.
+                  dscontents << Sisimai::Lhost.DELIVERYSTATUS
+                  v = dscontents[-1]
+                end
+                v["recipient"] = cv
+                recipients += 1
+              else
+                # X-Actual-Recipient: rfc822; kijitora@example.co.jp
+                v["alias"] = o[2]
+              end
+            elsif o[3] == "code"
+              # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
+              v["spec"]      = o[1]
+              v["diagnosis"] = o[2]
+            else
+              # Other DSN fields defined in RFC3464
+              if o[4].size > 0
+                # There are other error messages as a comment such as the following:
+                # Status: 5.0.0 (permanent failure)
+                # Status: 4.0.0 (cat.example.net: host name lookup failure)
+                v["diagnosis"] << " " + o[4] + " "
+              end
+              next unless FieldTable[o[0]]
+              v[FieldTable[o[0]]] = o[2]
+
+              next unless f == 1
+              permessage[FieldTable[o[0]]] = o[2]
+            end
+          else
+            # Check that the line is a continued line of the value of Diagnostic-Code: field or not
+            if e.start_with?("X-") && e.include?(": ")
+              # This line is a MTA-Specific fields begins with "X-"
+              next unless Sisimai::RFC3464::ThirdParty.is3rdparty(e)
+
+              cv = Sisimai::RFC3464::ThirdParty.xfield(e)
+              if cv.size > 0 && FieldTable[cv[0].downcase] == nil
+                # Check the first element is a field defined in RFC1894 or not
+                p1 = cv[4].index(":")
+                v["reason"] = cv[4][p1 + 1, cv[4].size] if cv[4].start_with?("reason:")
+              else
+                # Set the value picked from "X-*" field to $dscontents when the current value is empty
+                z = FieldTable[cv[0].downcase]; next unless z
+                v[z] ||=  cv[2]
+              end
+            else
+              # The line may be a continued line of the value of the Diagnostic-Code: field
+              if readslices[-2].start_with?("Diagnostic-Code:")
+                # In the case of multiple "message/delivery-status" line
+                next if e.start_with?("Content-") # Content-Disposition:, ...
+                next if e.start_with?("--")       # Boundary string
+                beforemesg << e + " "; next
+              end
+
+              # Diagnostic-Code: SMTP; 550-5.7.26 The MAIL FROM domain [email.example.jp]
+              #    has an SPF record with a hard fail
+              next unless e.start_with?(" ")
+              v["diagnosis"] << " " + Sisimai::String.sweep(e)
+            end
           end
         end
-        return nil unless recipients > 0
 
-        require 'sisimai/smtp/command'
-        require 'sisimai/mda'
-        mdabounced = Sisimai::MDA.inquire(mhead, mbody)
+        while recipients == 0 do
+          # There is no valid recipient address, Try to use the alias addaress as a final recipient
+          break if dscontents[0]["alias"].nil? || dscontents[0]["alias"].empty?
+          break if Sisimai::Address.is_emailaddress(dscontents[0]["alias"]) == false
+          dscontents[0]["recipient"] = dscontents[0]["alias"]
+          recipients += 1
+        end
+        return nil if recipients == 0
+
+        require "sisimai/smtp/reply"
+        require "sisimai/smtp/status"
+        require "sisimai/smtp/command"
+
+        if beforemesg != ""
+          # Pick some values of $dscontents from the string before StartingOf[:message]
+          beforemesg = Sisimai::String.sweep(beforemesg)
+          alternates["command"]   = Sisimai::SMTP::Command.find(beforemesg)
+          alternates["replycode"] = Sisimai::SMTP::Reply.find(beforemesg, dscontents[0]["status"])
+          alternates["status"]    = Sisimai::SMTP::Status.find(beforemesg, alternates["replycode"])
+        end
+        issuedcode = beforemesg.downcase
+
         dscontents.each do |e|
-          # Set default values if each value is empty.
-          connheader.each_key { |a| e[a] ||= connheader[a] || '' }
+          # Set default values stored in "permessage" if each value in "dscontents" is empty.
+          permessage.each_key { |a| e[a] ||= permessage[a] || '' }
+          e["diagnosis"] = Sisimai::String.sweep(e["diagnosis"])
+          lowercased = e["diagnosis"].downcase
 
-          if e['alterrors']
-            # Copy alternative error message
-            unless e['alterrors'].empty?
-              e['diagnosis'] ||= e['alterrors']
-              if e['diagnosis'].start_with?('-') || e['diagnosis'].end_with?('__')
-                # Override the value of diagnostic code message
-                e['diagnosis'] = e['alterrors']
-              end
-              e.delete('alterrors')
+          if recipients == 1
+            # Do not mix the error message of each recipient with "beforemesg" when there is
+            # multiple recipient addresses in the bounce message
+            if issuedcode.include?(lowercased)
+              # beforemesg contains the entire strings of e["diagnosis"]
+              e["diagnosis"] = beforemesg
+            else
+              # The value of e["diagnosis"] is not contained in $beforemesg
+              # There may be an important error message in $beforemesg
+              e["diagnosis"] = Sisimai::String.sweep(sprintf("%s %s", beforemesg, e["diagnosis"]))
             end
           end
-          e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
+          e["command"]   = Sisimai::SMTP::Command.find(e["diagnosis"])
+          e["command"]   = alternates["command"] if e["command"].nil? || e["command"].empty? 
 
-          if mdabounced
-            # Make bounce data by the values returned from Sisimai::MDA.inquire()
-            e['agent']     = mdabounced['mda'] || 'RFC3464'
-            e['reason']    = mdabounced['reason'] || 'undefined'
-            e['diagnosis'] = mdabounced['message'] unless mdabounced['message'].empty?
-            e['command']   = nil
-          end
+          e["replycode"] = Sisimai::SMTP::Reply.find(e["diagnosis"], e["status"])
+          e["replycode"] = alternates["replycode"] if e["replycode"].nil? || e["replycode"].empty? 
 
-          e['date']    ||= mhead['date']
-          e['status']  ||= Sisimai::SMTP::Status.find(e['diagnosis']) || ''
-          e['command'] ||= Sisimai::SMTP::Command.find(e['diagnosis'])
+          e["status"]  ||= Sisimai::SMTP::Status.find(e["diagnosis"], e["replycode"])
+          e["status"]    = alternates["replycode"] if e["replycode"].nil? || e["replycode"].empty? 
         end
 
-        return { 'ds' => dscontents, 'rfc822' => rfc822text }
+        if emailparts[1].nil? || emailparts[1].empty?
+          # Set the recipient address as To: header in the original message part
+          emailparts[1] = sprintf("To: <%s>\n", dscontents[0]["recipient"])
+        end
+        return { "ds" => dscontents, "rfc822" => emailparts[1] }
       end
-      def description; 'Fallback Module for MTAs'; end
+
+      def description; 'RFC3464'; end
     end
   end
 end
+
