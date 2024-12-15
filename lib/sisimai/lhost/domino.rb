@@ -9,15 +9,15 @@ module Sisimai::Lhost
       Boundaries = ['Content-Type: message/rfc822'].freeze
       StartingOf = { message: ['Your message'] }.freeze
       MessagesOf = {
-        'userunknown' => [
-          'not listed in Domino Directory',
-          'not listed in public Name & Address Book',
+        "filtered"    => ["Cannot route mail to user"],
+        "systemerror" => ["Several matches found in Domino Directory"],
+        "userunknown" => [
+          "not listed in Domino Directory",
+          "not listed in public Name & Address Book",
           "non répertorié dans l'annuaire Domino",
-          'no se encuentra en el Directorio de Domino',
-          'Domino ディレクトリには見つかりません',
+          "no se encuentra en el Directorio de Domino",
+          "Domino ディレクトリには見つかりません",
         ],
-        'filtered' => ['Cannot route mail to user'],
-        'systemerror' => ['Several matches found in Domino Directory'],
       }.freeze
 
       # @abstract Decodes the bounce message from HCL Domino (formerly IBM Domino Server (formerly Lotus Domino))
