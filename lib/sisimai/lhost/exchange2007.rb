@@ -11,18 +11,21 @@ module Sisimai::Lhost
         'Original message headers:',                # en-US
         "tes de message d'origine :",               # fr-FR/En-tÃªtes de message d'origine
         'Intestazioni originali del messaggio:',    # it-CH
+        "Ursprungshuvuden:",                        # sv-SE
       ].freeze
       MarkingsOf = {
         message: [
           'Diagnostic information for administrators:',           # en-US
           'Informations de diagnostic pour les administrateurs',  # fr-FR
           'Informazioni di diagnostica per gli amministratori',   # it-CH
+          "Diagnostisk information f",                            # sv-SE
         ],
         error:   [' RESOLVER.', ' QUEUE.'],
         rhost:   [
           'Generating server',        # en-US
           'Serveur de g',             # fr-FR/Serveur de g’Hn’Hration
           'Server di generazione',    # it-CH
+          "Genererande server",       # sv-SE
         ]
       }.freeze
       NDRSubject = {
