@@ -49,7 +49,7 @@ module Sisimai
           # Neither the remote host nor the destination did not matched with any value of RhostClass
           RhostClass.each_key do |e|
             # Try to match the client host with each value of RhostClass
-            next unless grep RhostClass[e].any? { |a| clienthost.end_with?(a) }
+            next unless RhostClass[e].any? { |a| clienthost.end_with?(a) }
             modulename = 'Sisimai::Rhost::' << e
             rhostclass = 'sisimai/rhost/' << e.downcase
             break
