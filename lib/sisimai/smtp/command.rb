@@ -55,7 +55,7 @@ module Sisimai
             end
 
             # There is the same command in the "commanset" or nor
-            cv = e[0, 4]; next if commanset.any? { |a| cv.start_with?(a) }
+            cv = e[0, 4]; next if commandset.any? { |a| cv.start_with?(a) }
             cv = commandmap[cv] if commandmap.has_key?(cv)
             commandset << cv
           end
