@@ -13,6 +13,7 @@ module Sisimai
     require 'sisimai/smtp/command'
     require 'sisimai/string'
     require 'sisimai/rhost'
+    require 'sisimai/lda'
 
     @@rwaccessors = [
       :action,          # [String] The value of Action: header
@@ -197,20 +198,27 @@ module Sisimai
         next unless piece['timestamp']
 
         # OTHER_TEXT_HEADERS:
-        recv = mesg1['header']['received'] || []
-        if piece['rhost'].empty?
+        recv = mesg1["header"]["received"] || []
+        if piece["rhost"].empty?
           # Try to pick a remote hostname from Received: headers of the bounce message
-          recv.reverse.each do |re|
-            # Check the Received: headers backwards and get a remote hostname
-            cv = Sisimai::RFC5322.received(re)[0]
-            next unless Sisimai::RFC1123.is_internethost(cv)
-            piece['rhost'] = cv
-            break
+          ir = Sisimai::RFC1123.find(e["diagnosis"])
+          piece["rhost"] = ir if Sisimai::RFC1123.is_internethost(ir)
+
+          if piece["rhost"].empty?
+            # The remote hostname in the error message did not exist or is not a valid
+            # internet hostname
+            recv.reverse.each do |re|
+              # Check the Received: headers backwards and get a remote hostname
+              break if piece["rhost"].size > 0
+              cv = Sisimai::RFC5322.received(re)[0]
+              next unless Sisimai::RFC1123.is_internethost(cv)
+              piece['rhost'] = cv
+            end
           end
         end
-        piece['lhost'] = '' if piece['rhost'] == piece['lhost']
+        piece["lhost"] = "" if piece["rhost"] == piece["lhost"]
 
-        if piece['rhost'].empty?
+        if piece["lhost"].empty?
           # Try to pick a local hostname from Received: headers of the bounce message
           recv.each do |le|
             # Check the Received: headers backwards and get a local hostname
@@ -223,7 +231,7 @@ module Sisimai
 
         # Remove square brackets and curly brackets from the host variable
         %w[rhost lhost].each do |v|
-          next if piece[v].size == 0
+          next if piece[v].empty?
 
           if piece[v].include?('@')
             # Use the domain part as a remote/local host when the value is an email address
@@ -402,11 +410,18 @@ module Sisimai
         thing['alias'] = '' if thing['alias'] == thing['recipient'].address
 
         # REASON: Decide the reason of email bounce
-        if thing['reason'].empty? || RetryIndex[thing['reason']]
-          # The value of "reason" is empty or is needed to check with other values again
-          re = thing['reason'].empty? ? 'undefined' : thing['reason']
-          thing['reason'] = Sisimai::Rhost.find(thing) || Sisimai::Reason.find(thing)
-          thing['reason'] = re if thing['reason'].empty?
+        catch :REASON do
+          while true do
+            if thing["reason"].empty? || RetryIndex[thing["reason"]]
+              # The value of "reason" is empty or is needed to check with other values again
+              re = thing["reason"].empty? ? "undefined" : thing["reason"]
+              cr = Sisimai::LDA.find(thing);    if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; throw :REASON; end
+              cr = Sisimai::Rhost.find(thing);  if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; throw :REASON; end
+              cr = Sisimai::Reason.find(thing); if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; throw :REASON; end
+              thing["reason"] = thing["diagnosticcode"].size > 0 ? "onhold" : re
+              break
+            end
+          end
         end
 
         # HARDBOUNCE: Set the value of "hardbounce", default value of "bouncebounce" is false
@@ -449,10 +464,10 @@ module Sisimai
             thing['action'] = ox[2]
           end
         end
-        thing['action'] = 'delayed' if thing['reason'] == 'expired'
-        if thing['action'].empty?
-          thing['action'] = 'failed' if cx[0] == '4' || cx[0] == '5'
-        end
+        thing["action"]   = "delivered" if thing["reason"] == "delivered"
+        thing["action"] ||= "delayed"   if thing["reason"] == "expired"
+        thing["action"] ||= "failed"    if cx[0] == "4" || cx[0] == "5"
+        thing["action"] ||= ""
 
         listoffact << Sisimai::Fact.new(thing)
       end
