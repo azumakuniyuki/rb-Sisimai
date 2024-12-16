@@ -60,7 +60,6 @@ module Sisimai
         'Sisimai::Lhost::Activehunter',
         'Sisimai::Lhost::Bigfoot',
         'Sisimai::Lhost::Biglobe',
-        'Sisimai::Lhost::Facebook',
         'Sisimai::Lhost::X4',
         'Sisimai::Lhost::X1',
         'Sisimai::Lhost::X3',
@@ -133,7 +132,6 @@ module Sisimai
           'Sisimai::Lhost::Biglobe',
           'Sisimai::Lhost::X1',
         ],
-        'sorry-your' => ['Sisimai::Lhost::Facebook'],
         'there-was'  => ['Sisimai::Lhost::X6'],
         'undeliverable' => [
           'Sisimai::Lhost::Office365',
