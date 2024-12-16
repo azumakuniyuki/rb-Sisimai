@@ -11,7 +11,6 @@ module Sisimai
         'Sisimai::Lhost::Yandex',
         'Sisimai::Lhost::Exim',
         'Sisimai::Lhost::Sendmail',
-        'Sisimai::Lhost::Aol',
         'Sisimai::Lhost::Office365',
         'Sisimai::Lhost::Exchange2007',
         'Sisimai::Lhost::Exchange2003',
@@ -129,7 +128,6 @@ module Sisimai
         'postmaster-notify'  => ['Sisimai::Lhost::Sendmail'],
         'returned-mail' => [
           'Sisimai::Lhost::Sendmail',
-          'Sisimai::Lhost::Aol',
           'Sisimai::Lhost::V5sendmail',
           'Sisimai::Lhost::Bigfoot',
           'Sisimai::Lhost::Biglobe',
@@ -140,7 +138,6 @@ module Sisimai
         'undeliverable' => [
           'Sisimai::Lhost::Office365',
           'Sisimai::Lhost::Exchange2007',
-          'Sisimai::Lhost::Aol',
           'Sisimai::Lhost::Exchange2003',
         ],
         'undeliverable-mail' => [
@@ -151,7 +148,6 @@ module Sisimai
         'undeliverable-message' => ['Sisimai::Lhost::Notes', 'Sisimai::Lhost::Verizon'],
         'undelivered-mail' => [
           'Sisimai::Lhost::Postfix',
-          'Sisimai::Lhost::Aol',
           'Sisimai::Lhost::SendGrid',
           'Sisimai::Lhost::Zoho',
         ],
