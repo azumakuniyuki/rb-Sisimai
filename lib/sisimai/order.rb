@@ -8,7 +8,6 @@ module Sisimai
       # following MTA/ESP modules
       OrderE0 = [
         'Sisimai::Lhost::MailRu',
-        'Sisimai::Lhost::Yandex',
         'Sisimai::Lhost::Exim',
         'Sisimai::Lhost::Sendmail',
         'Sisimai::Lhost::Office365',
