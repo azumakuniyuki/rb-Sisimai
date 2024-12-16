@@ -111,7 +111,7 @@ module Sisimai::Lhost
             unless e.start_with?(' ')
               if e.start_with?('>>> ')
                 # >>> DATA (Client Command)
-                thecommand = Sisimai::SMTP::Command.find(e)
+                thecommand = Sisimai::SMTP::Command.find(e) if thecommand.empty?
 
               elsif e.start_with?('<<< ')
                 # <<< Response from the SMTP server
