@@ -45,7 +45,6 @@ module Sisimai
         'Sisimai::Lhost::MailMarshalSMTP',
         'Sisimai::Lhost::Activehunter',
         'Sisimai::Lhost::Biglobe',
-        'Sisimai::Lhost::X4',
         'Sisimai::Lhost::X1',
         'Sisimai::Lhost::X3',
         'Sisimai::Lhost::X6',
@@ -78,7 +77,6 @@ module Sisimai
           'Sisimai::Lhost::Qmail',
           'Sisimai::Lhost::MFILTER',
           'Sisimai::Lhost::Activehunter',
-          'Sisimai::Lhost::X4',
         ],
         'loop-alert'    => ['Sisimai::Lhost::FML'],
         'mail-delivery' => [
@@ -90,7 +88,6 @@ module Sisimai
         ],
         'mail-could'   => ['Sisimai::Lhost::InterScanMSS'],
         'mail-failure' => ['Sisimai::Lhost::Exim'],
-        'mail-not'     => ['Sisimai::Lhost::X4'],
         'mail-system'  => ['Sisimai::Lhost::EZweb'],
         'message-delivery' => ['Sisimai::Lhost::MailFoundry'],
         'message-frozen'   => ['Sisimai::Lhost::Exim'],
@@ -99,7 +96,6 @@ module Sisimai
         'non-remis' => ['Sisimai::Lhost::Exchange2007'],
         'notice'    => ['Sisimai::Lhost::Courier'],
         'onbestelbaar'       => ['Sisimai::Lhost::Office365'],
-        'permanent-delivery' => ['Sisimai::Lhost::X4'],
         'postmaster-notify'  => ['Sisimai::Lhost::Sendmail'],
         'returned-mail' => [
           'Sisimai::Lhost::Sendmail',
