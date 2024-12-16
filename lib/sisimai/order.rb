@@ -50,7 +50,6 @@ module Sisimai
         'Sisimai::Lhost::MFILTER',
         'Sisimai::Lhost::SendGrid',
         'Sisimai::Lhost::ReceivingSES',
-        'Sisimai::Lhost::Amavis',
         'Sisimai::Lhost::PowerMTA',
         'Sisimai::Lhost::GoogleGroups',
         'Sisimai::Lhost::Gmail',
@@ -139,7 +138,6 @@ module Sisimai
           'Sisimai::Lhost::Exchange2003',
         ],
         'undeliverable-mail' => [
-          'Sisimai::Lhost::Amavis',
           'Sisimai::Lhost::MailMarshalSMTP',
           'Sisimai::Lhost::IMailServer',
         ],
