@@ -4,6 +4,7 @@ module Sisimai::Lhost
   module Postfix
     class << self
       require 'sisimai/lhost'
+      require 'sisimai/smtp/reply'
       require 'sisimai/smtp/command'
 
       # Postfix manual - bounce(5) - http://www.postfix.org/bounce.5.html
