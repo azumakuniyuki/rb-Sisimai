@@ -40,7 +40,7 @@ module Sisimai
       # @return   [Array] MTA list with order
       def index
         return %w[
-          Activehunter AmazonSES ApacheJames Bigfoot Biglobe
+          Activehunter AmazonSES ApacheJames Biglobe
           Courier Domino DragonFly EZweb EinsUndEins Exchange2003 Exchange2007 Exim FML GMX
           GoogleWorkspace GoogleGroups Gmail IMailServer InterScanMSS KDDI MXLogic MailFoundry MailMarshalSMTP
           MailRu McAfee MessageLabs MessagingServer Notes Office365 OpenSMTPD Outlook Postfix

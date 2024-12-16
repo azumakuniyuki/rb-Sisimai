@@ -55,7 +55,6 @@ module Sisimai
         'Sisimai::Lhost::IMailServer',
         'Sisimai::Lhost::MailMarshalSMTP',
         'Sisimai::Lhost::Activehunter',
-        'Sisimai::Lhost::Bigfoot',
         'Sisimai::Lhost::Biglobe',
         'Sisimai::Lhost::X4',
         'Sisimai::Lhost::X1',
@@ -123,7 +122,6 @@ module Sisimai
         'returned-mail' => [
           'Sisimai::Lhost::Sendmail',
           'Sisimai::Lhost::V5sendmail',
-          'Sisimai::Lhost::Bigfoot',
           'Sisimai::Lhost::Biglobe',
           'Sisimai::Lhost::X1',
         ],
