@@ -9,20 +9,20 @@ module Sisimai
       # @private
       def DELIVERYSTATUS
         return {
-          'spec'         => nil,  # Protocl specification
-          'date'         => nil,  # The value of Last-Attempt-Date header
-          'rhost'        => nil,  # The value of Remote-MTA header
-          'lhost'        => nil,  # The value of Received-From-MTA header
-          'alias'        => nil,  # The value of alias entry(RHS)
-          'agent'        => nil,  # MTA module name
-          'action'       => nil,  # The value of Action header
-          'status'       => nil,  # The value of Status header
-          'reason'       => nil,  # Temporary reason of bounce
-          'command'      => nil,  # SMTP command in the message body
-          'replycode'    => nil,  # SMTP Reply code
-          'diagnosis'    => nil,  # The value of Diagnostic-Code header
-          'recipient'    => nil,  # The value of Final-Recipient header
-          'feedbacktype' => nil,  # Feedback Type
+          'spec'         => "",  # Protocl specification
+          'date'         => "",  # The value of Last-Attempt-Date header
+          'rhost'        => "",  # The value of Remote-MTA header
+          'lhost'        => "",  # The value of Received-From-MTA header
+          'alias'        => "",  # The value of alias entry(RHS)
+          'agent'        => "",  # MTA module name
+          'action'       => "",  # The value of Action header
+          'status'       => "",  # The value of Status header
+          'reason'       => "",  # Temporary reason of bounce
+          'command'      => "",  # SMTP command in the message body
+          'replycode'    => "",  # SMTP Reply code
+          'diagnosis'    => "",  # The value of Diagnostic-Code header
+          'recipient'    => "",  # The value of Final-Recipient header
+          'feedbacktype' => "",  # Feedback Type
         }
       end
 
@@ -40,7 +40,7 @@ module Sisimai
       # @return   [Array] MTA list with order
       def index
         return %w[
-          Activehunter Amavis AmazonSES AmazonWorkMail Aol ApacheJames Barracuda Bigfoot Biglobe
+          Activehunter Amavis AmazonSES AmazonWorkMail ApacheJames Barracuda Bigfoot Biglobe
           Courier Domino DragonFly EZweb EinsUndEins Exchange2003 Exchange2007 Exim FML Facebook GMX
           GSuite GoogleGroups Gmail IMailServer InterScanMSS KDDI MXLogic MailFoundry MailMarshalSMTP
           MailRu McAfee MessageLabs MessagingServer Notes Office365 OpenSMTPD Outlook Postfix
