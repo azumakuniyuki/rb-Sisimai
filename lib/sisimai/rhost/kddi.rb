@@ -15,7 +15,7 @@ module Sisimai
         # @return   [String]                The bounce reason for au.com or ezweb.ne.jp
         # @since v4.22.6
         def find(argvs)
-          return argvs['reason'] unless argvs['reason'].empty?
+          return "" unless argvs["diagnosticcode"].empty?
           issuedcode = argvs['diagnosticcode'].downcase
           reasontext = ''
 
