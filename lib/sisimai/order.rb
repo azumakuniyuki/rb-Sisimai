@@ -17,7 +17,6 @@ module Sisimai
         'Sisimai::Lhost::AmazonSES',
         'Sisimai::Lhost::InterScanMSS',
         'Sisimai::Lhost::KDDI',
-        'Sisimai::Lhost::SurfControl',
         'Sisimai::Lhost::Verizon',
         'Sisimai::Lhost::ApacheJames',
         'Sisimai::Lhost::X2',
