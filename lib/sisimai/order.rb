@@ -30,7 +30,7 @@ module Sisimai
       # Fallback list: The following MTA/ESP modules is not listed OrderE0
       OrderE1 = [
         'Sisimai::Lhost::Postfix',
-        'Sisimai::Lhost::GSuite',
+        'Sisimai::Lhost::GoogleWorkspace',
         'Sisimai::Lhost::Yahoo',
         'Sisimai::Lhost::Outlook',
         'Sisimai::Lhost::GMX',
@@ -78,7 +78,7 @@ module Sisimai
         'delivery-notification' => ['Sisimai::Lhost::MessagingServer'],
         'delivery-report'  => ['Sisimai::Lhost::PowerMTA'],
         'delivery-status'  => [
-          'Sisimai::Lhost::GSuite',
+          'Sisimai::Lhost::GoogleWorkspace',
           'Sisimai::Lhost::GoogleGroups',
           'Sisimai::Lhost::Outlook',
           'Sisimai::Lhost::McAfee',
