@@ -25,7 +25,6 @@ module Sisimai
       OrderE1 = [
         'Sisimai::Lhost::Postfix',
         'Sisimai::Lhost::GoogleWorkspace',
-        'Sisimai::Lhost::Yahoo',
         'Sisimai::Lhost::GMX',
         'Sisimai::Lhost::MessagingServer',
         'Sisimai::Lhost::EinsUndEins',
@@ -73,7 +72,6 @@ module Sisimai
         'failed-delivery'  => ['Sisimai::Lhost::X2'],
         'failure-delivery' => ['Sisimai::Lhost::X2'],
         'failure-notice'   => [
-          'Sisimai::Lhost::Yahoo',
           'Sisimai::Lhost::Qmail',
           'Sisimai::Lhost::MFILTER',
           'Sisimai::Lhost::Activehunter',

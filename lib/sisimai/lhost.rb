@@ -45,7 +45,7 @@ module Sisimai
           GoogleWorkspace GoogleGroups Gmail IMailServer InterScanMSS KDDI MailFoundry MailMarshalSMTP
           MessagingServer Notes Office365 OpenSMTPD Postfix
           Sendmail V5sendmail Verizon X1 X2 X3 X6
-          Yahoo Zoho MFILTER Qmail
+          Zoho MFILTER Qmail
         ]
       end
 
