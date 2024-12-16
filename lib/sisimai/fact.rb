@@ -124,22 +124,22 @@ module Sisimai
 
         thing = {}  # To be passed to each accessor of Sisimai::Fact
         piece = {
-          'action'         => e['action']       || '',
-          'alias'          => e['alias']        || '',
-          'catch'          => mesg1['catch']    || nil,
-          'deliverystatus' => e['status']       || '',
-          'diagnosticcode' => e['diagnosis']    || '',
-          'diagnostictype' => e['spec']         || '',
-          'feedbacktype'   => e['feedbacktype'] || '',
-          'hardbounce'     => false,
-          'lhost'          => e['lhost']        || '',
-          'origin'         => argvs[:origin],
-          'reason'         => e['reason']       || '',
-          'recipient'      => e['recipient']    || '',
-          'replycode'      => e['replycode']    || '',
-          'rhost'          => e['rhost']        || '',
-          'smtpagent'      => e['agent']        || '',
-          'smtpcommand'    => e['command']      || '',
+          "action"         => e["action"],
+          "alias"          => e["alias"],
+          "catch"          => mesg1["catch"]    || nil,
+          "deliverystatus" => e["status"],
+          "diagnosticcode" => e["diagnosis"],
+          "diagnostictype" => e["spec"],
+          "feedbacktype"   => e["feedbacktype"],
+          "hardbounce"     => false,
+          "lhost"          => e["lhost"],
+          "origin"         => argvs[:origin],
+          "reason"         => e["reason"],
+          "recipient"      => e["recipient"],
+          "replycode"      => e["replycode"],
+          "rhost"          => e["rhost"],
+          "smtpagent"      => e["agent"],
+          "smtpcommand"    => e["command"],
         }
 
         # EMAILADDRESS: Detect an email address from message/rfc822 part
@@ -351,9 +351,11 @@ module Sisimai
           piece['diagnosticcode'] = piece['diagnosticcode'].force_encoding('UTF-8').scrub('?')
         end
 
-        piece['diagnostictype']   = nil        if piece['diagnostictype'].empty?
-        piece['diagnostictype'] ||= 'X-UNIX'   if piece['reason'] == 'mailererror'
-        piece['diagnostictype'] ||= 'SMTP' unless %w[feedback vacation].include?(piece['reason'])
+        if piece["reason"] == "mailererror"
+          piece["diagnostictype"] = "X-UNIX"
+        else
+          piece["diagnostictype"] = "SMTP" unless %w[feedback vacation].include?(piece["reason"])
+        end
 
         # Check the value of SMTP command
         piece['smtpcommand'] = '' unless Sisimai::SMTP::Command.test(piece['smtpcommand'])
@@ -376,7 +378,7 @@ module Sisimai
         }
 
         # Other accessors
-        ea.each { |q| thing[q] ||= piece[q] || '' }
+        ea.each { |q| thing[q] = piece[q] if thing[q].empty? }
         thing['catch']          = piece['catch'] || nil
         thing['hardbounce']     = piece['hardbounce']
         thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']).to_s if thing['replycode'].empty?
@@ -464,10 +466,9 @@ module Sisimai
             thing['action'] = ox[2]
           end
         end
-        thing["action"]   = "delivered" if thing["reason"] == "delivered"
-        thing["action"] ||= "delayed"   if thing["reason"] == "expired"
-        thing["action"] ||= "failed"    if cx[0] == "4" || cx[0] == "5"
-        thing["action"] ||= ""
+        thing["action"] = "delivered" if thing["action"].empty? && thing["reason"] == "delivered"
+        thing["action"] = "delayed"   if thing["action"].empty? && thing["reason"] == "expired"
+        thing["action"] = "failed"    if thing["action"}.empty? && cx[0] == "4" || cx[0] == "5"
 
         listoffact << Sisimai::Fact.new(thing)
       end
