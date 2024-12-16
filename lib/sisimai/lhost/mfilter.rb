@@ -103,7 +103,7 @@ module Sisimai::Lhost
           rheads = mhead['received']
           rhosts = Sisimai::RFC5322.received(rheads[-1])
 
-          e['lhost'] ||= Sisimai::RFC5322.received(rheads[0]).shift
+          e['lhost'] = Sisimai::RFC5322.received(rheads[0]).shift if e["lhost"].empty?
           [rhosts[0], rhosts[1]].each do |ee|
             # Avoid "... by m-FILTER"
             next unless ee.include?('.')

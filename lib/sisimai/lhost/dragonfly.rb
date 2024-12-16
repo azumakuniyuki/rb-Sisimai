@@ -81,7 +81,6 @@ module Sisimai::Lhost
             recipients += 1
           else
             # Pick the error message
-            v['diagnosis'] ||= ''
             v['diagnosis'] << ' ' << e
 
             # Pick the remote hostname, and the SMTP command

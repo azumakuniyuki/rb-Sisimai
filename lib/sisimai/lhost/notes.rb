@@ -83,11 +83,9 @@ module Sisimai::Lhost
                 # No character set in Content-Type header
                 encodedmsg = removedmsg
               end
-              v['diagnosis'] ||= ''
               v['diagnosis'] << encodedmsg
             else
               # Error message does not include multi-byte character
-              v['diagnosis'] ||= ''
               v['diagnosis'] << e
             end
           end

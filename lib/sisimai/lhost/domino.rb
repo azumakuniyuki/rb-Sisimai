@@ -74,7 +74,7 @@ module Sisimai::Lhost
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] ||= e
+            v['recipient'] = e if v["recipient"].empty?
             recipients += 1
 
           elsif e.start_with?('  ') && e.include?('@') && e.index(' ', 3).nil?
@@ -87,7 +87,7 @@ module Sisimai::Lhost
             #   User some.name (kijitora@example.net) not listed in Domino Directory
             v['diagnosis'] = e
           else
-            if v['diagnosis'].to_s == 'because:'
+            if v['diagnosis'] == "because:"
               # Error message, continued from the line "because:"
               v['diagnosis'] = e
 
@@ -103,8 +103,8 @@ module Sisimai::Lhost
 
               if o[3] == 'code'
                 # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
-                v['spec']      = o[1] if v['spec'].to_s.empty?
-                v['diagnosis'] = o[2] if v['diagnosis'].to_s.empty?
+                v['spec']      = o[1] if v['spec'].empty?
+                v['diagnosis'] = o[2] if v['diagnosis'].empty?
               else
                 # Other DSN fields defined in RFC3464
                 next unless fieldtable[o[0]]
@@ -126,8 +126,8 @@ module Sisimai::Lhost
           MessagesOf.each_key do |r|
             # Check each regular expression of Domino error messages
             next unless MessagesOf[r].any? { |a| e['diagnosis'].include?(a) }
-            e['reason']   = r
-            e['status'] ||= Sisimai::SMTP::Status.code(r.to_s, false) || ''
+            e['reason'] = r
+            e['status'] = Sisimai::SMTP::Status.code(r, false) if e["status"].empty?
             break
           end
         end

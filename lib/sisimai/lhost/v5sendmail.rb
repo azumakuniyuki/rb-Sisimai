@@ -129,13 +129,15 @@ module Sisimai::Lhost
           errorindex += 1
           e.delete('sessionerr')
 
-          e['diagnosis'] ||= if anotherset['diagnosis'].to_s.size > 0
+          if e["diagnosis"].empty?
+            e['diagnosis'] = if anotherset['diagnosis'].to_s.size > 0
                                # Copy alternative error message
                                anotherset['diagnosis']
                              else
                                # Set server response as a error message
                                responding[errorindex]
                              end
+          end
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
           e['replycode'] = Sisimai::SMTP::Reply.find(e['diagnosis']) || anotherset['replycode']
           e['command']   = commandset[errorindex] || Sisimai::SMTP::Command.find(e['diagnosis']) || ''

@@ -40,7 +40,6 @@ module Sisimai::Lhost
         while e = bodyslices.shift do
           # Read error messages and delivery status lines from the head of the email to the previous
           # line of the beginning of the original message.
-
           if readcursor == 0
             # Beginning of the bounce message or delivery status part
             readcursor |= Indicators[:deliverystatus] if e.start_with?(StartingOf[:message][0])
@@ -97,7 +96,6 @@ module Sisimai::Lhost
               # 550 - Requested action not taken: no such user here
               v['diagnosis'] = e if e == StartingOf[:error][0]
               unless gotmessage
-                v['diagnosis'] ||= ''
                 v['diagnosis'] << ' ' + e
               end
             end

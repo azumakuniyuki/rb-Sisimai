@@ -121,18 +121,18 @@ module Sisimai::Lhost
               # Status: 5.1.1 (Remote SMTP server has rejected address)
               p1 = e.index(':')
               p2 = e.index('(')
-              v['status']      = e[p1 + 2, p2 - p1 - 3]
-              v['diagnosis'] ||= e[p2 + 1, e[e.index(')') - p2 - 1]]
+              v['status']    = e[p1 + 2, p2 - p1 - 3]
+              v['diagnosis'] = e[p2 + 1, e[e.index(')') - p2 - 1]] if v["diagnosis"].empty?
 
             elsif e.start_with?('Arrival-Date: ')
               # Arrival-date: Thu, 29 Apr 2014 23:34:45 +0000 (GMT)
-              v['date'] ||= e[e.index(':') + 2, e.size]
+              v['date'] = e[e.index(':') + 2, e.size] if v["date"].empty?
 
             elsif e.start_with?('Reporting-MTA: ')
               # Reporting-MTA: dns;mr21p30im-asmtp004.me.com (tcp-daemon)
               localhost = e[e.index(';') + 1, e.size]
-              v['lhost'] ||= localhost
-              v['lhost']   = localhost unless v['lhost'].index('.') > 0
+              v['lhost'] = localhost if v["lhost"].empty?
+              v['lhost'] = localhost unless v['lhost'].index('.') > 0
             end
           end
         end

@@ -219,8 +219,8 @@ module Sisimai::Lhost
             hostname = e['diagnosis'][p1 + 4, p2 - p1 - 4]
             ipv4addr = e['diagnosis'][p2 + 3, e['diagnosis'].rindex(']. ') - p2 - 3]
 
-            e['rhost']   = hostname if Sisimai::RFC1123.is_internethost(hostname)
-            e['rhost'] ||= ipv4addr
+            e['rhost'] = hostname if Sisimai::RFC1123.is_internethost(hostname)
+            e['rhost'] = ipv4addr if e["rhost"].empty?
           end
 
           while true do
@@ -245,7 +245,7 @@ module Sisimai::Lhost
               break
             end
           end
-          e['reason'] ||= ''; next if e['reason'].empty?
+          next if e['reason'].empty?
 
           # Set pseudo status code
           e['status'] = Sisimai::SMTP::Status.find(e['diagnosis']) || ''

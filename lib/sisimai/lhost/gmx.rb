@@ -78,7 +78,6 @@ module Sisimai::Lhost
           else
             # Get error messages
             next if e.empty?
-            v['diagnosis'] ||= ''
             v['diagnosis']  += e + ' '
           end
         end

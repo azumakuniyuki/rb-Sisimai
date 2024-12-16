@@ -168,13 +168,12 @@ module Sisimai::Lhost
 
         dscontents.each do |e|
           # Set default values if each value is empty.
-          e['diagnosis'] ||= ''
           permessage.each_key { |a| e[a] ||= permessage[a] || '' }
 
           if anotherset['diagnosis']
             # Copy alternative error message
             e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'].start_with?(' ')
-            e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'].=~ /\A\d+\z/
+            e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'] =~ /\A\d+\z/
             e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'].empty?
           end
 
@@ -189,10 +188,9 @@ module Sisimai::Lhost
           end
 
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
-          e['command'] ||= thecommand || Sisimai::SMTP::Command.find(e['diagnosis']) || ''
-          if e['command'].empty?
-            e['command'] = 'EHLO' unless esmtpreply.empty?
-          end
+          e["command"]   = thecommand if e["command"].empty?
+          e["command"]   = Sisimai::SMTP::Command.find(e['diagnosis']) if e["command"].empty?
+          e["command"]   = "EHLO" if e["command"].empty? && esmtpreply.empty? == false
 
           while true
             # Check alternative status code and override it

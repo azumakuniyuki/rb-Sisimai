@@ -122,7 +122,7 @@ module Sisimai::Lhost
                 v['diagnosis'] = e
               else
                 # Continued line of error messages
-                next if v['diagnosis'].to_s.empty?
+                next if v['diagnosis'].empty?
                 next unless v['diagnosis'].end_with?('=')
                 v['diagnosis']  = v['diagnosis'].chomp('=')
                 v['diagnosis'] << e

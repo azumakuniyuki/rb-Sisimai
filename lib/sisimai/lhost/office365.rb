@@ -130,7 +130,6 @@ module Sisimai::Lhost
         recipients = 0      # (Integer) The number of 'Final-Recipient' header
         connheader = {}
         endoferror = false  # (Boolean) Flag for the end of error messages
-        htmlbegins = false  # (Boolean) Flag for HTML part
         v = nil
 
         while e = bodyslices.shift do
@@ -220,7 +219,6 @@ module Sisimai::Lhost
           # Set default values if each value is empty.
           permessage.each_key { |a| e[a] ||= permessage[a] || '' }
 
-          e['status']  ||= ''
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
           if e['status'].empty? || e['status'].end_with?('.0.0')
             # There is no value of Status header or the value is 5.0.0, 4.0.0

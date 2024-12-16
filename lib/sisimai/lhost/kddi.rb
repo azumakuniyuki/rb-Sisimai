@@ -66,7 +66,6 @@ module Sisimai::Lhost
             v['date'] = e[19, e.size]
           else
             #     As their mailbox is full.
-            v['diagnosis'] ||= ''
             v['diagnosis'] << e + ' ' if e.start_with?(' ')
           end
         end

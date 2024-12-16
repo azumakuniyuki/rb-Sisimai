@@ -85,9 +85,9 @@ module Sisimai::Lhost
 
             next if p['reply'].to_i < 400
             commandset << e['command']
-            v['diagnosis'] ||= p['text'].join(' ')
-            v['replycode'] ||= p['reply']
-            v['status']    ||= p['status']
+            v['diagnosis'] = p['text'].join(' ') if v["diagnosis"].empty?
+            v['replycode'] = p['reply'] if v["replycode"].empty?
+            v['status']    = p['status'] if v["status"].empty?
           end
         else
           fieldtable = Sisimai::RFC1894.FIELDTABLE
@@ -241,10 +241,6 @@ module Sisimai::Lhost
               # More detailed error message is in "anotherset"
               as = '' # status
               ar = '' # replycode
-
-              e['status']    ||= ''
-              e['replycode'] ||= ''
-
               if e['status'].empty? || e['status'].start_with?('4.0.0', '5.0.0')
                 # Check the value of D.S.N. in anotherset
                 as = Sisimai::SMTP::Status.find(anotherset['diagnosis']) || ''
@@ -278,8 +274,8 @@ module Sisimai::Lhost
 
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
           e['command']   = commandset.shift || Sisimai::SMTP::Command.find(e['diagnosis'])
-          e['command'] ||= 'HELO' if e['diagnosis'].include?('refused to talk to me:')
-          e['spec']    ||= 'SMTP' if Sisimai::String.aligned(e['diagnosis'], ['host ', ' said:'])
+          e['command']   = 'HELO' if e["command"].empty? && e['diagnosis'].include?('refused to talk to me:')
+          e['spec']      = 'SMTP' if e["spec"].empty?    && Sisimai::String.aligned(e['diagnosis'], ['host ', ' said:'])
         end
 
         return { 'ds' => dscontents, 'rfc822' => emailparts[1] }

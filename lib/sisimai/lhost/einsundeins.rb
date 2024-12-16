@@ -82,9 +82,8 @@ module Sisimai::Lhost
 
         require 'sisimai/smtp/command'
         dscontents.each do |e|
-          e['diagnosis'] ||= ''
-          e['diagnosis']   = e['alterrors'] if e['diagnosis'].empty?
-          e['command']     = Sisimai::SMTP::Command.find(e['diagnosis'])
+          e['diagnosis'] = e['alterrors'] if e['diagnosis'].empty?
+          e['command']   = Sisimai::SMTP::Command.find(e['diagnosis'])
 
           if Sisimai::String.aligned(e['diagnosis'], ['host: ', ' reason:'])
             # SMTP error from remote server for TEXT command,

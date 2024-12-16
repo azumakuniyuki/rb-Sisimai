@@ -104,7 +104,6 @@ module Sisimai::Lhost
               # Check error message
               if rxmessages.any? { |messages| messages.any? { |message| e.include?(message) } }
                 # Check with regular expressions of each error
-                v['diagnosis'] ||= ''
                 v['diagnosis'] << ' ' << e
               else
                 # >>> 550
@@ -119,7 +118,7 @@ module Sisimai::Lhost
         dscontents.each do |e|
           unless e['alterrors'].to_s.empty?
             # Copy alternative error message
-            e['diagnosis'] ||= e['alterrors']
+            e['diagnosis'] = e['alterrors']
             if e['diagnosis'].start_with?('-') || e['diagnosis'].end_with?('__')
               # Override the value of diagnostic code message
               e['diagnosis'] = e['alterrors'] unless e['alterrors'].empty?

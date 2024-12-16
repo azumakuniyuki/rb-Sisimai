@@ -12,7 +12,6 @@ module Sisimai::Lhost
         # courier/module.dsn/dsn*.txt
         message: ['DELAYS IN DELIVERING YOUR MESSAGE', 'UNDELIVERABLE MAIL'],
       }.freeze
-
       MessagesOf = {
         # courier/module.esmtp/esmtpclient.c:526| hard_error(del, ctf, "No such domain.");
         'hostunknown'  => ['No such domain.'],
@@ -127,7 +126,7 @@ module Sisimai::Lhost
         dscontents.each do |e|
           # Set default values if each value is empty.
           permessage.each_key { |a| e[a] ||= permessage[a] || '' }
-          e['command'] ||= thecommand || ''
+          e['command']   = thecommand if e["command"].empty?
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
 
           MessagesOf.each_key do |r|

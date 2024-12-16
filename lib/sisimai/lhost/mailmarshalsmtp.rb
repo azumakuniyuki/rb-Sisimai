@@ -28,7 +28,6 @@ module Sisimai::Lhost
         readcursor = 0      # (Integer) Points the current cursor position
         recipients = 0      # (Integer) The number of 'Final-Recipient' header
         endoferror = false  # (Boolean) Flag for the end of error message
-        regularexp = nil
         q = Sisimai::RFC2045.boundary(mhead['content-type'], 1); Boundaries << q if q
         v = nil
 

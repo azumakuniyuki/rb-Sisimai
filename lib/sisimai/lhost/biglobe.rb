@@ -74,7 +74,6 @@ module Sisimai::Lhost
             recipients += 1
           else
             next if e.include?('--')
-            v['diagnosis'] ||= ''
             v['diagnosis'] << e + ' '
           end
         end
