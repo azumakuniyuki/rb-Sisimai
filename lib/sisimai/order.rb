@@ -45,7 +45,6 @@ module Sisimai
         'Sisimai::Lhost::MailFoundry',
         'Sisimai::Lhost::V5sendmail',
         'Sisimai::Lhost::MFILTER',
-        'Sisimai::Lhost::SendGrid',
         'Sisimai::Lhost::GoogleGroups',
         'Sisimai::Lhost::Gmail',
         'Sisimai::Lhost::EZweb',
@@ -132,7 +131,6 @@ module Sisimai
         'undeliverable-message' => ['Sisimai::Lhost::Notes', 'Sisimai::Lhost::Verizon'],
         'undelivered-mail' => [
           'Sisimai::Lhost::Postfix',
-          'Sisimai::Lhost::SendGrid',
           'Sisimai::Lhost::Zoho',
         ],
         'warning' => ['Sisimai::Lhost::Sendmail', 'Sisimai::Lhost::Exim'],
