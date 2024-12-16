@@ -190,7 +190,7 @@ module Sisimai::Lhost
             # Beginning of the bounce message or message/delivery-status part
             if StartingOf["message"].any? { |a| e.include?(a) }
               # Check the message defined in StartingOf["message"], ["frozen"]
-              readcursor |= Indicators["deliverystatus"]
+              readcursor |= Indicators[:deliverystatus]
               next unless StartingOf["frozen"].any? { |a| e.include?(a) }
             end
           end
