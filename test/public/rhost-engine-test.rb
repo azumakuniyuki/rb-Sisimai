@@ -16,8 +16,8 @@ module RhostEngineTest
 
       # % grep -h module lib/sisimai/rhost/*.rb | grep -vE '(Sisimai|Rhost)' | awk '{ print $2 }'
       rhostindex = %w[
-        Aol Apple Cox Facebook FrancePTT GoDaddy Google GSuite IUA KDDI Microsoft Mimecast NTTDOCOMO Spectrum Tencent
-        YahooInc
+        Aol Apple Cox Facebook FrancePTT GSuite GoDaddy Google IUA KDDI MessageLabs Microsoft Mimecast
+        NTTDOCOMO Outlook Spectrum Tencent YahooInc
       ]
       enginelist = []
       enginename = ''
