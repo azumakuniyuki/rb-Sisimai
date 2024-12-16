@@ -28,7 +28,6 @@ module Sisimai
         'Sisimai::Lhost::Postfix',
         'Sisimai::Lhost::GoogleWorkspace',
         'Sisimai::Lhost::Yahoo',
-        'Sisimai::Lhost::Outlook',
         'Sisimai::Lhost::GMX',
         'Sisimai::Lhost::MessagingServer',
         'Sisimai::Lhost::EinsUndEins',
@@ -68,7 +67,6 @@ module Sisimai
         'delivery-status'  => [
           'Sisimai::Lhost::GoogleWorkspace',
           'Sisimai::Lhost::GoogleGroups',
-          'Sisimai::Lhost::Outlook',
           'Sisimai::Lhost::OpenSMTPD',
           'Sisimai::Lhost::AmazonSES',
           'Sisimai::Lhost::Gmail',
