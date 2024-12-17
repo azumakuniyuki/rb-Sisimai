@@ -295,7 +295,7 @@ module Sisimai
 
           if cr.size == 3
             # There is an SMTP reply code in the error message
-            piece['replycode'] = cr if piece['replycode'].to_s.empty?
+            piece['replycode'] = cr if piece['replycode'].empty?
 
             if piece['diagnosticcode'].include?(cr + '-')
               # 550-5.7.1 [192.0.2.222] Our system has detected that this message is
@@ -375,7 +375,7 @@ module Sisimai
           'alias'        => piece['alias'] || ar.alias,
           'token'        => Sisimai::String.token(as.address, ar.address, piece['timestamp']),
         }
-        ea.each { |q| thing[q] = "" }
+        ea.each { |q| thing[q] = piece[q] if thing[q].nil? || thing[q].empty? }
 
         # Other accessors
         thing['catch']          = piece['catch'] || nil
