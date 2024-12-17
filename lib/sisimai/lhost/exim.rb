@@ -374,6 +374,7 @@ module Sisimai::Lhost
 
         dscontents.each do |e|
           # Check the error message, the rhost, the lhost, and the smtp command.
+          e["alterrors"] = "" if e["alterrors"].nil?
           if e["diagnosis"].empty? && boundary00.size > 0
             # Empty Diagnostic-Code: or error message
             # --NNNNNNNNNN-eximdsn-MMMMMMMMMM
@@ -389,15 +390,11 @@ module Sisimai::Lhost
             # Final-Recipient: rfc822;|/p/q/r
             # Status: 5.0.0
             e["diagnosis"] = dscontents[0]["diagnosis"]
-            e["spec"]      = dscontents[0]["spec"] if e["spec"].empty?
-
-            if dscontents[0]["alterrors"].nil? == false && dscontents["alterrors"].empty? == false
-              # The value of "alterrors" is also copied
-              e["alterrors"] = dscontents[0]["alterrors"]
-            end
+            e["spec"]      = dscontents[0]["spec"]      if e["spec"].empty?
+            e["alterrors"] = dscontents[0]["alterrors"] if dscontents[0]["alterrors"] != ""
           end
 
-          if dscontents[0]["alterrors"].nil? == false && dscontents["alterrors"].empty? == false
+          if e["alterrors"]
             # Copy alternative error message
             e["diagnosis"] = e["alterrors"] if e["diagnosis"].empty?
 
