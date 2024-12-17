@@ -2,10 +2,10 @@ module LhostEngineTest::Public
   module RFC3464
     IsExpected = {
       # INDEX => [['D.S.N.', 'replycode', 'REASON', 'hardbounce'], [...]]
-      '01' => [['5.1.1',   '',    'mailboxfull',     false]],
+      '01' => [['5.1.1',   '550', 'mailboxfull',     false]],
       '03' => [['5.0.0',   '554', 'policyviolation', false]],
-      '04' => [['5.5.0',   '554', 'mailererror',     false]],
-      '06' => [['5.5.0',   '',    'userunknown',     true]],
+      '04' => [['5.5.0',   '554', 'systemerror',     false]],
+      '06' => [['5.5.0',   '554', 'userunknown',     true]],
       '07' => [['4.4.0',   '',    'expired',         false]],
       '08' => [['5.7.1',   '550', 'spamdetected',    false]],
       '09' => [['4.3.0',   '',    'mailboxfull',     false]],
@@ -16,7 +16,7 @@ module LhostEngineTest::Public
       '29' => [['5.5.0',   '503', 'syntaxerror',     false]],
       '34' => [['4.4.1',   '',    'networkerror',    false]],
       '35' => [['5.0.0',   '550', 'rejected',        false],
-               ['4.0.0',   '',    'expired',         false],
+               ['4.0.0',   '',    'networkerror',    false],
                ['5.0.0',   '550', 'filtered',        false]],
       '36' => [['4.0.0',   '',    'expired',         false]],
       '40' => [['4.4.6',   '',    'networkerror',    false]],
