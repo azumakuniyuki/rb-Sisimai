@@ -190,7 +190,7 @@ module Sisimai::Lhost
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
           e["command"]   = thecommand if e["command"].empty?
           e["command"]   = Sisimai::SMTP::Command.find(e['diagnosis']) if e["command"].empty?
-          e["command"]   = "EHLO" if e["command"].empty? && esmtpreply.empty? == false
+          e["command"]   = "EHLO" if e["command"].empty? && esmtpreply.size > 0
 
           while true
             # Check alternative status code and override it
