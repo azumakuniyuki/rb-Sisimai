@@ -213,7 +213,7 @@ module Sisimai
           # 1. Remove leading blank lines
           # 2. Remove text after the first blank line: \n\n
           # 3. Append "\n" at the end of test block when the last character is not "\n"
-          latterpart.sub!(/\A[\r\n\s]+/, '')
+          latterpart.sub!(/\A\s+/, '')
           if keeps == false
             #  Remove text after the first blank line: \n\n when "keeps" is false
             latterpart = latterpart[0, latterpart.index("\n\n")] if latterpart.include?("\n\n")
