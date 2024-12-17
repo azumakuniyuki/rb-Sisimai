@@ -51,7 +51,7 @@ module Sisimai
                 break if ca > 96 && ca < 123 || cz > 96 && cz < 123;  # `-z
                 cx = false; break
               end
-              next unless cx
+              next if cx == true
             end
 
             # There is the same command in the "commanset" or nor
