@@ -112,7 +112,7 @@ module Sisimai::Lhost
               # Continued line of error messages
               cr = Sisimai::SMTP::Reply.find(e)
               cs = Sisimai::SMTP::Status.find(e)
-              if cr || cs
+              if cr != "" || cs != ""
                 # #550 5.1.1 RESOLVER.ADR.RecipNotFound; not found ##
                 # #550 5.2.3 RESOLVER.RST.RecipSizeLimit; message too large for this recipient ##
                 # Remote Server returned '550 5.1.1 RESOLVER.ADR.RecipNotFound; not found'
