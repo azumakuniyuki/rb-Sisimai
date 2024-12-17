@@ -202,7 +202,7 @@ module Sisimai
               end
             else
               # The line may be a continued line of the value of the Diagnostic-Code: field
-              if readslices[-2].start_with?("Diagnostic-Code:")
+              if readslices[-2].start_with?("Diagnostic-Code:") == false
                 # In the case of multiple "message/delivery-status" line
                 next if e.start_with?("Content-") # Content-Disposition:, ...
                 next if e.start_with?("--")       # Boundary string
