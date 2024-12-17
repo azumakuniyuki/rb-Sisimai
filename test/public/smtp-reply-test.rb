@@ -87,7 +87,7 @@ class SMTPReply< Minitest::Test
   end
 
   def test_test
-    assert_nil Sisimai::SMTP::Reply.test()
+    assert_equal false, Sisimai::SMTP::Reply.test()
     %w[235 354].each do |e|
       assert_equal true, Sisimai::SMTP::Reply.test(e)
     end
