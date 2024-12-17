@@ -41,6 +41,7 @@ module Sisimai
         },
         "procmail" => {
           "mailboxfull" => ["quota exceeded while writing"],
+          "systemerror" => ["service unavailable"],
           "systemfull"  => ["no space left to finish writing"],
         },
         "maildrop" => {
