@@ -156,7 +156,7 @@ module Sisimai
                 cv = Sisimai::Address.s3s4(o[2]); next unless Sisimai::Address.is_emailaddress(cv)
                 cw = dscontents.size;             next if cw > 0 && cv == dscontents[cw - 1]["recipient"]
 
-                if v["recipient"]
+                if v["recipient"] != ""
                   # There are multiple recipient addresses in the message body.
                   dscontents << Sisimai::Lhost.DELIVERYSTATUS
                   v = dscontents[-1]
@@ -190,8 +190,8 @@ module Sisimai
             if e.start_with?("X-") && e.include?(": ")
               # This line is a MTA-Specific fields begins with "X-"
               next unless Sisimai::RFC3464::ThirdParty.is3rdparty(e)
-
               cv = Sisimai::RFC3464::ThirdParty.xfield(e)
+
               if cv.size > 0 && FieldTable[cv[0].downcase] == nil
                 # Check the first element is a field defined in RFC1894 or not
                 p1 = cv[4].index(":")
