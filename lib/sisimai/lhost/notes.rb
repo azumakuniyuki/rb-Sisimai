@@ -63,7 +63,7 @@ module Sisimai::Lhost
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] ||= e
+            v["recipient"] = e if v["recipient"].empty?
             recipients += 1
           else
             next if e.empty?
