@@ -142,7 +142,7 @@ module Sisimai::Lhost
         end
         return nil if proceedsto == false
 
-        rquire "sisimai/smtp/command"
+        require "sisimai/smtp/command"
         dscontents = [Sisimai::Lhost.DELIVERYSTATUS]
         emailparts = Sisimai::RFC5322.part(mbody, Boundaries)
         bodyslices = emailparts[0].split("\n")
