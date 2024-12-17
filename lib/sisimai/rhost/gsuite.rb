@@ -19,7 +19,7 @@ module Sisimai
         def find(argvs)
           return "" if argvs["diagnosticcode"].empty?
           statuscode = ""; statuscode = argvs["deliverystatus"][0, 1] if argvs["deliverystatus"].empty? == false
-          emstpreply = ""; esmtpreply = argvs["replycode"][0, 1]      if argvs["replycode"].empty?      == false
+          esmtpreply = ""; esmtpreply = argvs["replycode"][0, 1]      if argvs["replycode"].empty?      == false
           reasontext = ""
 
           MessagesOf.each_key do |e|
