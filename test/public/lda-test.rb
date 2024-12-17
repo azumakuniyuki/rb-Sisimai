@@ -17,7 +17,6 @@ class LDATest < Minitest::Test
     Methods[:class].each { |e| assert_respond_to Sisimai::LDA, e }
   end
 
-
   def test_find
     assert_nil Sisimai::LDA.find(nil)
     assert_empty Sisimai::LDA.find({"diagnosticcode" => ""})
@@ -50,7 +49,6 @@ class LDATest < Minitest::Test
       Sisimai::LDA.find(nil, nil)
       Sisimai::LDA.find(nil, nil, nil)
     end
-
   end
 end
 
