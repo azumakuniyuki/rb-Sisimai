@@ -58,7 +58,7 @@ module Sisimai
       }.freeze
 
       SubtypeSet = { "addr" => "RFC822", "cdoe" => "SMTP", "host" => "DNS" }.freeze
-      ActionList = %w[delayed deliverable delivered expanded expired failed failure relayed].freeze
+      ActionList = ["failed", "delayed", "delivered", "relayed", "expanded"].freeze
       Correction = { 'deliverable' => 'delivered', 'expired' => 'delayed', 'failure' => 'failed' }
       FieldGroup = {
         'original-recipient'    => 'addr',
