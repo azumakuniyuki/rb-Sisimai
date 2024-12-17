@@ -107,13 +107,13 @@ class SMTPReply< Minitest::Test
       assert_match /\A[245][0-5][0-9]\z/, cv
       assert_equal true, Sisimai::SMTP::Reply.test(cv)
     end
-    assert_nil Sisimai::SMTP::Reply.find('x-unix; Quota exceeded message delivery failed to')
+    assert_empty Sisimai::SMTP::Reply.find('x-unix; Quota exceeded message delivery failed to')
 
     ce = assert_raises ArgumentError do
       Sisimai::SMTP::Reply.find()
       Sisimai::SMTP::Reply.find(nil, nil, nil)
     end
-    assert_nil Sisimai::SMTP::Reply.find('')
+    assert_empty Sisimai::SMTP::Reply.find('')
   end
 
 end

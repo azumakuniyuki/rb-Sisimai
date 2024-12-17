@@ -38,11 +38,11 @@ class SMTPCommandTest < Minitest::Test
     assert_equal false, Sisimai::SMTP::Command.test("NEKO")
     assert_equal true,  Sisimai::SMTP::Command.test("CONN")
 
-    assert_nil Sisimai::SMTP::Command.test()
-    assert_nil Sisimai::SMTP::Command.test("")
-    assert_nil Sisimai::SMTP::Command.find()
-    assert_nil Sisimai::SMTP::Command.find("")
-    assert_nil Sisimai::SMTP::Command.find("NEKO")
+    assert_equal false, Sisimai::SMTP::Command.test()
+    assert_equal false, Sisimai::SMTP::Command.test("")
+    assert_empty Sisimai::SMTP::Command.find()
+    assert_empty Sisimai::SMTP::Command.find("")
+    assert_empty Sisimai::SMTP::Command.find("NEKO")
 
     Strings.each_key do |e|
       assert_match /[A-Z]{4}/, e
