@@ -3,7 +3,7 @@ module Sisimai
     # Sisimai::Rhost detects the bounce reason from the content of Sisimai::Fact object as an argument
     # of find() method when the value of "rhost" of the object is "*.googlemail.com". This class is
     # called only from Sisimai::Fact class.
-    module Gsuite
+    module GSuite
       class << self
         MessagesOf = {
           "hostunknown"  => [" responded with code NXDOMAIN", "Domain name not found"],
