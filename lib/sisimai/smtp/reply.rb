@@ -116,7 +116,7 @@ module Sisimai
         # @see      code
         # @since v5.0.0
         def test(argv1 = '')
-          return nil if argv1.empty?
+          return false if argv1.empty?
 
           reply = argv1.to_i
           first = (reply / 100).to_i
@@ -148,8 +148,8 @@ module Sisimai
         # @return   [String]        SMTP Reply Code
         #           [Nil]           The first argument did not include SMTP Reply Code value
         def find(argv1 = '', argv2 = '0')
-          return nil if argv1.to_s.size < 3
-          return nil if argv1.upcase.include?('X-UNIX')
+          return "" if argv1.to_s.size < 3
+          return "" if argv1.upcase.include?('X-UNIX')
 
           esmtperror = ' ' + argv1 + ' '
           esmtpreply = ''
