@@ -745,7 +745,7 @@ module Sisimai
               p1 = p0 + 5
             end
           end
-          return nil if lookingfor.size == 0
+          return "" if lookingfor.size == 0
 
           statuscode = []   # List of SMTP Status Code, Keep the order of appearances
           anotherone = ''   # Alternative code
