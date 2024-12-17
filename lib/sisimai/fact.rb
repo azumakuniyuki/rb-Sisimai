@@ -107,7 +107,6 @@ module Sisimai
       email = argvs[:data]; return nil unless email
       args1 = { data: email, hook: argvs[:hook] }
       mesg1 = Sisimai::Message.rise(**args1)
-
       return nil unless mesg1
       return nil unless mesg1['ds']
       return nil unless mesg1['rfc822']
@@ -126,7 +125,7 @@ module Sisimai
         piece = {
           "action"         => e["action"],
           "alias"          => e["alias"],
-          "catch"          => mesg1["catch"]    || nil,
+          "catch"          => mesg1["catch"] || nil,
           "deliverystatus" => e["status"],
           "diagnosticcode" => e["diagnosis"],
           "diagnostictype" => e["spec"],
@@ -413,18 +412,17 @@ module Sisimai
         thing['alias'] = '' if thing['alias'] == thing['recipient'].address
 
         # REASON: Decide the reason of email bounce
-        catch :REASON do
-          while true do
-            if thing["reason"].empty? || RetryIndex[thing["reason"]]
-              # The value of "reason" is empty or is needed to check with other values again
-              re = thing["reason"].empty? ? "undefined" : thing["reason"]
-              cr = Sisimai::LDA.find(thing);    if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; throw :REASON; end
-              cr = Sisimai::Rhost.find(thing);  if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; throw :REASON; end
-              cr = Sisimai::Reason.find(thing); if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; throw :REASON; end
-              thing["reason"] = thing["diagnosticcode"].size > 0 ? "onhold" : re
-              break
-            end
+        while true
+          if thing["reason"].empty? || RetryIndex[thing["reason"]]
+            # The value of "reason" is empty or is needed to check with other values again
+            re = thing["reason"].empty? ? "undefined" : thing["reason"]
+            cr = Sisimai::LDA.find(thing);    if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; break; end
+            cr = Sisimai::Rhost.find(thing);  if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; break; end
+            cr = Sisimai::Reason.find(thing); if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; break; end
+            thing["reason"] = thing["diagnosticcode"].size > 0 ? "onhold" : re
+            break
           end
+          break
         end
 
         # HARDBOUNCE: Set the value of "hardbounce", default value of "bouncebounce" is false
