@@ -211,14 +211,14 @@ module Sisimai::Lhost
           ce = false
           while true
             # Check if the line matche the following patterns:
-            break if e.start_with?("  ") == false         # The line should start with "  " (2 spaces)
-            break if e.include?('@')     == false         # "@" should be included (email)
-            break if e.include?(".")     == false        # "." should be included (domain part)
-            break if e.include?("pipe to |")              # Exclude "pipe to /path/to/prog" line
+            break if e.start_with?("  ") == false       # The line should start with "  " (2 spaces)
+            break if e.include?('@')     == false       # "@" should be included (email)
+            break if e.include?(".")     == false       # "." should be included (domain part)
+            break if e.include?("pipe to |")            # Exclude "pipe to /path/to/prog" line
 
             cx = e[2, 1]
-            break if cx == " "                            # The 3rd character is " "
-            break if thirdparty == false && cx == "<:"    # MXLogic returns "  <neko@example.jp>:..."
+            break if cx == " "                          # The 3rd character is " "
+            break if thirdparty == false && cx == "<"   # MXLogic returns "  <neko@example.jp>:..."
             ce = true
             break
           end
