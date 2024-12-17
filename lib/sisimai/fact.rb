@@ -365,7 +365,7 @@ module Sisimai
         ar = Sisimai::Address.new(address: piece['recipient']) || next; next if ar.void
         ea = %w[
           action deliverystatus diagnosticcode diagnostictype feedbacktype lhost listid messageid
-          origin reason replycode rhost smtpagent smtpcommand subject 
+          origin reason replycode rhost smtpagent smtpcommand subject
         ]
 
         thing = {
@@ -376,14 +376,15 @@ module Sisimai
           'alias'        => piece['alias'] || ar.alias,
           'token'        => Sisimai::String.token(as.address, ar.address, piece['timestamp']),
         }
+        ea.each { |q| thing[q] = "" }
 
         # Other accessors
-        ea.each { |q| thing[q] = piece[q] if thing[q].empty? }
         thing['catch']          = piece['catch'] || nil
         thing['hardbounce']     = piece['hardbounce']
         thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']).to_s if thing['replycode'].empty?
         thing['timestamp']      = TimeModule.parse(::Time.at(piece['timestamp']).to_s)
         thing['timezoneoffset'] = piece['timezoneoffset'] || '+0000'
+        ea.each { |q| thing[q] = piece[q] if thing[q].empty? }
 
         # ALIAS
         while true do
@@ -466,9 +467,10 @@ module Sisimai
             thing['action'] = ox[2]
           end
         end
+        thing["action"] = ""          if thing["action"].nil?
         thing["action"] = "delivered" if thing["action"].empty? && thing["reason"] == "delivered"
         thing["action"] = "delayed"   if thing["action"].empty? && thing["reason"] == "expired"
-        thing["action"] = "failed"    if thing["action"}.empty? && cx[0] == "4" || cx[0] == "5"
+        thing["action"] = "failed"    if thing["action"].empty? && cx[0] == "4" || cx[0] == "5"
 
         listoffact << Sisimai::Fact.new(thing)
       end
