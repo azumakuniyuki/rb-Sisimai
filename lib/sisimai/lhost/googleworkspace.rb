@@ -27,6 +27,7 @@ module Sisimai::Lhost
       # @see https://workspace.google.com/.
       def inquire(mhead, mbody)
         return nil if     mbody.include?("\nDiagnostic-Code:")
+        return nil if     mbody.include?("\nFinal-Recipient:")
         return nil unless mhead["from"].include?('<mailer-daemon@googlemail.com>')
         return nil unless mhead["subject"].include?("Delivery Status Notification")
 
