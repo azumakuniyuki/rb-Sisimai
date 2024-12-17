@@ -166,7 +166,7 @@ module Sisimai
           # - Remote-MTA: DNS; mx.example.jp
           if parts[1].include?(";")
             # There is a valid sub type (including ";")
-            v = parts[1].split(";")
+            v = parts[1].split(";", 2)
             table[1] = Sisimai::String.sweep(v[0]).upcase if v.size > 0
             table[2] = Sisimai::String.sweep(v[1])        if v.size > 1
           else
