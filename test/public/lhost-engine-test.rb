@@ -16,8 +16,17 @@ module LhostEngineTest
       lhostindex = Sisimai::Lhost.index; lhostindex << 'ARF' << 'RFC3464' << 'RFC3834'
       otherlhost = %w[arf rfc3464 rfc3834]
       enginelist = []
-      enginename = ''
       checksonly = '' if lhostindex.select { |v| v.downcase == checksonly.downcase }.empty?
+
+      # Since v5.2.0, some Lhost modules have been removed
+      alternates = {
+        "RFC3464" => %w[
+            Aol Amavis AmazonWorkMail Barracuda Bigfoot Facebook GSuite McAfee MessageLabs Outlook
+            PowerMTA ReceivingSES SendGrid SurfControl Yandex X5
+        ],
+        "Exim"    => %w[MailRu MXLogic],
+        "Qmail"   => %w[X4 Yahoo],
+      }
 
       Dir.glob(patternset).each do |f|
         next if f.end_with?('-test.rb')
@@ -36,13 +45,27 @@ module LhostEngineTest
       end
 
       enginelist.each do |e|
+        # Find alternative Lhost engine name
+        alterlhost = []
+        enginename = ''
+        alternates.each_key do |f|
+          next unless alternates[f].any? { |a| e == a.downcase }
+          enginename = f
+          alterlhost << e
+          break
+        end
         if otherlhost.include?(e)
           require sprintf("%s/%s.rb", directory1, e)
+
+        elsif alterlhost.include?(e)
+          cv = enginename.downcase; cv = "lhost-" + cv if cv != "rfc3464"
+          require sprintf("%s/%s.rb", directory1, cv)
+
         else
           require sprintf("%s/lhost-%s.rb", directory1, e)
         end
 
-        enginename = lhostindex.select { |v| v.downcase == e }.shift
+        enginename = lhostindex.select { |v| v.downcase == e }.shift if enginename.empty?
         lhostclass = Module.const_get('LhostEngineTest::Public::' << enginename)
         Lo.enginetest(enginename, lhostclass::IsExpected, false, emailindex)
       end
