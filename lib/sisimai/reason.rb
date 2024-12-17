@@ -228,7 +228,7 @@ module Sisimai
         else
           # Detect the bounce reason from "Status:" code
           require 'sisimai/smtp/status'
-          cv = Sisimai::SMTP::Status.find(argv1)      || ''
+          cv = Sisimai::SMTP::Status.find(argv1)
           reasontext = Sisimai::SMTP::Status.name(cv) || 'undefined'
         end
         return reasontext

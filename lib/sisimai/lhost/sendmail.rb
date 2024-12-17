@@ -135,8 +135,8 @@ module Sisimai::Lhost
                   # ----- Transcript of session follows -----
                   # Message could not be delivered for too long
                   # Message will be deleted from queue
-                  cr = Sisimai::SMTP::Reply.find(e)  || ''
-                  cs = Sisimai::SMTP::Status.find(e) || ''
+                  cr = Sisimai::SMTP::Reply.find(e)
+                  cs = Sisimai::SMTP::Status.find(e)
 
                   if cr.size + cs.size > 7
                     # 550 5.1.2 <kijitora@example.org>... Message

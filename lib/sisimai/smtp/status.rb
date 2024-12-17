@@ -479,6 +479,8 @@ module Sisimai
     # reason from D.S.N. value, and getting D.S.N. from the text including D.S.N.
     module Status
       class << self
+        require "sisimai/string"
+
         CodePatterns = [
           %r/[ ]?[(][#]([45][.]\d[.]\d+)[)]?[ ]?/,  # #5.5.1
           %r/\b\d{3}[- ][#]?([45][.]\d[.]\d+)\b/,   # 550-5.1.1 OR 550 5.5.1

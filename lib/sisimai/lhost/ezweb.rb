@@ -99,7 +99,7 @@ module Sisimai::Lhost
             next if Sisimai::String.is_8bit(e)
             if e.include?('>>> ')
               #    >>> RCPT TO:<******@ezweb.ne.jp>
-              v['command'] = Sisimai::SMTP::Command.find(e) || ''
+              v["command"] = Sisimai::SMTP::Command.find(e)
             else
               # Check error message
               if rxmessages.any? { |messages| messages.any? { |message| e.include?(message) } }

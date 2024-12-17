@@ -243,7 +243,7 @@ module Sisimai::Lhost
               ar = '' # replycode
               if e['status'].empty? || e['status'].start_with?('4.0.0', '5.0.0')
                 # Check the value of D.S.N. in anotherset
-                as = Sisimai::SMTP::Status.find(anotherset['diagnosis']) || ''
+                as = Sisimai::SMTP::Status.find(anotherset['diagnosis'])
                 if as.size > 0 && as[-4, 4] != '.0.0'
                   # The D.S.N. is neither an empty nor *.0.0
                   e['status'] = as
@@ -252,7 +252,7 @@ module Sisimai::Lhost
 
               if e['replycode'].empty? || e['replycode'].end_with?('00')
                 # Check the value of SMTP reply code in $anotherset
-                ar = Sisimai::SMTP::Reply.find(anotherset['diagnosis']) || ''
+                ar = Sisimai::SMTP::Reply.find(anotherset['diagnosis'])
                 if ar.size > 0 && ar.end_with?('00') == false
                   # The SMTP reply code is neither an empty nor *00
                   e['replycode'] = ar

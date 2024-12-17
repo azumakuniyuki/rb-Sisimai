@@ -289,8 +289,8 @@ module Sisimai
           # Get an SMTP Reply Code and an SMTP Enhanced Status Code
           piece['diagnosticcode'].chop if piece['diagnosticcode'][-1, 1] == "\r"
 
-          cs = Sisimai::SMTP::Status.find(piece['diagnosticcode'])    || ''
-          cr = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cs) || ''
+          cs = Sisimai::SMTP::Status.find(piece['diagnosticcode'])
+          cr = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cs)
           piece['deliverystatus'] = Sisimai::SMTP::Status.prefer(piece['deliverystatus'], cs, cr)
 
           if cr.size == 3
@@ -380,7 +380,7 @@ module Sisimai
         # Other accessors
         thing['catch']          = piece['catch'] || nil
         thing['hardbounce']     = piece['hardbounce']
-        thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']).to_s if thing['replycode'].empty?
+        thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']) if thing['replycode'].empty?
         thing['timestamp']      = TimeModule.parse(::Time.at(piece['timestamp']).to_s)
         thing['timezoneoffset'] = piece['timezoneoffset'] || '+0000'
         ea.each { |q| thing[q] = piece[q] if thing[q].empty? }
@@ -450,7 +450,7 @@ module Sisimai
         cx = [thing['deliverystatus'][0, 1], thing['replycode'][0, 1]]
         if cx[0] != cx[1]
           # The class of the "Status:" is defer with the first digit of the reply code
-          cx[1] = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cx[0]) || ''
+          cx[1] = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cx[0])
           thing['replycode'] = cx[1].start_with?(cx[0]) ? cx[1] : ''
         end
 

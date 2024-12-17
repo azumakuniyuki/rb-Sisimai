@@ -90,7 +90,7 @@ module Sisimai::Lhost
 
             p = e.split(' ', 3)
             v['rhost']   = if p[0].include?('.') then p[0] else p[1] end
-            v['command'] = Sisimai::SMTP::Command.find(e) || ''
+            v['command'] = Sisimai::SMTP::Command.find(e)
           end
         end
         return nil unless recipients > 0

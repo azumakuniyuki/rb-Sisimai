@@ -139,8 +139,9 @@ module Sisimai::Lhost
                              end
           end
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
-          e['replycode'] = Sisimai::SMTP::Reply.find(e['diagnosis']) || anotherset['replycode']
-          e['command']   = commandset[errorindex] || Sisimai::SMTP::Command.find(e['diagnosis']) || ''
+          e["replycode"] = Sisimai::SMTP::Reply.find(e['diagnosis'])
+          e["replycode"] = anotherset['replycode'] if e["replycode"].empty?
+          e['command']   = commandset[errorindex] || Sisimai::SMTP::Command.find(e['diagnosis'])
 
           # @example.jp, no local part
           # Get email address from the value of Diagnostic-Code header

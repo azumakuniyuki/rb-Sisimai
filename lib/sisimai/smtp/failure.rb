@@ -15,7 +15,8 @@ module Sisimai
           return false unless argv1
           return false unless argv1.size > 0
 
-          statuscode = Sisimai::SMTP::Status.find(argv1) || Sisimai::SMTP::Reply.find(argv1) || ''
+          statuscode = Sisimai::SMTP::Status.find(argv1)
+          statuscode = Sisimai::SMTP::Reply.find(argv1) if statuscode.empty?
           return true if statuscode[0, 1] == "5"
           return true if argv1.downcase.include?(' permanent ')
           return false
@@ -30,7 +31,8 @@ module Sisimai
           return false unless argv1
           return false unless argv1.size > 0
 
-          statuscode = Sisimai::SMTP::Status.find(argv1) || Sisimai::SMTP::Reply.find(argv1) || ''
+          statuscode = Sisimai::SMTP::Status.find(argv1);
+          statuscode = Sisimai::SMTP::Reply.find(argv1) if statuscode.empty?
           issuedcode = argv1.downcase
 
           return true if statuscode[0, 1] == "4"
@@ -56,7 +58,8 @@ module Sisimai
           hardbounce = false
           if argv2.size > 0
             # Check the 2nd argument(a status code or a reply code)
-            cv = Sisimai::SMTP::Status.find(argv2, "") || Sisimai::SMTP::Reply.find(argv2, "") || ""
+            cv = Sisimai::SMTP::Status.find(argv2, "")
+            cv = Sisimai::SMTP::Reply.find(argv2, "") if cv.empty?
 
             # The SMTP status code or the SMTP reply code starts with "5"
             # Deal as a hard bounce when the error message does not indicate a temporary error 
@@ -85,7 +88,8 @@ module Sisimai
           softbounce = false
           if argv2.size > 0
             # Check the 2nd argument(a status code or a reply code)
-            cv = Sisimai::SMTP::Status.find(argv2, "") || Sisimai::SMTP::Reply.find(argv2, "") || ""
+            cv = Sisimai::SMTP::Status.find(argv2, "")
+            cv = Sisimai::SMTP::Reply.find(argv2, "") if cv.empty?
 
             # The SMTP status code or the SMTP reply code starts with "4"
             softbounce = true if cv[0, 1] == "4"

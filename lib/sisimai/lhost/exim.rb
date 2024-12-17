@@ -468,8 +468,8 @@ module Sisimai::Lhost
           # The value of "Status:" indicates permanent error but the value of SMTP reply code in
           # Diagnostic-Code: field is "TEMPERROR"!!!!
           re = e["reason"]
-          cr = Sisimai::SMTP::Reply.find(e["diagnosis"], e["status"]) || ""
-          cs = Sisimai::SMTP::Status.find(e["diagnosis"], cr)         || ""
+          cr = Sisimai::SMTP::Reply.find(e["diagnosis"], e["status"])
+          cs = Sisimai::SMTP::Status.find(e["diagnosis"], cr)
           cv = ""
 
           if cr[0,1] == "4" || re == "expired" || re == "mailboxfull"
