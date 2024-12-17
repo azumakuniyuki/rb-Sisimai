@@ -399,6 +399,7 @@ module Sisimai
               # Feedback Loop message
               require 'sisimai/arf'
               havesifted = Sisimai::ARF.inquire(mailheader, bodystring)
+              modulename = "ARF"
               throw :DECODER if havesifted
             end
 
@@ -418,8 +419,8 @@ module Sisimai
         havesifted['catch'] = havecaught
         modulename = modulename.sub(/\A.+::/, '')
         havesifted['ds'].each do |e|
-          e['agent'] = modulename unless e['agent']
-          e.each_key { |a| e[a] ||= '' }  # Replace nil with ""
+          e["agent"] = modulename if e["agent"].nil? || e["agent"].empty?
+          e.each_key { |a| e[a] = "" if e[a].nil? }  # Replace nil with ""
         end
         return havesifted
       end
