@@ -110,7 +110,7 @@ class SMTPStatusTest < Minitest::Test
   end
 
   def test_prefer
-    assert_empty Sisimai::SMTP::Status.prefer(nil)
+    assert_nil            Sisimai::SMTP::Status.prefer(nil)
     assert_equal '5.2.2', Sisimai::SMTP::Status.prefer('5.2.2', '')
     assert_equal '5.3.5', Sisimai::SMTP::Status.prefer('', '5.3.5')
     assert_equal '5.1.1', Sisimai::SMTP::Status.prefer('5.0.0', '5.1.1')
