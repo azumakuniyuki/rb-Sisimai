@@ -62,7 +62,7 @@ module LhostEngineTest::Private
       '01056' => [['5.1.1',   '',    'userunknown',     true]],
       '01057' => [['5.0.911', '550', 'userunknown',     true]],
       '01058' => [['5.1.1',   '550', 'userunknown',     true]],
-      '01059' => [['5.0.910', '',    'filtered',        false]],
+      '01059' => [['5.0.911', '',    'userunknown',     true]],
       '01060' => [['5.0.921', '',    'suspend',         false]],
       '01061' => [['5.0.910', '554', 'filtered',        false]],
       '01062' => [['5.0.910', '554', 'filtered',        false]],

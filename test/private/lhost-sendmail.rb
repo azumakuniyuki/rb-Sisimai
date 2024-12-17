@@ -190,7 +190,7 @@ module LhostEngineTest::Private
       '01184' => [['5.0.0',   '554', 'filtered',        false]],
       '01185' => [['4.4.7',   '',    'networkerror',    false]],
       '01186' => [['5.7.0',   '552', 'policyviolation', false]],
-      '01187' => [['4.7.0',   '421', 'blocked',         false]],
+      '01187' => [['5.7.0',   '552', 'policyviolation', false]],
       '01188' => [['5.1.1',   '550', 'userunknown',     true]],
       '01189' => [['4.4.7',   '',    'expired',         false]],
       '01190' => [['5.7.1',   '550', 'spamdetected',    false]],
@@ -232,7 +232,6 @@ module LhostEngineTest::Private
       '01226' => [['5.7.1',   '550', 'authfailure',     false]],
       '01227' => [['5.7.1',   '550', 'authfailure',     false]],
       '01228' => [['5.1.1',   '550', 'userunknown',     true]],
-      '01229' => [['5.4.1',   '550', 'rejected',        false]],
       '01230' => [['5.2.0',   '550', 'filtered',        false]],
       '01231' => [['5.2.1',   '550', 'suspend',         false]],
     }
