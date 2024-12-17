@@ -258,13 +258,11 @@ module Sisimai
             end
           end
           e["command"]   = Sisimai::SMTP::Command.find(e["diagnosis"])
-          e["command"]   = alternates["command"] if e["command"].nil? || e["command"].empty? 
-
+          e["command"]   = alternates["command"]   if e["command"].empty? 
           e["replycode"] = Sisimai::SMTP::Reply.find(e["diagnosis"], e["status"])
-          e["replycode"] = alternates["replycode"] if e["replycode"].nil? || e["replycode"].empty? 
-
-          e["status"]  ||= Sisimai::SMTP::Status.find(e["diagnosis"], e["replycode"])
-          e["status"]    = alternates["replycode"] if e["replycode"].nil? || e["replycode"].empty? 
+          e["replycode"] = alternates["replycode"] if e["replycode"].empty? 
+          e["status"]    = Sisimai::SMTP::Status.find(e["diagnosis"], e["replycode"]) if e["status"].empty?
+          e["status"]    = alternates["status"] if e["status"].empty?
         end
 
         if emailparts[1].nil? || emailparts[1].empty?
