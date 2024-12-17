@@ -28,9 +28,8 @@ module Sisimai
       # @return [Hash]          Bounce data list and message/rfc822 part
       # @return [Nil]           it failed to decode or the arguments are missing
       def inquire(mhead, mbody)
-
+        # There is no "Content-Type: message/rfc822" line in the message body
         if Boundaries.any? { |a| mbody.include?(a) } == false
-          # There is no "Content-Type: message/rfc822" line in the message body
           # Insert "Content-Type: message/rfc822" before "Return-Path:" of the original message
           p0 = mbody.index("\n\nReturn-Path:")
           mbody = sprintf("%s%s%s", mbody[0, p0], Boundaries[0], mbody[p0 + 1, mbody.size]) if p0
@@ -89,7 +88,7 @@ module Sisimai
           p1 = emailparts[0].index(">\n", p0 + 2); emailparts[0][p1, 1] = ""
         end
 
-        bodyslices = mbody.scrub('?').split("\n")
+        bodyslices = emailparts[0].scrub('?').split("\n")
         while e = bodyslices.shift do
           # Read error messages and delivery status lines from the head of the email to the previous
           # line of the beginning of the original message.
