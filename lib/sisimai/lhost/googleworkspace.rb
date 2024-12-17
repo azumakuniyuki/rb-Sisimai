@@ -73,7 +73,7 @@ module Sisimai::Lhost
         end
         return nil if recipients == 0
 
-        dscontents[0]["recipients"] = entiremesg
+        dscontents[0]["diagnosis"] = entiremesg
         dscontents.each do |e|
           # Tidy up the error message in e["diagnosis"], Try to detect the bounce reason.
           e["diagnosis"] = Sisimai::String.sweep(e["diagnosis"])
