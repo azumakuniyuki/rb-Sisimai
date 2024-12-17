@@ -68,7 +68,7 @@ module Sisimai::Lhost
           p2 = e.rindex('>') || -1
           if p1 > 0 && p2 > 0
             # You are not a member of this mailing list <neko-nyaan@example.org>.
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

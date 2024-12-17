@@ -55,7 +55,7 @@ module Sisimai::Lhost
           if e.start_with?('    ') && e.index('@') > 1
             # The following recipients were affected:
             #    dummyuser@blabla.xxxxxxxxxxxx.com
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

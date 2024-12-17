@@ -58,7 +58,7 @@ module Sisimai::Lhost
           # X-Failed-Recipients: neko@example.jp, nyaan@example.org, ...
           next unless Sisimai::Address.is_emailaddress(e)
 
-          if v['recipient']
+          if v["recipient"] != ""
             # There are multiple recipient addresses in the message body.
             dscontents << Sisimai::Lhost.DELIVERYSTATUS
             v = dscontents[-1]

@@ -67,7 +67,7 @@ module Sisimai::Lhost
             cv = Sisimai::Address.s3s4(e[e.rindex(' ') + 1, e.size])
             next unless Sisimai::Address.is_emailaddress(cv)
 
-            if v['recipient'] && cv != v['recipient']
+            if v["recipient"] != "" && cv != v['recipient']
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

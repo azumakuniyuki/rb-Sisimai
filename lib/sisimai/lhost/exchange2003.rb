@@ -126,7 +126,7 @@ module Sisimai::Lhost
             if Sisimai::String.aligned(e, ['@', ' on '])
               # kijitora@example.co.jp on Thu, 29 Apr 2007 16:51:51 -0500
               #   kijitora@example.com on 4/29/99 9:19:59 AM
-              if v['recipient']
+              if v["recipient"] != ""
                 # There are multiple recipient addresses in the message body.
                 dscontents << Sisimai::Lhost.DELIVERYSTATUS
                 v = dscontents[-1]

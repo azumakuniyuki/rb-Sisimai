@@ -85,7 +85,7 @@ module Sisimai
           break
         end
 
-        if v['recipient']
+        if v["recipient"] != ""
           # Clean-up the recipient address
           v['recipient'] = Sisimai::Address.s3s4(v['recipient'])
           recipients += 1

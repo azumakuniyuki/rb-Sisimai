@@ -52,7 +52,7 @@ module Sisimai::Lhost
           if p1 == 0 || p2 == 0
             # SMTP Server <mta2.example.jp> rejected recipient <kijitora@examplejp> 
             # The following recipients returned permanent errors: neko@example.jp.
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

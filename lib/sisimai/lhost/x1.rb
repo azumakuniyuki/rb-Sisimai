@@ -47,7 +47,7 @@ module Sisimai::Lhost
 
           if Sisimai::String.aligned(e, ['@', ' [', ']'])
             # kijitora@example.co.jp [User unknown]
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

@@ -74,7 +74,7 @@ module Sisimai::Lhost
 
             elsif e['command'] == 'RCPT'
               # RCPT TO: <...>
-              if v['recipient']
+              if v["recipient"] != ""
                 # There are multiple recipient addresses in the transcript of session
                 dscontents << Sisimai::Lhost.DELIVERYSTATUS
                 v = dscontents[-1]
@@ -117,7 +117,7 @@ module Sisimai::Lhost
                 # X-Actual-Recipient: rfc822; kijitora@example.co.jp
                 if o[0] == 'final-recipient'
                   # Final-Recipient: rfc822; kijitora@example.jp
-                  if v['recipient']
+                  if v["recipient"] != ""
                     # There are multiple recipient addresses in the message body.
                     dscontents << Sisimai::Lhost.DELIVERYSTATUS
                     v = dscontents[-1]
@@ -205,7 +205,7 @@ module Sisimai::Lhost
 
         end
 
-        unless recipients > 0
+        if recipients == 0
           # Fallback: get a recipient address from error messages
           if anotherset['recipient'].to_s.size > 0
             # Set a recipient address

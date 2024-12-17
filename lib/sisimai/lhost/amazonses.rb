@@ -87,11 +87,11 @@ module Sisimai::Lhost
             p3 = sespayload.index("{", p2 + 9)
             p4 = sespayload.index("\n", p2 + 9)
             sespayload = sespayload[p3, p4 - p3]
-            sespayload = sespayload.chop(",")
-            sespayload = sespayload.chop('"')
+            sespayload = sespayload.chop if sespayload[-1, 1] == ","
+            sespayload = sespayload.chop if sespayload[-1, 1] == '"'
           end
 
-          break if sespayload.incldue?("notificationType") == false
+          break if sespayload.include?("notificationType") == false
           break if sespayload.start_with?("{")             == false
           break if sespayload.end_with?("}")               == false
           proceedsto = true; break
@@ -126,14 +126,14 @@ module Sisimai::Lhost
         whatnotify = jsonobject["notificationType"][0, 1] || ""
         v          = dscontents[-1]
 
-        if whatnotidy == "B"
+        if whatnotify == "B"
           # "notificationType":"Bounce"
           p = jsonobject["bounce"]
           r = p["bounceType"] == "Permanent" ? "5" : "4"
 
           p["bouncedRecipients"].each do |e|
             # {"emailAddress":"neko@example.jp", "action":"failed", "status":"5.1.1", "diagnosticCode": "..."}
-            if v["recipient"]
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -160,7 +160,7 @@ module Sisimai::Lhost
           p = jsonobject["complaint"]
           p["complainedRecipients"].each do |e|
             # {"emailAddress":"neko@example.jp"}
-            if v["recipient"]
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -173,12 +173,12 @@ module Sisimai::Lhost
             recipients += 1
           end
 
-        elsif whatnotidy == "D"
+        elsif whatnotify == "D"
           # "notificationType":"Delivery"
           p = jsonobject["delivery"]
           p["recipients"].each do |e|
             # {"recipients":["neko@example.jp"]}
-            if v["recipient"]
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

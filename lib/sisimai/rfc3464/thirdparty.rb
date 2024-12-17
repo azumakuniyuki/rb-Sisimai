@@ -70,7 +70,7 @@ module Sisimai
             return [] if argv1.nil? || argv1.empty?
 
             fieldparts = argv1.split(":", 2)
-            xfieldname = fieldparts[0]
+            xfieldname = fieldparts[0].downcase
             xgroupname = FieldGroup[xfieldname]; return [] if xgroupname.nil?
             xfieldlist = ["", "", Sisimai::String.sweep(fieldparts[1]), xgroupname, "", "PowerMTA"]
 

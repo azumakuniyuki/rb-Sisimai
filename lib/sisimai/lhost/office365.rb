@@ -158,7 +158,7 @@ module Sisimai::Lhost
           if cv = e.match(/\A.+[@].+[<]mailto:(.+[@].+)[>]\z/) ||
                   e.match(/\ARecipient[ ]Address:[ ]+(.+)\z/)
             # kijitora@example.com<mailto:kijitora@example.com>
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

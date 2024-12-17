@@ -188,7 +188,7 @@ module Sisimai::Lhost
 
           if e.start_with?(' ') && e.include?('@')
             # kijitora@example.jp: 550 5.2.2 <kijitora@example>... Mailbox Full
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

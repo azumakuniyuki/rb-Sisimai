@@ -212,8 +212,8 @@ module Sisimai::Lhost
           while true
             # Check if the line matche the following patterns:
             break if e.start_with?("  ") == false         # The line should start with "  " (2 spaces)
-            break if e.index('@')         < 2             # "@" should be included (email)
-            break if e.index?(".")        < 2             # "." should be included (domain part)
+            break if e.include?('@')     == false         # "@" should be included (email)
+            break if e.include?(".")     == false        # "." should be included (domain part)
             break if e.include?("pipe to |")              # Exclude "pipe to /path/to/prog" line
 
             cx = e[2, 1]
@@ -223,15 +223,15 @@ module Sisimai::Lhost
             break
           end
 
-          if ce == true || e.include?(StartingOf["alias"])
+          if ce == true || e.include?(StartingOf["alias"][0])
             # The line is including an email address
-            if v["recipient"]
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
 
-            if e.include?(MarkingsOf["alias"])
+            if e.include?(StartingOf["alias"][0])
               # The line does not include an email address
               # deliver.c:4549|  printed = US"an undisclosed address";
               #   an undisclosed address

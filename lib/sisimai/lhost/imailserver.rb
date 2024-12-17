@@ -48,7 +48,7 @@ module Sisimai::Lhost
           if (p0 > 8 && Sisimai::String.aligned(e, [': ', '@'])) || e.start_with?('undeliverable ')
             # Unknown user: kijitora@example.com
             # undeliverable to kijitora@example.com
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

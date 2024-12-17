@@ -64,7 +64,7 @@ module Sisimai::Lhost
             #   RCPT TO: *****@vtext.com
             v = dscontents[-1]
             if e.start_with?('  RCPT TO: ')
-              if v['recipient']
+              if v["recipient"] != ""
                 # There are multiple recipient addresses in the message body.
                 dscontents << Sisimai::Lhost.DELIVERYSTATUS
                 v = dscontents[-1]
@@ -112,7 +112,7 @@ module Sisimai::Lhost
             # Date:  Wed, 20 Jun 2013 10:29:52 +0000
             v = dscontents[-1]
             if e.start_with?('To: ')
-              if v['recipient']
+              if v["recipient"] != ""
                 # There are multiple recipient addresses in the message body.
                 dscontents << Sisimai::Lhost.DELIVERYSTATUS
                 v = dscontents[-1]

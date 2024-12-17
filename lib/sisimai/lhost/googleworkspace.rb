@@ -66,7 +66,7 @@ module Sisimai::Lhost
           # Content-Type: message/rfc822 field
           p0 = emailparts[1].index("\nTo:"); break unless p0
           p1 = emailparts[1].index("\n", p0 + 2)
-          cv = Sisimai::Address.s3s4(emailparts[1], p0 + 4, p1 - p0)
+          cv = Sisimai::Address.s3s4(emailparts[1][p0 + 4, p1 - p0])
           dscontents[0]["recipient"] = cv
           recipients += 1
         end

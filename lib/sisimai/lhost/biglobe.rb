@@ -63,7 +63,7 @@ module Sisimai::Lhost
           if e.include?('@') && e.include?(' ') == false
             #    ----- The following addresses had delivery problems -----
             # ********@***.biglobe.ne.jp
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

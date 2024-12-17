@@ -169,7 +169,7 @@ module Sisimai::Lhost
 
           if e.start_with?('<') && Sisimai::String.aligned(e, ['<', '@', '>:'])
             # <kijitora@example.jp>:
-            if v["recipient"]
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

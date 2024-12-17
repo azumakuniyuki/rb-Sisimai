@@ -78,7 +78,7 @@ module Sisimai::Lhost
               # X-Actual-Recipient: rfc822; kijitora@example.co.jp
               if o[0] == 'final-recipient'
                 # Final-Recipient: rfc822; kijitora@example.jp
-                if v['recipient']
+                if v["recipient"] != ""
                   # There are multiple recipient addresses in the message body.
                   dscontents << Sisimai::Lhost.DELIVERYSTATUS
                   v = dscontents[-1]

@@ -69,7 +69,7 @@ module Sisimai::Lhost
           if e.start_with?('was not delivered to:')
             # was not delivered to:
             #   kijitora@example.net
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

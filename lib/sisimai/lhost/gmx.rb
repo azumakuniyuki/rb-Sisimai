@@ -60,7 +60,7 @@ module Sisimai::Lhost
             #
             # Reason:
             # delivery retry timeout exceeded
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

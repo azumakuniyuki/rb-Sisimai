@@ -79,7 +79,7 @@ module Sisimai::Lhost
             p1 = e.index('<') || -1
             p2 = e.index('>') || -1
 
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

@@ -61,7 +61,7 @@ module Sisimai::Lhost
 
           if e.start_with?('  RCPT TO: ')
             #   RCPT TO: kijitora@example.org
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

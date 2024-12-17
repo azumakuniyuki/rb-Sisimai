@@ -51,7 +51,7 @@ module Sisimai::Lhost
             # Your mail sent on: Thu, 29 Apr 2010 11:04:47 +0900
             #     Could not be delivered to: <******@**.***.**>
             #     As their mailbox is full.
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

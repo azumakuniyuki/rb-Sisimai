@@ -72,7 +72,7 @@ module Sisimai::Lhost
           if e.start_with?('There was an error delivering your mail to <')
             # email.example.jp [192.0.2.25] did not like our RCPT TO:
             # 552 5.2.2 <kijitora@example.com>: Recipient address rejected: Mailbox full
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
