@@ -29,12 +29,12 @@ module Sisimai
       # @param    [Hash]   argvs  Decoded email data
       # @return   [String]        The value of bounce reason
       def find(argvs)
-        return nil if argvs["diagnosticcode"].empty?
+        return "" if argvs["diagnosticcode"].empty?
 
         clienthost = argvs["lhost"].downcase
         remotehost = argvs["rhost"].downcase
         domainpart = argvs["destination"].downcase
-        return nil if (remotehost + domainpart).empty?
+        return "" if (remotehost + domainpart).empty?
 
         rhostmatch = nil
         rhostclass = ""
@@ -60,11 +60,11 @@ module Sisimai
             break
           end
         end
-        return nil if rhostclass.empty?
+        return "" if rhostclass.empty?
 
         require rhostclass
         reasontext = Module.const_get(modulename).find(argvs)
-        return nil if reasontext.empty?
+        return "" if reasontext.empty?
         return reasontext
       end
     end
