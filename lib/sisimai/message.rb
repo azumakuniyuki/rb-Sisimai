@@ -24,7 +24,7 @@ module Sisimai
       ReplacesAs = {
         "Content-Type" => [
           %w[message/xdelivery-status message/delivery-status],
-          %w[message/message/disposition-notification message/delivery-status],
+          %w[message/disposition-notification message/delivery-status],
         ]
       }.freeze
 
