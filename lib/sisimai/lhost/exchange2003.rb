@@ -185,6 +185,7 @@ module Sisimai::Lhost
 
         dscontents.each do |e|
           e.delete('msexch')
+          
           if e['diagnosis'].start_with?('MSEXCH:')
             #     MSEXCH:IMS:KIJITORA CAT:EXAMPLE:EXCHANGE 0 (000C05A6) Unknown Recipient
             p1 = e['diagnosis'].index('(') || -1
@@ -202,10 +203,9 @@ module Sisimai::Lhost
             e['diagnosis'] = errormessage
           end
 
-          unless e['reason']
+          if e["reason"].empty?
             # Could not detect the reason from the value of "diagnosis".
-            next unless e['alterrors']
-            next if e['alterrors'].empty?
+            next if e["alterrors"].empty?
 
             # Copy alternative error message
             e['diagnosis'] = e['alterrors'] + ' ' + e['diagnosis']
