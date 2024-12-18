@@ -33,6 +33,7 @@ module Sisimai::Lhost
         'SMTPSEND.DNS.MxLoopback'        => 'networkerror',  # 554 5.4.4 SMTPSEND.DNS.MxLoopback
         'RESOLVER.ADR.BadPrimary'        => 'systemerror',   # 550 5.2.0 RESOLVER.ADR.BadPrimary
         'RESOLVER.ADR.RecipNotFound'     => 'userunknown',   # 550 5.1.1 RESOLVER.ADR.RecipNotFound
+        'RESOLVER.ADR.RecipientNotFound' => 'userunknown',   # 550 5.1.1 RESOLVER.ADR.RecipientNotFound
         'RESOLVER.ADR.ExRecipNotFound'   => 'userunknown',   # 550 5.1.1 RESOLVER.ADR.ExRecipNotFound
         'RESOLVER.ADR.RecipLimit'        => 'toomanyconn',   # 550 5.5.3 RESOLVER.ADR.RecipLimit
         'RESOLVER.ADR.InvalidInSmtp'     => 'systemerror',   # 550 5.1.0 RESOLVER.ADR.InvalidInSmtp
@@ -60,10 +61,6 @@ module Sisimai::Lhost
         match += 1 if mhead['content-language'].size == 2 # JP
         match += 1 if mhead['content-language'].size == 5 # ja-JP
         return nil unless match > 1
-
-        # These headers exist only a bounce mail from Office365
-        return nil if mhead['x-ms-exchange-crosstenant-originalarrivaltime']
-        return nil if mhead['x-ms-exchange-crosstenant-fromentityheader']
 
         dscontents = [Sisimai::Lhost.DELIVERYSTATUS]
         emailparts = Sisimai::RFC5322.part(mbody, Boundaries)
