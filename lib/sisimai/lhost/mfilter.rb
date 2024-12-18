@@ -75,6 +75,7 @@ module Sisimai::Lhost
             # DATA
             next if v['command']
             v['command'] = e if markingset['command']
+
           else
             # Get error message and SMTP command
             if e == StartingOf[:error][0]
@@ -87,7 +88,7 @@ module Sisimai::Lhost
             else
               # 550 5.1.1 unknown user <kijitora@example.jp>
               next if e.start_with?('-')
-              next if v['diagnosis']
+              next if v['diagnosis'] != ""
               v['diagnosis'] = e
             end
           end
