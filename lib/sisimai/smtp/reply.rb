@@ -162,13 +162,13 @@ module Sisimai
 
           replycodes.each do |e|
             # Try to find an SMTP Reply Code from the given string
-            appearance = esmtperror.index(e); next unless appearance
+            appearance = esmtperror.index(e); next if appearance.nil?
             startingat = 1
             mesglength = esmtperror.size
 
-            while startingat + 3 < mesglength do
+            while startingat + 3 < mesglength
               # Find all the reply code in the error message
-              replyindex = esmtperror.index(e, startingat); break unless replyindex
+              replyindex = esmtperror.index(e, startingat); break if replyindex.nil?
               formerchar = esmtperror[replyindex - 1, 1].ord || 0
               latterchar = esmtperror[replyindex + 3, 1].ord || 0
 
@@ -177,7 +177,7 @@ module Sisimai
               esmtpreply = e
               break
             end
-            break if esmtperror.size > 0
+            break if esmtpreply != ""
           end
           return esmtpreply
         end
