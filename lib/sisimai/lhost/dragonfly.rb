@@ -86,7 +86,7 @@ module Sisimai::Lhost
             # Pick the remote hostname, and the SMTP command
             # net.c:500| snprintf(errmsg, sizeof(errmsg), "%s [%s] did not like our %s:\n%s",
             next unless e.include?(' did not like our ')
-            next if v['rhost']
+            next if v['rhost'] != ""
 
             p = e.split(' ', 3)
             v['rhost']   = if p[0].include?('.') then p[0] else p[1] end
