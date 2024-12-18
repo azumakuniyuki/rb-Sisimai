@@ -199,8 +199,7 @@ module Sisimai::Lhost
             v['recipient'] = r
             recipients += 1
           else
-            v['diagnosis'] ||= ''
-            v['diagnosis'] << e + ' '
+            v["diagnosis"] << e << " "
           end
         end
         return nil unless recipients > 0
@@ -236,7 +235,7 @@ module Sisimai::Lhost
             break
           end
 
-          if e['reason'].nil?
+          if e['reason'].empty?
             # There is no no state code in the error message
             MessagesOf.each_key do |r|
               # Verify each regular expression of session errors
