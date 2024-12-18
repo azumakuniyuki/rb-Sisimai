@@ -40,8 +40,7 @@ module Sisimai
       def retry
         return {
           'undefined' => true, 'onhold' => true, 'systemerror' => true, 'securityerror' => true,
-          'expired' => true, 'suspend' => true, 'networkerror' => true, 'hostunknown' => true,
-          'userunknown' => true
+          'expired' => true, 'networkerror' => true, 'hostunknown' => true, 'userunknown' => true
         }.freeze
       end
       ModulePath = Sisimai::Reason.path

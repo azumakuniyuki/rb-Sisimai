@@ -6,23 +6,23 @@ module Sisimai::Lhost
       require 'sisimai/lhost'
 
       Indicators = Sisimai::Lhost.INDICATORS
-      Boundaries = ['--------------------------------------------------', 'Content-Type: message/rfc822'].freeze
-      MarkingsOf = { message: ['The user(s) ', 'Your message ', 'Each of the following', '<'] }.freeze
-      ReFailures = {
+      Boundaries = ["--------------------------------------------------", "Content-Type: message/rfc822"].freeze
+      StartingOf = { message: ['The user(s) ', 'Your message ', 'Each of the following', '<'] }.freeze
+      Messagesof = {
         # notaccept: ['The following recipients did not receive this message:'],
+        'expired' => [
+          # Your message was not delivered within 0 days and 1 hours.
+          # Remote host is not responding.
+          'Your message was not delivered within ',
+        ],
         'mailboxfull' => ['The user(s) account is temporarily over quota'],
+        'onhold'  => ['Each of the following recipients was rejected by a remote mail server'],
         'suspend' => [
           # http://www.naruhodo-au.kddi.com/qa3429203.html
           # The recipient may be unpaid user...?
           'The user(s) account is disabled.',
           'The user(s) account is temporarily limited.',
         ],
-        'expired' => [
-          # Your message was not delivered within 0 days and 1 hours.
-          # Remote host is not responding.
-          'Your message was not delivered within ',
-        ],
-        'onhold' => ['Each of the following recipients was rejected by a remote mail server'],
       }.freeze
 
       # @abstract Decodes the bounce message from au EZweb
@@ -48,7 +48,7 @@ module Sisimai::Lhost
         bodyslices = emailparts[0].split("\n")
         readcursor = 0      # (Integer) Points the current cursor position
         recipients = 0      # (Integer) The number of 'Final-Recipient' header
-        rxmessages = []; ReFailures.each_value { |a| rxmessages << a }
+        substrings = []; Messagesof.each_value { |a| substrings << a }; substrings.flatten!
         v = nil
 
         while e = bodyslices.shift do
@@ -56,7 +56,7 @@ module Sisimai::Lhost
           # line of the beginning of the original message.
           if readcursor == 0
             # Beginning of the bounce message or delivery status part
-            readcursor |= Indicators[:deliverystatus] if MarkingsOf[:message].any? { |a| e.include?(a) }
+            readcursor |= Indicators[:deliverystatus] if StartingOf[:message].any? { |a| e.include?(a) }
           end
           next if (readcursor & Indicators[:deliverystatus]) == 0
           next if e.empty?
@@ -84,76 +84,68 @@ module Sisimai::Lhost
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] = Sisimai::Address.s3s4(e[p1, p2 - p1])
+            v["recipient"]  = Sisimai::Address.s3s4(e[p1, p2 - p1])
+            v["diagnosis"] << " " << e
             recipients += 1
 
-          elsif f = Sisimai::RFC1894.match(e)
+          elsif Sisimai::RFC1894.match(e) > 0
             # "e" matched with any field defined in RFC3464
-            next unless f > 0
             next unless o = Sisimai::RFC1894.field(e)
             next unless fieldtable[o[0]]
             v[fieldtable[o[0]]] = o[2]
 
           else
-            # The line does not begin with a DSN field defined in RFC3464
+            # Other error messages
             next if Sisimai::String.is_8bit(e)
-            if e.include?('>>> ')
+            if e.include?(" >>> ")
               #    >>> RCPT TO:<******@ezweb.ne.jp>
               v["command"] = Sisimai::SMTP::Command.find(e)
+              v["diagnosis"] << " " << e
+
+            elsif e.include?(" <<< ")
+              #    <<< 550 ...
+              v["diagnosis"] << " " << e
+
             else
               # Check error message
-              if rxmessages.any? { |messages| messages.any? { |message| e.include?(message) } }
+              isincluded = false
+              if substrings.any? { |a| e.include?(a) }
                 # Check with regular expressions of each error
-                v['diagnosis'] << ' ' << e
-              else
-                # >>> 550
-                v['alterrors'] ||= ''
-                v['alterrors'] << ' ' << e
+                v["diagnosis"] << " " << e
+                isincluded = true
               end
+              v["diagnosis"] << " " << e if isincluded
             end
           end
         end
         return nil unless recipients > 0
 
         dscontents.each do |e|
-          unless e['alterrors'].to_s.empty?
-            # Copy alternative error message
-            e['diagnosis'] = e['alterrors']
-            if e['diagnosis'].start_with?('-') || e['diagnosis'].end_with?('__')
-              # Override the value of diagnostic code message
-              e['diagnosis'] = e['alterrors'] unless e['alterrors'].empty?
-            end
-            e.delete('alterrors')
-          end
-          e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
+          # Check each value of DeliveryMatter{}, try to detect the bounce reason.
+          e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
+          e["command"]   = Sisimai::SMTP::Command.find(e["diagnosis"]) if e["command"].empty?
 
           if mhead['x-spasign'].to_s == 'NG'
             # Content-Type: text/plain; ..., X-SPASIGN: NG (spamghetti, au by EZweb)
             # Filtered recipient returns message that include 'X-SPASIGN' header
             e['reason'] = 'filtered'
           else
-            if e['command'] == 'RCPT'
-              # set "userunknown" when the remote server rejected after RCPT command.
-              e['reason'] = 'userunknown'
-            else
-              # SMTP command is not RCPT
-              catch :SESSION do
-                ReFailures.each_key do |r|
-                  # Try to match with each session error message
-                  ReFailures[r].each do |rr|
-                    # Check each error message pattern
-                    next unless e['diagnosis'].include?(rr)
-                    e['reason'] = r
-                    throw :SESSION
-                  end
+            # There is no X-SPASIGN header or the value of the header is not "NG"
+            catch :FINDREASON do
+              Messagesof.each_key do |r|
+                # Try to match with each session error message
+                Messagesof[r].each do |f|
+                  # Check each error message pattern
+                  next unless e['diagnosis'].include?(f)
+                  e['reason'] = r
+                  throw :FINDREASON
                 end
               end
-
             end
           end
           next if e['reason']
           next if e['recipient'].end_with?('@ezweb.ne.jp', '@au.com')
-          e['reason'] = 'userunknown'
+          e["reason"] = "userunknown" if e["diagnosis"].start_with?("<")
         end
 
         return { 'ds' => dscontents, 'rfc822' => emailparts[1] }
