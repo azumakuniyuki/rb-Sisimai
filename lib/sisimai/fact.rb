@@ -350,9 +350,8 @@ module Sisimai
           piece['diagnosticcode'] = piece['diagnosticcode'].force_encoding('UTF-8').scrub('?')
         end
 
-        if piece["reason"] == "mailererror"
-          piece["diagnostictype"] = "X-UNIX"
-        else
+        piece["diagnostictype"] = "X-UNIX" if piece["reason"] == "mailererror"
+        if piece["diagnostictype"].empty?
           piece["diagnostictype"] = "SMTP" unless %w[feedback vacation].include?(piece["reason"])
         end
 
