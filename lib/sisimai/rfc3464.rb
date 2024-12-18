@@ -106,7 +106,7 @@ module Sisimai
 
               # This line is a boundary kept in "multiparts" as a string, when the end of the boundary
               # appeared, the condition above also returns true.
-              if isboundary.any? { |a| e == a } then goestonext = true; break; end
+              if isboundary.any? { |a| e == a } then goestonext = false; break; end
               if e.start_with?("Content-Type:")
                 # Content-Type: field in multipart/*
                 if e.include?("multipart/")
