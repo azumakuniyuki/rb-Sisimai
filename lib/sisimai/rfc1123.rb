@@ -109,9 +109,9 @@ module Sisimai
           # Check other patterns which are not sandwiched
           StartAfter.each do |e|
             # StartAfter have some strings, not an array
-            p1 = sourcetext.index(e); next unless p1
+            p1 = sourcetext.index(e); next if p1.nil?
             cw = e.size
-            sourcelist = sourcetext[p1 + cw..].split(" ")
+            sourcelist = sourcetext[p1 + cw, sourcetext.size].split(" ")
             throw :MAKELIST
           end
           ExistUntil.each do |e|
