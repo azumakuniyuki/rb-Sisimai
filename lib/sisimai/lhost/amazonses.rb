@@ -202,9 +202,8 @@ module Sisimai::Lhost
         end
         return nil if recipients == 0
 
-        dscontents.each do |e|
-          # Time::Piece->strptime() cannot parse "2016-11-25T01:49:01.000Z" format
-        end
+        # Date::Time.strptime() cannot parse "2016-11-25T01:49:01.000Z" format
+        dscontents.each { |e| e["date"] = e["date"].sub("T", " ").sub(/[.]\d{3}Z/, "") }
 
         cv = ""
         jsonobject["mail"]["headers"].each do |e|
