@@ -162,7 +162,7 @@ module Sisimai::Lhost
                 # Alternative error message and recipient
                 if e.include?(' (in reply to ') || e.include?('command)')
                   # 5.1.1 <userunknown@example.co.jp>... User Unknown (in reply to RCPT TO
-                  q = Sisimai::SMTP::Command.find(e); commandset << q if q
+                  cv = Sisimai::SMTP::Command.find(e) || ""; commandset << cv unless cv.empty?
                   anotherset['diagnosis'] ||= ''
                   anotherset['diagnosis'] << ' ' << e
 
