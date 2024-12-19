@@ -143,7 +143,7 @@ module Sisimai::Lhost
               end
             end
           end
-          next if e['reason']
+          next if e['reason'] != ""
           next if e['recipient'].end_with?('@ezweb.ne.jp', '@au.com')
           e["reason"] = "userunknown" if e["diagnosis"].start_with?("<")
         end
