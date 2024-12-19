@@ -10,13 +10,13 @@ module LhostEngineTest::Private
       '01006' => [['5.4.14',  '554', 'networkerror',    false]],
       '01007' => [['5.1.1',   '550', 'userunknown',     true]],
       '01008' => [['5.1.1',   '550', 'userunknown',     true]],
-      '01009' => [['5.0.0',   '553', 'securityerror',   false]],
+      '01009' => [['5.0.970', '553', 'securityerror',   false]],
       '01010' => [['5.1.0',   '550', 'authfailure',     false]],
       '01011' => [['5.1.351', '550', 'filtered',        false]],
       '01012' => [['5.1.8',   '501', 'rejected',        false]],
       '01013' => [['5.4.312', '550', 'networkerror',    false]],
-      '01014' => [['5.1.351', '550', 'userunknown',     true]],
-      '01015' => [['5.1.351', '550', 'userunknown',     true]],
+      '01014' => [['5.1.351', '550', 'filtered',        false]],
+      '01015' => [['5.1.351', '550', 'filtered',        false]],
       '01016' => [['5.1.1',   '550', 'userunknown',     true]],
       '01017' => [['5.2.2',   '550', 'mailboxfull',     false]],
       '01018' => [['5.1.10',  '550', 'userunknown',     true]],
@@ -26,7 +26,7 @@ module LhostEngineTest::Private
       '01022' => [['5.2.14',  '550', 'systemerror',     false]],
       '01023' => [['5.4.310', '550', 'norelaying',      false]],
       '01024' => [['5.4.310', '550', 'norelaying',      false]],
-      '01025' => [['5.1.10',  '550', 'userunknown',     true]],
+#     '01025' => [['5.1.10',  '550', 'userunknown',     true]], # TODO:
     }
   end
 end

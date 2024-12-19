@@ -20,12 +20,13 @@ module LhostEngineTest
 
       # Since v5.2.0, some Lhost modules have been removed
       alternates = {
-        "RFC3464" => %w[
+        "Exchange2007" => %w[Office365],
+        "Exim"         => %w[MailRu MXLogic],
+        "Qmail"        => %w[X4 Yahoo],
+        "RFC3464"      => %w[
             Aol Amavis AmazonWorkMail Barracuda Bigfoot Facebook GSuite McAfee MessageLabs Outlook
             PowerMTA ReceivingSES SendGrid SurfControl Yandex X5
         ],
-        "Exim"    => %w[MailRu MXLogic],
-        "Qmail"   => %w[X4 Yahoo],
       }
 
       Dir.glob(patternset).each do |f|

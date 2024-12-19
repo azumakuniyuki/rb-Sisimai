@@ -16,7 +16,7 @@ module Sisimai
         "IUA"         => [".email.ua"],
         "KDDI"        => [".ezweb.ne.jp", "msmx.au.com"],
         "MessageLabs" => [".messagelabs.com"],
-        "Microsoft"   => [".prod.outlook.com", ".protection.outlook.com"],
+        "Microsoft"   => [".prod.outlook.com", ".protection.outlook.com", ".onmicrosoft.com", ".exchangelabs.com"],
         "Mimecast"    => [".mimecast.com"],
         "NTTDOCOMO"   => ["mfsmax.docomo.ne.jp"],
         "Outlook"     => [".hotmail.com"],
@@ -34,35 +34,40 @@ module Sisimai
         clienthost = argvs["lhost"].downcase
         remotehost = argvs["rhost"].downcase
         domainpart = argvs["destination"].downcase
-        return "" if (remotehost + domainpart).empty?
-
-        rhostmatch = nil
         rhostclass = ""
         modulename = ""
+        return "" if (remotehost + domainpart).empty?
 
-        RhostClass.each_key do |e|
-          # Try to match the remote host and the domain part with each value of RhostClass
-          rhostmatch   = true if RhostClass[e].any? { |a| remotehost.end_with?(a) }
-          rhostmatch ||= true if RhostClass[e].any? { |a| a.end_with?(domainpart) }
-          next unless rhostmatch
+        catch :FINDRHOST do
+          # Try to match the hostname patterns with the following order:
+          # 1. destination: The domain part of the recipient address
+          # 2. rhost: remote hostname
+          # 3. lhost: local MTA hostname
+          RhostClass.each_key do |e|
+            # Try to match the domain part of the recipient address with each value of RhostClass
+            next unless RhostClass[e].any? { |a| a.end_with?(domainpart) }
+            modulename = 'Sisimai::Rhost::' << e
+            throw :FINDRHOST
+          end
 
-          modulename = 'Sisimai::Rhost::' << e
-          rhostclass = 'sisimai/rhost/' << e.downcase
-          break
-        end
-        if rhostclass.empty?
+          RhostClass.each_key do |e|
+            # Try to match the remote host with each value of RhostClass
+            next unless RhostClass[e].any? { |a| remotehost.end_with?(a) }
+            modulename = 'Sisimai::Rhost::' << e
+            throw :FINDRHOST
+          end
+
           # Neither the remote host nor the destination did not matched with any value of RhostClass
           RhostClass.each_key do |e|
             # Try to match the client host with each value of RhostClass
             next unless RhostClass[e].any? { |a| clienthost.end_with?(a) }
             modulename = 'Sisimai::Rhost::' << e
-            rhostclass = 'sisimai/rhost/' << e.downcase
-            break
+            throw :FINDRHOST
           end
         end
-        return "" if rhostclass.empty?
+        return "" if modulename.empty?
 
-        require rhostclass
+        rhostclass = "sisimai/rhost/" << modulename.downcase.split("::")[2]; require rhostclass
         reasontext = Module.const_get(modulename).find(argvs)
         return "" if reasontext.empty?
         return reasontext
