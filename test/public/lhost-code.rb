@@ -360,10 +360,10 @@ class LhostCode < Minitest::Test
           end
 
           # ---------------------------------------------------------------------------------------
-          # SMTPAGENT
-          cv = rr.smtpagent
+          # DECODEDBY
+          cv = rr.decodedby
           cr = %r/\A[-.0-9A-Za-z]+\z/
-          ct = sprintf("%s [%s-%02d] #smtpagent =", ce, e, errorindex)
+          ct = sprintf("%s [%s-%02d] #decodedby =", ce, e, errorindex)
 
           assert_instance_of String, cv
           refute_empty cv,     sprintf("%s %s", ct, cv)

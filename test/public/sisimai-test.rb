@@ -187,7 +187,7 @@ class SisimaiTest < Minitest::Test
         assert_instance_of ::String, ee['addresser']
         assert_instance_of ::String, ee['recipient']
 
-        %w[addresser recipient destination reason timestamp token smtpagent origin].each do |eee|
+        %w[addresser recipient destination reason timestamp token decodedby origin].each do |eee|
           assert ee[eee]
         end
       end
