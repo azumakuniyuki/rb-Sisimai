@@ -10,11 +10,12 @@ module Sisimai
     module Microsoft
       class << self
         MessagesOf = {
-          'authfailure' => [
-            # - Access denied, a message sent over IPv6 [2a01:111:f200:2004::240] must pass either
-            #   SPF or DKIM validation, this message is not signed
-            # - The sending message sent over IPv6 must pass either SPF or DKIM.
-            ['4.7.26', 0, 0, 'must pass either spf or dkim validation, this message is not signed'],
+          'failedstarttls' => [
+            # - DNSSEC checks have passed, yet upon establishing the connection the destination
+            #   mail server provides a certificate that is expired.
+            # - A valid X.509 certificate that isn't expired must be presented. X.509 certificates
+            #   must be renewed after their expiration, commonly annually.
+            ['5.7.322', 0, 0, "certificate-expired: destination mail server's certificate is expired"],
 
             # - Records are DNSSEC authentic, but one or multiple of these scenarios occurred:
             #   - The destination mail server's certificate doesn't match with what is expected per
@@ -43,15 +44,16 @@ module Sisimai
             ['4.7.325', 0, 0, 'certificate-host-mismatch: remote certificate must have a common name or subject alternative name matching the hostname (dane)'],
             ['5.7.325', 0, 0, 'certificate-host-mismatch: remote certificate must have a common name or subject alternative name matching the hostname (dane)'],
 
+          ],
+          'authfailure' => [
+            # - Access denied, a message sent over IPv6 [2a01:111:f200:2004::240] must pass either
+            #   SPF or DKIM validation, this message is not signed
+            # - The sending message sent over IPv6 must pass either SPF or DKIM.
+            ['4.7.26', 0, 0, 'must pass either spf or dkim validation, this message is not signed'],
+
             # - The destination email system uses SPF to validate inbound mail, and there's a prob-
             #   lem with your SPF configuration.
             ['5.7.23', 0, 0, 'the message was rejected because of sender policy framework violation'],
-
-            # - DNSSEC checks have passed, yet upon establishing the connection the destination
-            #   mail server provides a certificate that is expired.
-            # - A valid X.509 certificate that isn't expired must be presented. X.509 certificates
-            #   must be renewed after their expiration, commonly annually.
-            ['5.7.322', 0, 0, "certificate-expired: destination mail server's certificate is expired"],
 
             # - Access denied, sending domain [$SenderDomain] does not pass DMARC verification
             # - The sender's domain in the 5322.From address doesn't pass DMARC.
