@@ -15,6 +15,7 @@ module Sisimai
             #   mail server provides a certificate that is expired.
             # - A valid X.509 certificate that isn't expired must be presented. X.509 certificates
             #   must be renewed after their expiration, commonly annually.
+            ['5.7.51', 0, 0, 'restrictdomainstoipaddresses or restrictdomainstocertificate'],
             ['5.7.322', 0, 0, "certificate-expired: destination mail server's certificate is expired"],
 
             # - Records are DNSSEC authentic, but one or multiple of these scenarios occurred:
@@ -138,7 +139,6 @@ module Sisimai
 
             # Previous versions of Exchange Server ------------------------------------------------
             ['5.5.4',  0, 0, 'invalid domain name'],
-            ['5.7.51', 0, 0, 'restrictdomainstoipaddresses or restrictdomainstocertificate'],
 
             # Undocumented error messages ---------------------------------------------------------
             # - 550 5.7.1 Unfortunately, messages from [10.0.2.5] weren't sent. Please contact your
