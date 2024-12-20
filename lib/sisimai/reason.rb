@@ -7,11 +7,10 @@ module Sisimai
       # @return   [Array] Reason list
       def index
         return %w[
-          AuthFailure BadReputation Blocked ContentError ExceedLimit Expired Filtered HasMoved
-          HostUnknown MailboxFull MailerError MesgTooBig NetworkError NotAccept NotCompliantRFC
-          OnHold Rejected NoRelaying Speeding SpamDetected VirusDetected PolicyViolation 
-          SecurityError Suspend RequirePTR SystemError SystemFull TooManyConn Suppressed UserUnknown
-          SyntaxError
+          AuthFailure BadReputation Blocked ContentError ExceedLimit Expired FailedSTARTTLS Filtered
+          HasMoved HostUnknown MailboxFull MailerError MesgTooBig NetworkError NotAccept NotCompliantRFC
+          OnHold Rejected NoRelaying Speeding SpamDetected VirusDetected PolicyViolation SecurityError
+          Suspend RequirePTR SystemError SystemFull TooManyConn Suppressed UserUnknown SyntaxError
         ]
       end
 
@@ -54,13 +53,13 @@ module Sisimai
         %w[
           MailboxFull AuthFailure BadReputation Speeding SpamDetected VirusDetected PolicyViolation 
           NoRelaying SystemError NetworkError Suspend ContentError SystemFull NotAccept Expired
-          SecurityError Suppressed MailerError
+          FailedSTARTTLS SecurityError Suppressed MailerError
         ],
         %w[
           MailboxFull MesgTooBig ExceedLimit Suspend UserUnknown Filtered Rejected HostUnknown
-          SpamDetected Speeding TooManyConn Blocked SpamDetected AuthFailure SecurityError
-          SystemError NetworkError Suspend Expired ContentError HasMoved SystemFull NotAccept
-          MailerError NoRelaying Suppressed SyntaxError OnHold
+          SpamDetected Speeding TooManyConn Blocked SpamDetected AuthFailure FailedSTARTTLS
+          SecurityError SystemError NetworkError Suspend Expired ContentError HasMoved SystemFull
+          NotAccept MailerError NoRelaying Suppressed SyntaxError OnHold
         ]
       ]
 
