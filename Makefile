@@ -57,10 +57,12 @@ release:
 
 test: user-test author-test
 user-test:
-	rake publictest
+	# Suppress warning messages until v5.5.0
+	rake publictest 2> /dev/null
 
 author-test:
-	rake privatetest
+	# Suppress warning messages until v5.5.0
+	rake privatetest 2> /dev/null
 
 check:
 	find lib -type f -exec grep --color -E ' $$' {} /dev/null \;
