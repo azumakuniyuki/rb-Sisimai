@@ -16,7 +16,6 @@ module LhostEngineTest::Public
       '12' => [['5.0.918', '',    'rejected',        false]],
       '13' => [['5.0.918', '',    'rejected',        false]],
       '14' => [['5.0.918', '',    'rejected',        false]],
-      '15' => [['5.0.918', '',    'rejected',        false]],
     }
   end
 end

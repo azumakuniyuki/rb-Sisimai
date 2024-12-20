@@ -19,6 +19,10 @@ class RFC1894Test < Minitest::Test
     'Last-Attempt-Date: Sat, 9 Jun 2018 03:06:57 +0900 (JST)',
     'Diagnostic-Code: SMTP; Unknown user neko@nyaan.jp',
   ]
+  Field03 = [
+    'Status: 5.1.1 (user unknown)',
+    'Reporting-MTA: dns; mr21p30im-asmtp004.me.example.com (tcp-daemon)',
+  ]
   Field99 = [
     'Content-Type: message/delivery-status',
     'Subject: Returned mail: see transcript for details',
@@ -51,9 +55,10 @@ class RFC1894Test < Minitest::Test
   end
 
   def test_match
-    Field01.each { |e| assert_equal true,  Sisimai::RFC1894.match(e) }
-    Field02.each { |e| assert_equal true,  Sisimai::RFC1894.match(e) }
-    Field99.each { |e| assert_equal false, Sisimai::RFC1894.match(e) }
+    Field01.each { |e| assert_equal 1,    Sisimai::RFC1894.match(e) }
+    Field02.each { |e| assert_equal 2,    Sisimai::RFC1894.match(e) }
+    Field03.each { |e| assert_equal true, Sisimai::RFC1894.match(e) > 0}
+    Field99.each { |e| assert_equal 0,    Sisimai::RFC1894.match(e) }
 
     ce = assert_raises ArgumentError do
       Sisimai::RFC1894.match(nil, nil)
@@ -68,6 +73,12 @@ class RFC1894Test < Minitest::Test
     end
 
     Field02.each do |e|
+      cv = Sisimai::RFC1894.label(e)
+      cq = e.split(':', 2).shift.downcase
+      assert_equal cq, cv
+    end
+
+    Field03.each do |e|
       cv = Sisimai::RFC1894.label(e)
       cq = e.split(':', 2).shift.downcase
       assert_equal cq, cv
@@ -105,6 +116,14 @@ class RFC1894Test < Minitest::Test
         assert_equal '',    cv[1]
       end
       assert_match /(?:host|date|addr|list|stat|code)/, cv[3]
+    end
+
+    Field03.each do |e|
+      cv = Sisimai::RFC1894.field(e)
+      assert_instance_of Array, cv
+      assert_equal 5, cv.size
+      refute_empty cv[4]
+      refute_match /[()]/, cv[4]
     end
 
     Field99.each { |e| assert_nil Sisimai::RFC1894.field(e) }

@@ -68,7 +68,7 @@ module Sisimai::Lhost
           p2 = e.rindex('>') || -1
           if p1 > 0 && p2 > 0
             # You are not a member of this mailing list <neko-nyaan@example.org>.
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -79,7 +79,6 @@ module Sisimai::Lhost
           else
             # If you know the general guide of this list, please send mail with
             # the mail body
-            v['diagnosis'] ||= ''
             v['diagnosis'] << e
           end
         end
@@ -98,7 +97,7 @@ module Sisimai::Lhost
             # Error messages in the message body did not matched
             ErrorTitle.each_key do |f|
               # Try to match with the Subject string
-              next unless mhead['subject'] =~ ErrorTitle[f]
+              next unless ErrorTitle[f].any? { |a| mhead["subject"].include?(a) }
               e['reason'] = f
               break
             end

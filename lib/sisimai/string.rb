@@ -84,7 +84,7 @@ module Sisimai
         return []  if argv0.size < 7
 
         ipv4a = []
-        %w|( ) [ ]|.each do |e|
+        %w|( ) [ ] ,|.each do |e|
           # Rewrite: "mx.example.jp[192.0.2.1]" => "mx.example.jp 192.0.2.1"
           p0 = argv0.index(e); next unless p0
           argv0[p0, 1] = ' '

@@ -128,6 +128,7 @@ module Sisimai
         # @see      https://www.postmastery.com/orange-postmaster-smtp-error-codes-ofr/
         #           https://smtpfieldmanual.com/provider/orange
         def find(argvs)
+          return "" if argvs["diagnosticcode"].empty?
           issuedcode = argvs['diagnosticcode']
           reasontext = ''
 

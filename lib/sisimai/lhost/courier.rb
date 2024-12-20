@@ -12,7 +12,6 @@ module Sisimai::Lhost
         # courier/module.dsn/dsn*.txt
         message: ['DELAYS IN DELIVERING YOUR MESSAGE', 'UNDELIVERABLE MAIL'],
       }.freeze
-
       MessagesOf = {
         # courier/module.esmtp/esmtpclient.c:526| hard_error(del, ctf, "No such domain.");
         'hostunknown'  => ['No such domain.'],
@@ -68,17 +67,18 @@ module Sisimai::Lhost
           next if (readcursor & Indicators[:deliverystatus]) == 0
           next if e.empty?
 
-          if f = Sisimai::RFC1894.match(e)
+          f = Sisimai::RFC1894.match(e)
+          if f > 0
             # "e" matched with any field defined in RFC3464
             next unless o = Sisimai::RFC1894.field(e)
             v = dscontents[-1]
 
-            if o[-1] == 'addr'
+            if o[3] == 'addr'
               # Final-Recipient: rfc822; kijitora@example.jp
               # X-Actual-Recipient: rfc822; kijitora@example.co.jp
               if o[0] == 'final-recipient'
                 # Final-Recipient: rfc822; kijitora@example.jp
-                if v['recipient']
+                if v["recipient"] != ""
                   # There are multiple recipient addresses in the message body.
                   dscontents << Sisimai::Lhost.DELIVERYSTATUS
                   v = dscontents[-1]
@@ -89,7 +89,7 @@ module Sisimai::Lhost
                 # X-Actual-Recipient: rfc822; kijitora@example.co.jp
                 v['alias'] = o[2]
               end
-            elsif o[-1] == 'code'
+            elsif o[3] == 'code'
               # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
               v['spec'] = o[1]
               v['diagnosis'] = o[2]
@@ -98,7 +98,7 @@ module Sisimai::Lhost
               next unless fieldtable[o[0]]
               v[fieldtable[o[0]]] = o[2]
 
-              next unless f
+              next unless f == 1
               permessage[fieldtable[o[0]]] = o[2]
             end
           else
@@ -126,7 +126,7 @@ module Sisimai::Lhost
         dscontents.each do |e|
           # Set default values if each value is empty.
           permessage.each_key { |a| e[a] ||= permessage[a] || '' }
-          e['command'] ||= thecommand || ''
+          e['command']   = thecommand if e["command"].empty?
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
 
           MessagesOf.each_key do |r|

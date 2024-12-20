@@ -1,4 +1,4 @@
-module LhostEngineTest::Public
+module RhostEngineTest::Public
   module Outlook
     IsExpected = {
       # INDEX => [['D.S.N.', 'replycode', 'REASON', 'hardbounce'], [...]]

@@ -10,8 +10,19 @@ module Sisimai
           AuthFailure BadReputation Blocked ContentError ExceedLimit Expired Filtered HasMoved
           HostUnknown MailboxFull MailerError MesgTooBig NetworkError NotAccept NotCompliantRFC
           OnHold Rejected NoRelaying Speeding SpamDetected VirusDetected PolicyViolation 
-          SecurityError Suspend RequirePTR SystemError SystemFull TooManyConn UserUnknown SyntaxError
+          SecurityError Suspend RequirePTR SystemError SystemFull TooManyConn Suppressed UserUnknown
+          SyntaxError
         ]
+      end
+
+      # @abstract is_explicit() returns 0 when the argument is empty or is "undefined" or is "onhold"
+      # @param    string argv1  Reason name
+      # @return   bool          false: The reaosn is not explicit
+      def is_explicit(argv1 = '')
+        return false if argv1.nil?
+        return false if argv1.empty?
+        return false if argv1 == "undefined" || argv1 == "onhold" || argv1.empty?
+        return true
       end
 
       # @abstract Returns Sisimai::Reason::* module path table
@@ -29,8 +40,7 @@ module Sisimai
       def retry
         return {
           'undefined' => true, 'onhold' => true, 'systemerror' => true, 'securityerror' => true,
-          'expired' => true, 'suspend' => true, 'networkerror' => true, 'hostunknown' => true,
-          'userunknown' => true
+          'expired' => true, 'networkerror' => true, 'hostunknown' => true, 'userunknown' => true
         }.freeze
       end
       ModulePath = Sisimai::Reason.path
@@ -38,19 +48,19 @@ module Sisimai
       ClassOrder = [
         %w[
           MailboxFull MesgTooBig ExceedLimit Suspend HasMoved NoRelaying AuthFailure UserUnknown
-          Filtered RequirePTR NotCompliantRFC BadReputation Rejected HostUnknown SpamDetected Speeding
-          TooManyConn Blocked
+          Filtered RequirePTR NotCompliantRFC BadReputation ContentError Rejected HostUnknown
+          SpamDetected Speeding TooManyConn Blocked
         ],
         %w[
           MailboxFull AuthFailure BadReputation Speeding SpamDetected VirusDetected PolicyViolation 
           NoRelaying SystemError NetworkError Suspend ContentError SystemFull NotAccept Expired
-          SecurityError MailerError
+          SecurityError Suppressed MailerError
         ],
         %w[
           MailboxFull MesgTooBig ExceedLimit Suspend UserUnknown Filtered Rejected HostUnknown
           SpamDetected Speeding TooManyConn Blocked SpamDetected AuthFailure SecurityError
           SystemError NetworkError Suspend Expired ContentError HasMoved SystemFull NotAccept
-          MailerError NoRelaying SyntaxError OnHold
+          MailerError NoRelaying Suppressed SyntaxError OnHold
         ]
       ]
 
@@ -217,7 +227,7 @@ module Sisimai
         else
           # Detect the bounce reason from "Status:" code
           require 'sisimai/smtp/status'
-          cv = Sisimai::SMTP::Status.find(argv1)      || ''
+          cv = Sisimai::SMTP::Status.find(argv1)
           reasontext = Sisimai::SMTP::Status.name(cv) || 'undefined'
         end
         return reasontext

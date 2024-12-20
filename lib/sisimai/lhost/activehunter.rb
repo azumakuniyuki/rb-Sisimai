@@ -48,7 +48,7 @@ module Sisimai::Lhost
 
           if e.start_with?('>>> ') && e.index('@') > 1
             # >>> kijitora@example.org <kijitora@example.org>
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

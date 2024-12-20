@@ -56,7 +56,7 @@ module Sisimai::Lhost
 
           if e.include?('  * ') && e.include?('@')
             #   * kijitora@example.com
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -84,7 +84,7 @@ module Sisimai::Lhost
 
         dscontents.each do |e|
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
-          e['status']    = Sisimai::SMTP::Status.find(e['diagnosis']) || ''
+          e['status']    = Sisimai::SMTP::Status.find(e['diagnosis'])
         end
 
         return { 'ds' => dscontents, 'rfc822' => emailparts[1] }

@@ -2,7 +2,8 @@ module Sisimai
   # Sisimai::RFC1894 DSN field defined in RFC3464 (obsoletes RFC1894)
   module RFC1894
     class << self
-      FieldNames = {
+      require 'sisimai/string'
+      FieldNames = [
         # https://tools.ietf.org/html/rfc3464#section-2.2
         #   Some fields of a DSN apply to all of the delivery attempts described by that DSN. At
         #   most, these fields may appear once in any DSN. These fields are used to correlate the
@@ -15,10 +16,12 @@ module Sisimai
         #   The following fields are not used in Sisimai:
         #     - Original-Envelope-Id
         #     - DSN-Gateway
-        'arrival-date'          => ':',
-        'received-from-mta'     => ';',
-        'reporting-mta'         => ';',
-        'x-original-message-id' => '@',
+        {
+          'arrival-date'          => ':',
+          'received-from-mta'     => ';',
+          'reporting-mta'         => ';',
+          'x-original-message-id' => '@',
+        },
 
         # https://tools.ietf.org/html/rfc3464#section-2.3
         #   A DSN contains information about attempts to deliver a message to one or more recipi-
@@ -32,28 +35,31 @@ module Sisimai
         #   The following fields are not used in Sisimai:
         #     - Will-Retry-Until
         #     - Final-Log-ID
-        'action'                => 'e',
-        'diagnostic-code'       => ';',
-        'final-recipient'       => ';',
-        'last-attempt-date'     => ':',
-        'original-recipient'    => ';',
-        'remote-mta'            => ';',
-        'status'                => '.',
-        'x-actual-recipient'    => ';',
-      }.freeze
+        {
+          'action'                => 'e',
+          'diagnostic-code'       => ';',
+          'final-recipient'       => ';',
+          'last-attempt-date'     => ':',
+          'original-recipient'    => ';',
+          'remote-mta'            => ';',
+          'status'                => '.',
+          'x-actual-recipient'    => ';',
+        }
+      ].freeze
 
       CapturesOn = {
-        'addr' => %r/\A((?:Original|Final|X-Actual)-Recipient):[ ](.+?);[ ]*(.+)/,
-        'code' => %r/\A(Diagnostic-Code):[ ](.+?);[ ]*(.*)/,
-        'date' => %r/\A((?:Arrival|Last-Attempt)-Date):[ ](.+)/,
-        'host' => %r/\A((?:Received-From|Remote|Reporting)-MTA):[ ](.+?);[ ]*(.+)/,
-        'list' => %r/\A(Action):[ ](delayed|deliverable|delivered|expanded|expired|failed|failure|relayed)/i,
-        'stat' => %r/\A(Status):[ ]([245][.]\d+[.]\d+)/,
-        'text' => %r/\A(X-Original-Message-ID):[ ](.+)/,
-       #'text' => %r/\A(Final-Log-ID|Original-Envelope-Id):[ ]*(.+)/,
+        "addr" => ["Final-Recipient", "Original-Recipient", "X-Actual-Recipient"],
+        "code" => ["Diagnostic-Code"],
+        "date" => ["Arrival-Date", "Last-Attempt-Date"],
+        "host" => ["Received-From-MTA", "Remote-MTA", "Reporting-MTA"],
+        "list" => ["Action"],
+        "stat" => ["Status"],
+       #"text" => ["X-Original-Message-ID", "Final-Log-ID", "Original-Envelope-ID"],
       }.freeze
 
-      Correction = { action: { 'deliverable' => 'delivered', 'expired' => 'delayed', 'failure' => 'failed' }}
+      SubtypeSet = { "addr" => "RFC822", "cdoe" => "SMTP", "host" => "DNS" }.freeze
+      ActionList = ["failed", "delayed", "delivered", "relayed", "expanded"].freeze
+      Correction = { 'deliverable' => 'delivered', 'expired' => 'delayed', 'failure' => 'failed' }
       FieldGroup = {
         'original-recipient'    => 'addr',
         'final-recipient'       => 'addr',
@@ -97,18 +103,34 @@ module Sisimai
 
       # Check the argument matches with a field defined in RFC3464
       # @param    [String] argv0 A line including field and value defined in RFC3464
-      # @return   [Boolean]      false: did not matched, true: matched
+      # @return   [Integer]      0: did not matched
+      #                          1: Matched with per-message field
+      #                          2: Matched with per-recipient field
       # @since v4.25.0
       def match(argv0 = '')
-        label = Sisimai::RFC1894.label(argv0)
+        return 0 unless argv0
+        return 0 unless argv0.size > 0
+        label = Sisimai::RFC1894.label(argv0); return 0 unless label
+        match = 0
 
-        return false unless label
-        return false unless FieldNames.has_key?(label)
-        return false unless argv0.include?(FieldNames[label])
-        return true
+        FieldNames[0].each_key do |e|
+          # Per-Message fields
+          next unless label == e
+          next unless argv0.include?(FieldNames[0][label])
+          match = 1; break
+        end
+        return match if match > 0
+
+        FieldNames[1].each_key do |e|
+          # Per-Recipient field
+          next unless label == e
+          next unless argv0.include?(FieldNames[1][label])
+          match = 2; break
+        end
+        return match
       end
 
-      # Returns a field name as a lqbel from the given string
+      # Returns a field name as a label from the given string
       # @param    [String] argv0 A line including field and value defined in RFC3464
       # @return   [String]       Field name as a label
       # @since v4.25.15
@@ -125,42 +147,61 @@ module Sisimai
         return nil if argv0.empty?
         label = Sisimai::RFC1894.label(argv0)
         group = FieldGroup[label] || ''
+        parts = argv0.split(":", 2); parts[1] = parts[1].nil? ? "" : Sisimai::String.sweep(parts[1])
 
         return nil if group.empty?
         return nil unless CapturesOn[group]
 
-        table = ['', '', '', '']
-        match = false
-        while cv = argv0.match(CapturesOn[group])
-          # Try to match with each pattern of Per-Message field, Per-Recipient field
-          #   - 0: Field-Name
-          #   - 1: Sub Type: RFC822, DNS, X-Unix, and so on)
-          #   - 2: Value
-          #   - 3: Field Group(addr, code, date, host, stat, text)
-          match = true
-          table[0] = cv[1].downcase
-          table[3] = group
+        # Try to match with each pattern of Per-Message field, Per-Recipient field
+        #   - 0: Field-Name
+        #   - 1: Sub Type: RFC822, DNS, X-Unix, and so on)
+        #   - 2: Value
+        #   - 3: Field Group(addr, code, date, host, stat, text)
+        #   - 4: Comment
+        table = [label, "", "", group, ""]
 
-          if group == 'addr' || group == 'code' || group == 'host'
-            # - Final-Recipient: RFC822; kijitora@nyaan.jp
-            # - Diagnostic-Code: SMTP; 550 5.1.1 <kijitora@example.jp>... User Unknown
-            # - Remote-MTA: DNS; mx.example.jp
-            table[1] = cv[2].upcase
-            table[2] = group == 'host' ? cv[3].downcase : cv[3]
-            table[2] = '' if table[2] =~ /\A\s+\z/  # Remote-MTA: dns;
+        if group == 'addr' || group == 'code' || group == 'host'
+          # - Final-Recipient: RFC822; kijitora@nyaan.jp
+          # - Diagnostic-Code: SMTP; 550 5.1.1 <kijitora@example.jp>... User Unknown
+          # - Remote-MTA: DNS; mx.example.jp
+          if parts[1].include?(";")
+            # There is a valid sub type (including ";")
+            v = parts[1].split(";", 2)
+            table[1] = Sisimai::String.sweep(v[0]).upcase if v.size > 0
+            table[2] = Sisimai::String.sweep(v[1])        if v.size > 1
           else
-            # - Action: failed
-            # - Status: 5.2.2
-            table[2] = group == 'date' ? cv[2] : cv[2].downcase
-
-            # Correct invalid value in Action field:
-            break unless group == 'list'
-            break unless Correction[:action][table[2]]
-            table[2] = Correction[:action][table[2]]
+            # There is no sub type like "Diagnostic-Code: 550 5.1.1 <kijitora@example.jp>..."
+            table[2] = Sisimai::String.sweep(parts[1])
+            table[1] = SubtypeSet[group] || ""
           end
-          break
+          table[2] = table[2].downcase if group == "host"
+          table[2] = "" if table[2] =~ /\A\s+\z/
+
+        elsif group == "list"
+          # Action: failed
+          # Check that the value is an available value defined in "ActionList" or not.
+          # When the value is invalid, convert to an available value defined in "Correction"
+          v = parts[1].downcase
+          table[2] = v if ActionList.any? { |a| v == a }
+          table[2] = Correction[v] if table[2].empty?
+
+        else
+          # Other groups such as Status:, Arrival-Date:, or X-Original-Message-ID:.
+          # There is no ";" character in the field.
+          # - Status: 5.2.2
+          # - Arrival-Date: Mon, 21 May 2018 16:09:59 +0900
+          table[2] = group == "date" ? parts[1] : parts[1].downcase
         end
-        return nil unless match
+
+        if Sisimai::String.aligned(table[2], [" (", ")"])
+          # Extract text enclosed in parentheses as comments
+          # Reporting-MTA: dns; mr21p30im-asmtp004.me.example.com (tcp-daemon)
+          p1 = table[2].index(" (")
+          p2 = table[2].index(")")
+          table[4] = table[2][p1 + 2, p2 - p1 - 2]
+          table[2] = table[2][0, p1]
+        end
+
         return table
       end
 

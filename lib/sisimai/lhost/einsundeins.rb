@@ -54,7 +54,7 @@ module Sisimai::Lhost
           if cv = e.match(/\A\s*([^ ]+[@][^ ]+?)[:]?\z/)
             # general@example.eu OR
             # the line begin with 4 space characters, end with ":" like "    neko@example.eu:"
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -82,9 +82,8 @@ module Sisimai::Lhost
 
         require 'sisimai/smtp/command'
         dscontents.each do |e|
-          e['diagnosis'] ||= ''
-          e['diagnosis']   = e['alterrors'] if e['diagnosis'].empty?
-          e['command']     = Sisimai::SMTP::Command.find(e['diagnosis'])
+          e['diagnosis'] = e['alterrors'] if e['diagnosis'].empty?
+          e['command']   = Sisimai::SMTP::Command.find(e['diagnosis'])
 
           if Sisimai::String.aligned(e['diagnosis'], ['host: ', ' reason:'])
             # SMTP error from remote server for TEXT command,

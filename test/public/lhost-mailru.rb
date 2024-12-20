@@ -12,7 +12,7 @@ module LhostEngineTest::Public
       '07' => [['5.0.910', '550', 'filtered',        false]],
       '08' => [['5.0.911', '550', 'userunknown',     true]],
       '09' => [['5.1.8',   '501', 'rejected',        false]],
-      '10' => [['5.0.947', '',    'expired',         false]],
+      '10' => [['4.0.947', '',    'expired',         false]],
     }
   end
 end

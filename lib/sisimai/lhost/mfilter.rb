@@ -62,7 +62,7 @@ module Sisimai::Lhost
           if e.include?('@') && e.include?(' ') == false
             # 以下のメールアドレスへの送信に失敗しました。
             # kijitora@example.jp
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -75,6 +75,7 @@ module Sisimai::Lhost
             # DATA
             next if v['command']
             v['command'] = e if markingset['command']
+
           else
             # Get error message and SMTP command
             if e == StartingOf[:error][0]
@@ -87,7 +88,7 @@ module Sisimai::Lhost
             else
               # 550 5.1.1 unknown user <kijitora@example.jp>
               next if e.start_with?('-')
-              next if v['diagnosis']
+              next if v['diagnosis'] != ""
               v['diagnosis'] = e
             end
           end
@@ -103,7 +104,7 @@ module Sisimai::Lhost
           rheads = mhead['received']
           rhosts = Sisimai::RFC5322.received(rheads[-1])
 
-          e['lhost'] ||= Sisimai::RFC5322.received(rheads[0]).shift
+          e['lhost'] = Sisimai::RFC5322.received(rheads[0]).shift if e["lhost"].empty?
           [rhosts[0], rhosts[1]].each do |ee|
             # Avoid "... by m-FILTER"
             next unless ee.include?('.')

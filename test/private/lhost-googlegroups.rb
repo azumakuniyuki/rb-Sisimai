@@ -16,7 +16,6 @@ module LhostEngineTest::Private
       '01012' => [['5.0.918', '',    'rejected',        false]],
       '01013' => [['5.0.918', '',    'rejected',        false]],
       '01014' => [['5.0.918', '',    'rejected',        false]],
-      '01015' => [['5.0.918', '',    'rejected',        false]],
     }
   end
 end

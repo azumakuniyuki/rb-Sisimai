@@ -126,7 +126,7 @@ module Sisimai::Lhost
             if Sisimai::String.aligned(e, ['@', ' on '])
               # kijitora@example.co.jp on Thu, 29 Apr 2007 16:51:51 -0500
               #   kijitora@example.com on 4/29/99 9:19:59 AM
-              if v['recipient']
+              if v["recipient"] != ""
                 # There are multiple recipient addresses in the message body.
                 dscontents << Sisimai::Lhost.DELIVERYSTATUS
                 v = dscontents[-1]
@@ -139,11 +139,10 @@ module Sisimai::Lhost
 
             elsif e.start_with?(' ') && e.include?('MSEXCH:')
               #     MSEXCH:IMS:KIJITORA CAT:EXAMPLE:EXCHANGE 0 (000C05A6) Unknown Recipient
-              v['diagnosis'] ||= ''
               v['diagnosis'] << e[e.index('MSEXCH:'), e.size]
             else
               next if v['msexch']
-              if v['diagnosis'].to_s.start_with?('MSEXCH:')
+              if v['diagnosis'].start_with?('MSEXCH:')
                 # Continued from MEEXCH in the previous line
                 v['msexch'] = true
                 v['diagnosis'] << ' ' << e
@@ -186,7 +185,7 @@ module Sisimai::Lhost
 
         dscontents.each do |e|
           e.delete('msexch')
-          e['diagnosis'] ||= ''
+          
           if e['diagnosis'].start_with?('MSEXCH:')
             #     MSEXCH:IMS:KIJITORA CAT:EXAMPLE:EXCHANGE 0 (000C05A6) Unknown Recipient
             p1 = e['diagnosis'].index('(') || -1
@@ -198,16 +197,15 @@ module Sisimai::Lhost
               # Find captured code from the error code table
               next unless ErrorCodes[r].index(capturedcode)
               e['reason'] = r
-              e['status'] = Sisimai::SMTP::Status.code(r.to_s) || ''
+              e['status'] = Sisimai::SMTP::Status.code(r) || ""
               break
             end
             e['diagnosis'] = errormessage
           end
 
-          unless e['reason']
+          if e["reason"].empty?
             # Could not detect the reason from the value of "diagnosis".
-            next unless e['alterrors']
-            next if e['alterrors'].empty?
+            next if e["alterrors"].empty?
 
             # Copy alternative error message
             e['diagnosis'] = e['alterrors'] + ' ' + e['diagnosis']

@@ -28,7 +28,6 @@ module Sisimai::Lhost
         readcursor = 0      # (Integer) Points the current cursor position
         recipients = 0      # (Integer) The number of 'Final-Recipient' header
         endoferror = false  # (Boolean) Flag for the end of error message
-        regularexp = nil
         q = Sisimai::RFC2045.boundary(mhead['content-type'], 1); Boundaries << q if q
         v = nil
 
@@ -56,7 +55,7 @@ module Sisimai::Lhost
           if e.start_with?('    ') && e.index('@') > 1
             # The following recipients were affected:
             #    dummyuser@blabla.xxxxxxxxxxxx.com
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

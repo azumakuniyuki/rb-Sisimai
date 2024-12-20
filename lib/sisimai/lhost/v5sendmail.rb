@@ -73,7 +73,7 @@ module Sisimai::Lhost
 
           if e.start_with?('5', '4') && Sisimai::String.aligned(e, [' <', '@', '>...'])
             # 550 <kijitora@example.org>... User unknown
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -129,16 +129,19 @@ module Sisimai::Lhost
           errorindex += 1
           e.delete('sessionerr')
 
-          e['diagnosis'] ||= if anotherset['diagnosis'].to_s.size > 0
+          if e["diagnosis"].empty?
+            e['diagnosis'] = if anotherset['diagnosis'].to_s.size > 0
                                # Copy alternative error message
                                anotherset['diagnosis']
                              else
                                # Set server response as a error message
                                responding[errorindex]
                              end
+          end
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
-          e['replycode'] = Sisimai::SMTP::Reply.find(e['diagnosis']) || anotherset['replycode']
-          e['command']   = commandset[errorindex] || Sisimai::SMTP::Command.find(e['diagnosis']) || ''
+          e["replycode"] = Sisimai::SMTP::Reply.find(e['diagnosis'])
+          e["replycode"] = anotherset['replycode'] if e["replycode"].empty?
+          e['command']   = commandset[errorindex] || Sisimai::SMTP::Command.find(e['diagnosis'])
 
           # @example.jp, no local part
           # Get email address from the value of Diagnostic-Code header

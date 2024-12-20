@@ -46,7 +46,7 @@ module Sisimai::Lhost
             # Unable to deliver message to <kijitora@neko.example.jp>
             cr = e[e.rindex('<') + 1, e.rindex('>') - e.rindex('<') - 1]
 
-            if v['recipient'] && cr != v['recipient']
+            if v["recipient"] != "" && cr != v['recipient']
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

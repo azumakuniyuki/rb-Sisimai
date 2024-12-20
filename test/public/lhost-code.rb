@@ -373,13 +373,16 @@ class LhostCode < Minitest::Test
             assert_match cr, cv, sprintf("%s %s", ct, cv)
           else
             # Sisimai::Lhost 
-            if enginename == 'RFC3464' && cv !~ /\ARFC3464/
-              # Parsed by Sisimai::MDA
-              assert_match cr, cv, sprintf("%s %s", ct, cv)
-              assert_empty lhostindex.select { |p| cv == p }
-            elsif enginename == 'ARF'
-              # Parsed by Sisimai::ARF
-              assert_equal 'Feedback-Loop', cv, sprintf("%s %s", ct, cv)
+            if enginename == 'RFC3464'
+              if cv != "RFC3464"
+                # Parsed by Sisimai::LDA
+                assert_match cr, cv, sprintf("%s %s", ct, cv)
+                assert_empty lhostindex.select { |p| cv == p }
+              else
+                # Removed Lhost modules at v5.2.0
+              end
+            elsif enginename == "AmazonSES"
+              assert_match /\A(?:RFC3464|AmazonSES)/, cv, sprintf("%s %s", ct, cv)
             else
               # Other MTA modules
               assert_equal enginename.upcase, cv.upcase, sprintf("%s %s", ct, cv)

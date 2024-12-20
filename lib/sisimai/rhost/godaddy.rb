@@ -207,6 +207,7 @@ module Sisimai
         # @see      https://ca.godaddy.com/help/fix-rejected-email-with-a-bounce-error-40685
         # @since v4.22.2
         def find(argvs)
+          return "" if argvs["diagnosticcode"].empty?
           issuedcode = argvs['diagnosticcode']
           positionib = issuedcode.index(' IB') || -1
           reasontext = ''

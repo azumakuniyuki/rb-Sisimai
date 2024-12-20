@@ -55,7 +55,7 @@ module Sisimai::Lhost
 
           if Sisimai::String.aligned(e, ['@', ' ', 'ERROR_CODE :'])
             # kijitora@example.co.jp Invalid Address, ERROR_CODE :550, ERROR_CODE :5.1.=
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -73,7 +73,7 @@ module Sisimai::Lhost
           elsif e.start_with?('[Status: ')
             # Expired
             # [Status: Error, Address: <kijitora@6kaku.example.co.jp>, ResponseCode 421, , Host not reachable.]
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]

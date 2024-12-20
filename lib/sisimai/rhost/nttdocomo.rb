@@ -15,6 +15,7 @@ module Sisimai
         # @param    [Sisimai::Fact] argvs   Decoded email object
         # @return   [String]                The bounce reason for docomo.ne.jp
         def find(argvs)
+          return argvs['reason'] unless argvs['reason'].empty?
           statuscode = argvs['deliverystatus']          || ''
           thecommand = argvs['smtpcommand']             || ''
           esmtperror = argvs['diagnosticcode'].downcase || ''

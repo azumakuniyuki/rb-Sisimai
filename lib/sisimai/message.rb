@@ -20,8 +20,13 @@ module Sisimai
       Fields5965 = Sisimai::RFC5965.FIELDINDEX.freeze
       FieldIndex = [Fields1894.flatten, Fields5322.flatten, Fields5965.flatten].flatten.freeze
       FieldTable = FieldIndex.map { |e| [e.downcase, e] }.to_h.freeze
-      ReplacesAs = { 'Content-Type' => [%w[message/xdelivery-status message/delivery-status]] }.freeze
       Boundaries = ['Content-Type: message/rfc822', 'Content-Type: text/rfc822-headers'].freeze
+      ReplacesAs = {
+        "Content-Type" => [
+          %w[message/xdelivery-status message/delivery-status],
+          %w[message/disposition-notification message/delivery-status],
+        ]
+      }.freeze
 
       # Read an email message and convert to structured format
       # @param         [Hash] argvs       Module to be loaded
@@ -78,7 +83,7 @@ module Sisimai
           #    There is a bounce message inside of mutipart/*, try to sift the first message/rfc822
           #    part as a entire message body again.
           parseagain += 1
-          email = Sisimai::RFC5322.part(aftersplit[2], Boundaries, true).pop.sub(/\A[\r\n\s]+/, '')
+          email = Sisimai::RFC5322.part(aftersplit[2], Boundaries, true).pop.sub(/\A\s+/, '')
           break unless email.size > 128
         end
         return nil unless beforefact
@@ -147,20 +152,20 @@ module Sisimai
         # https://gist.github.com/xtetsuji/b080e1f5551d17242f6415aba8a00239
         headermaps = { 'subject' => '' }
         receivedby = []
-        argv0.scan(/^([\w-]+):[ ]*(.*?)\n(?![\s\t])/m) { |e| headermaps[e[0].downcase] = e[1] }
+        argv0.scan(/^([\w-]+):[ ]*(.*?)\n(?!\s)/m) { |e| headermaps[e[0].downcase] = e[1] }
         headermaps.delete('received')
-        headermaps.each_key { |e| headermaps[e].gsub!(/\n[\s\t]+/, ' ') }
+        headermaps.each_key { |e| headermaps[e].gsub!(/\n\s+/, ' ') }
 
         if argv0.include?('Received:')
           # Capture values of each Received: header
-          re = argv0.scan(/^Received:[ ]*(.*?)\n(?![\s\t])/m).flatten
+          re = argv0.scan(/^Received:[ ]*(.*?)\n(?!\s)/m).flatten
           re.each do |e|
             # 1. Exclude the Received header including "(qmail ** invoked from network)".
             # 2. Convert all consecutive spaces and line breaks into a single space character.
             next if e.include?(' invoked by uid')
             next if e.include?(' invoked from network')
 
-            e.gsub!(/\n[\s\t]+/, ' ')
+            e.gsub!(/\n\s+/, ' ')
             e.squeeze!("\n\t ")
             receivedby << e
           end
@@ -394,6 +399,7 @@ module Sisimai
               # Feedback Loop message
               require 'sisimai/arf'
               havesifted = Sisimai::ARF.inquire(mailheader, bodystring)
+              modulename = "ARF"
               throw :DECODER if havesifted
             end
 
@@ -413,8 +419,8 @@ module Sisimai
         havesifted['catch'] = havecaught
         modulename = modulename.sub(/\A.+::/, '')
         havesifted['ds'].each do |e|
-          e['agent'] = modulename unless e['agent']
-          e.each_key { |a| e[a] ||= '' }  # Replace nil with ""
+          e["agent"] = modulename if e["agent"].nil? || e["agent"].empty?
+          e.each_key { |a| e[a] = "" if e[a].nil? }  # Replace nil with ""
         end
         return havesifted
       end

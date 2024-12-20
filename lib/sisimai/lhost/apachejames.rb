@@ -6,13 +6,12 @@ module Sisimai::Lhost
       require 'sisimai/lhost'
 
       Indicators = Sisimai::Lhost.INDICATORS
-      Boundaries = ['Content-Type: message/rfc822'].freeze
+      Boundaries = ["Content-Type: message/rfc822"].freeze
       StartingOf = {
         # apache-james-2.3.2/src/java/org/apache/james/transport/mailets/
         #   AbstractNotify.java|124:  out.println("Error message below:");
         #   AbstractNotify.java|128:  out.println("Message details:");
-        message: [''],
-        error:   ['Error message below:'],
+        message: ["Message details:"],
       }.freeze
 
       # @abstract decodes the bounce message from Apache James
@@ -22,28 +21,31 @@ module Sisimai::Lhost
       # @return [Nil]           it failed to decode or the arguments are missing
       def inquire(mhead, mbody)
         match  = 0
-        match += 1 if mhead['subject'] == '[BOUNCE]'
-        match += 1 if mhead['message-id'].to_s.include?('.JavaMail.')
-        match += 1 if mhead['received'].any? { |a| a.include?('JAMES SMTP Server') }
+        match += 1 if mhead["subject"] == "[BOUNCE]"
+        match += 1 if mhead["message-id"].to_s.include?(".JavaMail.")
+        match += 1 if mhead["received"].any? { |a| a.include?("JAMES SMTP Server") }
         return nil unless match > 0
 
         dscontents = [Sisimai::Lhost.DELIVERYSTATUS]
         emailparts = Sisimai::RFC5322.part(mbody, Boundaries)
         bodyslices = emailparts[0].split("\n")
-        readcursor = 0      # (Integer) Points the current cursor position
-        recipients = 0      # (Integer) The number of 'Final-Recipient' header
-        issuedcode = ''     # (String) Alternative diagnostic message
-        subjecttxt = nil    # (String) Alternative Subject text
-        gotmessage = nil    # (Boolean) Flag for error message
-        v = nil
+        readcursor = 0                # Points the current cursor position
+        recipients = 0                # The number of 'Final-Recipient' header
+        alternates = ["", "", "", ""] # [Envelope-From, Header-From, Date, Subject]
+        v          = dscontents[-1]
 
         while e = bodyslices.shift do
           # Read error messages and delivery status lines from the head of the email to the previous
           # line of the beginning of the original message.
-
           if readcursor == 0
             # Beginning of the bounce message or delivery status part
-            readcursor |= Indicators[:deliverystatus] if e.start_with?(StartingOf[:message][0])
+            if e.start_with?(StartingOf[:message][0])
+              # Message details:
+              #   Subject: Nyaaan
+              readcursor |= Indicators[:deliverystatus]
+              next
+            end
+            v["diagnosis"] << e << " " if e != ""
             next
           end
           next if (readcursor & Indicators[:deliverystatus]) == 0
@@ -58,58 +60,53 @@ module Sisimai::Lhost
           #   To: kijitora@example.org
           #   Size (in bytes): 1024
           #   Number of lines: 64
-          v = dscontents[-1]
-
-          if e.start_with?('  RCPT TO: ')
+          if e.start_with?("  RCPT TO: ")
             #   RCPT TO: kijitora@example.org
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] = e[12, e.size]
+            v["recipient"] = e[12, e.size]
             recipients += 1
 
-          elsif e.start_with?('  Sent date: ')
+          elsif e.start_with?("  Sent date: ")
             #   Sent date: Thu Apr 29 01:20:50 JST 2015
-            v['date'] = e[13, e.size]
+            v["date"]     = e[13, e.size]
+            alternates[2] = v["date"]
 
-          elsif e.start_with?('  Subject: ')
+          elsif e.start_with?("  Subject: ")
             #   Subject: Nyaaan
-            subjecttxt = e[11, e.size]
-          else
-            next if gotmessage
-            if v['diagnosis']
-              # Get an error message text
-              if e.start_with?('Message details:')
-                # Message details:
-                #   Subject: nyaan
-                #   ...
-                gotmessage = true
-              else
-                # Append error message text like the followng:
-                #   Error message below:
-                #   550 - Requested action not taken: no such user here
-                v['diagnosis'] << ' ' << e
-              end
-            else
-              # Error message below:
-              # 550 - Requested action not taken: no such user here
-              v['diagnosis'] = e if e == StartingOf[:error][0]
-              unless gotmessage
-                v['diagnosis'] ||= ''
-                v['diagnosis'] << ' ' + e
-              end
-            end
+            alternates[3] = e[11, e.size]
+
+          elsif e.start_with?("  MAIL FROM: ")
+            #   MAIL FROM: shironeko@example.jp
+            alternates[0] = e[13, e.size]
+
+          elsif e.start_with?("  From: ")
+            #   From: Neko <shironeko@example.jp>
+            alternates[1] = e[8, e.size]
+
           end
         end
         return nil unless recipients > 0
 
-        # Set the value of subjecttxt as a Subject if there is no original message in the bounce mail.
-        emailparts[1] << ('Subject: ' << subjecttxt << "\n") unless emailparts[1].index("\nSubject:")
+        if emailparts[1].empty?
+          # The original message is empty
+          emailparts[1] << sprintf("From: %s\n", alternates[1]) if alternates[1] != ""
+          emailparts[1] << sprintf("Date: %s\n", alternates[2]) if alternates[2] != ""
+        end
+        if emailparts[1].include?("Return-Path: ") == false
+          # Set the envelope from address as a Return-Path: header
+          emailparts[1] << sprintf("Return-Path: <%s>\n", alternates[0]) if alternates[0] != ""
+        end
+        if emailparts[1].include?("\nSubject: ") == false
+          # Set the envelope from address as a Return-Path: header
+          emailparts[1] << sprintf("Subject: %s\n", alternates[3]) if alternates[3] != ""
+        end
 
-        dscontents.each { |e| e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'] || issuedcode) }
-        return { 'ds' => dscontents, 'rfc822' => emailparts[1] }
+        dscontents.each { |e| e["diagnosis"] = Sisimai::String.sweep(e["diagnosis"]) }
+        return { "ds" => dscontents, "rfc822" => emailparts[1] }
       end
       def description; return 'Java Apache Mail Enterprise Server'; end
     end

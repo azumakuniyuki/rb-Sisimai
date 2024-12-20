@@ -1,4 +1,4 @@
-module LhostEngineTest::Public
+module RhostEngineTest::Public
   module MessageLabs
     IsExpected = {
       # INDEX => [['D.S.N.', 'replycode', 'REASON', 'hardbounce'], [...]]

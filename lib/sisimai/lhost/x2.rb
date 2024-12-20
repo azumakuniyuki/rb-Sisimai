@@ -49,7 +49,7 @@ module Sisimai::Lhost
 
           if e.start_with?('<') && Sisimai::String.aligned(e, ['<', '@', '>', ':'])
             # <kijitora@example.com>:
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -58,7 +58,6 @@ module Sisimai::Lhost
             recipients += 1
           else
             # This user doesn't have a example.com account (kijitora@example.com) [0]
-            v['diagnosis'] ||= ''
             v['diagnosis'] << ' ' << e
           end
         end

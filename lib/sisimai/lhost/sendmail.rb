@@ -62,17 +62,18 @@ module Sisimai::Lhost
           next if (readcursor & Indicators[:deliverystatus]) == 0
           next if e.empty?
 
-          if f = Sisimai::RFC1894.match(e)
+          f = Sisimai::RFC1894.match(e)
+          if f > 0
             # "e" matched with any field defined in RFC3464
             o = Sisimai::RFC1894.field(e) || next
             v = dscontents[-1]
 
-            if o[-1] == 'addr'
+            if o[3] == 'addr'
               # Final-Recipient: rfc822; kijitora@example.jp
               # X-Actual-Recipient: rfc822; kijitora@example.co.jp
               if o[0] == 'final-recipient'
                 # Final-Recipient: rfc822; kijitora@example.jp
-                if v['recipient']
+                if v["recipient"] != ""
                   # There are multiple recipient addresses in the message body.
                   dscontents << Sisimai::Lhost.DELIVERYSTATUS
                   v = dscontents[-1]
@@ -83,7 +84,7 @@ module Sisimai::Lhost
                 # X-Actual-Recipient: rfc822; kijitora@example.co.jp
                 v['alias'] = o[2]
               end
-            elsif o[-1] == 'code'
+            elsif o[3] == 'code'
               # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
               v['spec'] = o[1]
               v['diagnosis'] = o[2]
@@ -92,7 +93,7 @@ module Sisimai::Lhost
               next unless fieldtable[o[0]]
               v[fieldtable[o[0]]] = o[2]
 
-              next unless f
+              next unless f == 1
               permessage[fieldtable[o[0]]] = o[2]
             end
           else
@@ -110,7 +111,7 @@ module Sisimai::Lhost
             unless e.start_with?(' ')
               if e.start_with?('>>> ')
                 # >>> DATA (Client Command)
-                thecommand = Sisimai::SMTP::Command.find(e)
+                thecommand = Sisimai::SMTP::Command.find(e) if thecommand.empty?
 
               elsif e.start_with?('<<< ')
                 # <<< Response from the SMTP server
@@ -134,8 +135,8 @@ module Sisimai::Lhost
                   # ----- Transcript of session follows -----
                   # Message could not be delivered for too long
                   # Message will be deleted from queue
-                  cr = Sisimai::SMTP::Reply.find(e)  || ''
-                  cs = Sisimai::SMTP::Status.find(e) || ''
+                  cr = Sisimai::SMTP::Reply.find(e)
+                  cs = Sisimai::SMTP::Status.find(e)
 
                   if cr.size + cs.size > 7
                     # 550 5.1.2 <kijitora@example.org>... Message
@@ -167,13 +168,12 @@ module Sisimai::Lhost
 
         dscontents.each do |e|
           # Set default values if each value is empty.
-          e['diagnosis'] ||= ''
           permessage.each_key { |a| e[a] ||= permessage[a] || '' }
 
           if anotherset['diagnosis']
             # Copy alternative error message
             e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'].start_with?(' ')
-            e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'].=~ /\A\d+\z/
+            e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'] =~ /\A\d+\z/
             e['diagnosis'] = anotherset['diagnosis'] if e['diagnosis'].empty?
           end
 
@@ -188,10 +188,9 @@ module Sisimai::Lhost
           end
 
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis'])
-          e['command'] ||= thecommand || Sisimai::SMTP::Command.find(e['diagnosis']) || ''
-          if e['command'].empty?
-            e['command'] = 'EHLO' unless esmtpreply.empty?
-          end
+          e["command"]   = thecommand if e["command"].empty?
+          e["command"]   = Sisimai::SMTP::Command.find(e['diagnosis']) if e["command"].empty?
+          e["command"]   = "EHLO" if e["command"].empty? && esmtpreply.size > 0
 
           while true
             # Check alternative status code and override it

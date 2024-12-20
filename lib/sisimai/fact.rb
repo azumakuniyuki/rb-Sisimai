@@ -13,6 +13,7 @@ module Sisimai
     require 'sisimai/smtp/command'
     require 'sisimai/string'
     require 'sisimai/rhost'
+    require 'sisimai/lda'
 
     @@rwaccessors = [
       :action,          # [String] The value of Action: header
@@ -106,7 +107,6 @@ module Sisimai
       email = argvs[:data]; return nil unless email
       args1 = { data: email, hook: argvs[:hook] }
       mesg1 = Sisimai::Message.rise(**args1)
-
       return nil unless mesg1
       return nil unless mesg1['ds']
       return nil unless mesg1['rfc822']
@@ -123,22 +123,22 @@ module Sisimai
 
         thing = {}  # To be passed to each accessor of Sisimai::Fact
         piece = {
-          'action'         => e['action']       || '',
-          'alias'          => e['alias']        || '',
-          'catch'          => mesg1['catch']    || nil,
-          'deliverystatus' => e['status']       || '',
-          'diagnosticcode' => e['diagnosis']    || '',
-          'diagnostictype' => e['spec']         || '',
-          'feedbacktype'   => e['feedbacktype'] || '',
-          'hardbounce'     => false,
-          'lhost'          => e['lhost']        || '',
-          'origin'         => argvs[:origin],
-          'reason'         => e['reason']       || '',
-          'recipient'      => e['recipient']    || '',
-          'replycode'      => e['replycode']    || '',
-          'rhost'          => e['rhost']        || '',
-          'smtpagent'      => e['agent']        || '',
-          'smtpcommand'    => e['command']      || '',
+          "action"         => e["action"],
+          "alias"          => e["alias"],
+          "catch"          => mesg1["catch"] || nil,
+          "deliverystatus" => e["status"],
+          "diagnosticcode" => e["diagnosis"],
+          "diagnostictype" => e["spec"],
+          "feedbacktype"   => e["feedbacktype"],
+          "hardbounce"     => false,
+          "lhost"          => e["lhost"],
+          "origin"         => argvs[:origin],
+          "reason"         => e["reason"],
+          "recipient"      => e["recipient"],
+          "replycode"      => e["replycode"],
+          "rhost"          => e["rhost"],
+          "smtpagent"      => e["agent"],
+          "smtpcommand"    => e["command"],
         }
 
         # EMAILADDRESS: Detect an email address from message/rfc822 part
@@ -197,25 +197,32 @@ module Sisimai
         next unless piece['timestamp']
 
         # OTHER_TEXT_HEADERS:
-        recv = mesg1['header']['received'] || []
-        if piece['rhost'].empty?
+        recv = mesg1["header"]["received"] || []
+        if piece["rhost"].empty?
           # Try to pick a remote hostname from Received: headers of the bounce message
-          recv.reverse.each do |re|
-            # Check the Received: headers backwards and get a remote hostname
-            cv = Sisimai::RFC5322.received(re)[0]
-            next unless Sisimai::RFC1123.is_validhostname(cv)
-            piece['rhost'] = cv
-            break
+          ir = Sisimai::RFC1123.find(e["diagnosis"])
+          piece["rhost"] = ir if Sisimai::RFC1123.is_internethost(ir)
+
+          if piece["rhost"].empty?
+            # The remote hostname in the error message did not exist or is not a valid
+            # internet hostname
+            recv.reverse.each do |re|
+              # Check the Received: headers backwards and get a remote hostname
+              break if piece["rhost"].size > 0
+              cv = Sisimai::RFC5322.received(re)[0]
+              next unless Sisimai::RFC1123.is_internethost(cv)
+              piece['rhost'] = cv
+            end
           end
         end
-        piece['lhost'] = '' if piece['rhost'] == piece['lhost']
+        piece["lhost"] = "" if piece["rhost"] == piece["lhost"]
 
-        if piece['rhost'].empty?
+        if piece["lhost"].empty?
           # Try to pick a local hostname from Received: headers of the bounce message
           recv.each do |le|
             # Check the Received: headers backwards and get a local hostname
             cv = Sisimai::RFC5322.received(le)[0]
-            next unless Sisimai::RFC1123.is_validhostname(cv)
+            next unless Sisimai::RFC1123.is_internethost(cv)
             piece['lhost'] = cv
             break
           end
@@ -223,7 +230,7 @@ module Sisimai
 
         # Remove square brackets and curly brackets from the host variable
         %w[rhost lhost].each do |v|
-          next if piece[v].size == 0
+          next if piece[v].empty?
 
           if piece[v].include?('@')
             # Use the domain part as a remote/local host when the value is an email address
@@ -282,13 +289,13 @@ module Sisimai
           # Get an SMTP Reply Code and an SMTP Enhanced Status Code
           piece['diagnosticcode'].chop if piece['diagnosticcode'][-1, 1] == "\r"
 
-          cs = Sisimai::SMTP::Status.find(piece['diagnosticcode'])    || ''
-          cr = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cs) || ''
+          cs = Sisimai::SMTP::Status.find(piece['diagnosticcode'])
+          cr = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cs)
           piece['deliverystatus'] = Sisimai::SMTP::Status.prefer(piece['deliverystatus'], cs, cr)
 
           if cr.size == 3
             # There is an SMTP reply code in the error message
-            piece['replycode'] = cr if piece['replycode'].to_s.empty?
+            piece['replycode'] = cr if piece['replycode'].empty?
 
             if piece['diagnosticcode'].include?(cr + '-')
               # 550-5.7.1 [192.0.2.222] Our system has detected that this message is
@@ -343,9 +350,10 @@ module Sisimai
           piece['diagnosticcode'] = piece['diagnosticcode'].force_encoding('UTF-8').scrub('?')
         end
 
-        piece['diagnostictype']   = nil        if piece['diagnostictype'].empty?
-        piece['diagnostictype'] ||= 'X-UNIX'   if piece['reason'] == 'mailererror'
-        piece['diagnostictype'] ||= 'SMTP' unless %w[feedback vacation].include?(piece['reason'])
+        piece["diagnostictype"] = "X-UNIX" if piece["reason"] == "mailererror"
+        if piece["diagnostictype"].empty?
+          piece["diagnostictype"] = "SMTP" unless %w[feedback vacation].include?(piece["reason"])
+        end
 
         # Check the value of SMTP command
         piece['smtpcommand'] = '' unless Sisimai::SMTP::Command.test(piece['smtpcommand'])
@@ -355,7 +363,7 @@ module Sisimai
         ar = Sisimai::Address.new(address: piece['recipient']) || next; next if ar.void
         ea = %w[
           action deliverystatus diagnosticcode diagnostictype feedbacktype lhost listid messageid
-          origin reason replycode rhost smtpagent smtpcommand subject 
+          origin reason replycode rhost smtpagent smtpcommand subject
         ]
 
         thing = {
@@ -366,14 +374,15 @@ module Sisimai
           'alias'        => piece['alias'] || ar.alias,
           'token'        => Sisimai::String.token(as.address, ar.address, piece['timestamp']),
         }
+        ea.each { |q| thing[q] = piece[q] if thing[q].nil? || thing[q].empty? }
 
         # Other accessors
-        ea.each { |q| thing[q] ||= piece[q] || '' }
         thing['catch']          = piece['catch'] || nil
         thing['hardbounce']     = piece['hardbounce']
-        thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']).to_s if thing['replycode'].empty?
+        thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']) if thing['replycode'].empty?
         thing['timestamp']      = TimeModule.parse(::Time.at(piece['timestamp']).to_s)
         thing['timezoneoffset'] = piece['timezoneoffset'] || '+0000'
+        ea.each { |q| thing[q] = piece[q] if thing[q].empty? }
 
         # ALIAS
         while true do
@@ -402,11 +411,17 @@ module Sisimai
         thing['alias'] = '' if thing['alias'] == thing['recipient'].address
 
         # REASON: Decide the reason of email bounce
-        if thing['reason'].empty? || RetryIndex[thing['reason']]
-          # The value of "reason" is empty or is needed to check with other values again
-          re = thing['reason'].empty? ? 'undefined' : thing['reason']
-          thing['reason'] = Sisimai::Rhost.find(thing) || Sisimai::Reason.find(thing)
-          thing['reason'] = re if thing['reason'].empty?
+        while true
+          if thing["reason"].empty? || RetryIndex[thing["reason"]]
+            # The value of "reason" is empty or is needed to check with other values again
+            re = thing["reason"].empty? ? "undefined" : thing["reason"]
+            cr = Sisimai::LDA.find(thing);    if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; break; end
+            cr = Sisimai::Rhost.find(thing);  if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; break; end
+            cr = Sisimai::Reason.find(thing); if Sisimai::Reason.is_explicit(cr) then thing["reason"] = cr; break; end
+            thing["reason"] = thing["diagnosticcode"].size > 0 ? "onhold" : re
+            break
+          end
+          break
         end
 
         # HARDBOUNCE: Set the value of "hardbounce", default value of "bouncebounce" is false
@@ -434,7 +449,7 @@ module Sisimai
         cx = [thing['deliverystatus'][0, 1], thing['replycode'][0, 1]]
         if cx[0] != cx[1]
           # The class of the "Status:" is defer with the first digit of the reply code
-          cx[1] = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cx[0]) || ''
+          cx[1] = Sisimai::SMTP::Reply.find(piece['diagnosticcode'], cx[0])
           thing['replycode'] = cx[1].start_with?(cx[0]) ? cx[1] : ''
         end
 
@@ -449,10 +464,10 @@ module Sisimai
             thing['action'] = ox[2]
           end
         end
-        thing['action'] = 'delayed' if thing['reason'] == 'expired'
-        if thing['action'].empty?
-          thing['action'] = 'failed' if cx[0] == '4' || cx[0] == '5'
-        end
+        thing["action"] = ""          if thing["action"].nil?
+        thing["action"] = "delivered" if thing["action"].empty? && thing["reason"] == "delivered"
+        thing["action"] = "delayed"   if thing["action"].empty? && thing["reason"] == "expired"
+        thing["action"] = "failed"    if thing["action"].empty? && cx[0] == "4" || cx[0] == "5"
 
         listoffact << Sisimai::Fact.new(thing)
       end

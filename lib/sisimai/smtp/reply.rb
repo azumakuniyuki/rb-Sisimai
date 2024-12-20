@@ -112,11 +112,11 @@ module Sisimai
 
         # Check whether a reply code is a valid code or not
         # @param    [String] argv1  Reply Code(DSN)
-        # @return   [Boolean]       0 = Invalid reply code, 1 = Valid reply code
+        # @return   [Boolean]       false = Invalid reply code, true = Valid reply code
         # @see      code
         # @since v5.0.0
         def test(argv1 = '')
-          return nil if argv1.empty?
+          return false if argv1.empty?
 
           reply = argv1.to_i
           first = (reply / 100).to_i
@@ -148,8 +148,8 @@ module Sisimai
         # @return   [String]        SMTP Reply Code
         #           [Nil]           The first argument did not include SMTP Reply Code value
         def find(argv1 = '', argv2 = '0')
-          return nil if argv1.to_s.size < 3
-          return nil if argv1.upcase.include?('X-UNIX')
+          return "" if argv1.to_s.size < 3
+          return "" if argv1.upcase.include?('X-UNIX')
 
           esmtperror = ' ' + argv1 + ' '
           esmtpreply = ''
@@ -162,17 +162,23 @@ module Sisimai
 
           replycodes.each do |e|
             # Try to find an SMTP Reply Code from the given string
-            replyindex = esmtperror.index(e); next unless replyindex
-            formerchar = esmtperror[replyindex - 1, 1].ord || 0
-            latterchar = esmtperror[replyindex + 3, 1].ord || 0
+            appearance = esmtperror.index(e); next if appearance.nil?
+            startingat = 1
+            mesglength = esmtperror.size
 
-            next if formerchar > 45 && formerchar < 58
-            next if latterchar > 45 && latterchar < 58
-            esmtpreply = e
-            break
+            while startingat + 3 < mesglength
+              # Find all the reply code in the error message
+              replyindex = esmtperror.index(e, startingat); break if replyindex.nil?
+              formerchar = esmtperror[replyindex - 1, 1].ord || 0
+              latterchar = esmtperror[replyindex + 3, 1].ord || 0
+
+              if formerchar > 45 && formerchar < 58 then startingat += 3; next; end
+              if latterchar > 45 && latterchar < 58 then startingat += 3; next; end
+              esmtpreply = e
+              break
+            end
+            break if esmtpreply != ""
           end
-
-          return nil if esmtpreply.empty?
           return esmtpreply
         end
 

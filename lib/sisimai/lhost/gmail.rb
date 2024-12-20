@@ -188,7 +188,7 @@ module Sisimai::Lhost
 
           if e.start_with?(' ') && e.include?('@')
             # kijitora@example.jp: 550 5.2.2 <kijitora@example>... Mailbox Full
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
@@ -199,8 +199,7 @@ module Sisimai::Lhost
             v['recipient'] = r
             recipients += 1
           else
-            v['diagnosis'] ||= ''
-            v['diagnosis'] << e + ' '
+            v["diagnosis"] << e << " "
           end
         end
         return nil unless recipients > 0
@@ -219,8 +218,8 @@ module Sisimai::Lhost
             hostname = e['diagnosis'][p1 + 4, p2 - p1 - 4]
             ipv4addr = e['diagnosis'][p2 + 3, e['diagnosis'].rindex(']. ') - p2 - 3]
 
-            e['rhost']   = hostname if Sisimai::RFC1123.is_validhostname(hostname)
-            e['rhost'] ||= ipv4addr
+            e['rhost'] = hostname if Sisimai::RFC1123.is_internethost(hostname)
+            e['rhost'] = ipv4addr if e["rhost"].empty?
           end
 
           while true do
@@ -236,7 +235,7 @@ module Sisimai::Lhost
             break
           end
 
-          if e['reason'].nil?
+          if e['reason'].empty?
             # There is no no state code in the error message
             MessagesOf.each_key do |r|
               # Verify each regular expression of session errors
@@ -245,10 +244,10 @@ module Sisimai::Lhost
               break
             end
           end
-          e['reason'] ||= ''; next if e['reason'].empty?
+          next if e['reason'].empty?
 
           # Set pseudo status code
-          e['status'] = Sisimai::SMTP::Status.find(e['diagnosis']) || ''
+          e['status'] = Sisimai::SMTP::Status.find(e['diagnosis'])
           next if e['status'].size == 0 || e['status'].include?('.0')
           e['reason'] = Sisimai::SMTP::Status.name(e['status']).to_s || ''
         end

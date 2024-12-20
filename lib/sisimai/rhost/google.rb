@@ -513,6 +513,7 @@ module Sisimai
         # @return   [String]                The bounce reason for Google Workspace
         # @see      https://support.google.com/a/answer/3726730?hl=en
         def find(argvs)
+          return "" if argvs["diagnosticcode"].empty?
           return '' unless Sisimai::SMTP::Reply.test(argvs['replycode'])
           return '' unless Sisimai::SMTP::Status.test(argvs['deliverystatus'])
 

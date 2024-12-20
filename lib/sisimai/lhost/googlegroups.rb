@@ -13,6 +13,7 @@ module Sisimai::Lhost
       # @return [Nil]           it failed to decode or the arguments are missing
       # @since v4.25.6
       def inquire(mhead, mbody)
+        return nil unless mbody.include?("Google Groups")
         return nil unless mhead['from'].end_with?('<mailer-daemon@googlemail.com>')
         return nil unless mhead['subject'].start_with?('Delivery Status Notification')
         return nil unless mhead['x-failed-recipients']
@@ -57,7 +58,7 @@ module Sisimai::Lhost
           # X-Failed-Recipients: neko@example.jp, nyaan@example.org, ...
           next unless Sisimai::Address.is_emailaddress(e)
 
-          if v['recipient']
+          if v["recipient"] != ""
             # There are multiple recipient addresses in the message body.
             dscontents << Sisimai::Lhost.DELIVERYSTATUS
             v = dscontents[-1]

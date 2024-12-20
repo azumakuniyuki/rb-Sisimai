@@ -1,4 +1,4 @@
-module LhostEngineTest::Public
+module RhostEngineTest::Public
   module Aol
     IsExpected = {
       # INDEX => [['D.S.N.', 'replycode', 'REASON', 'hardbounce'], [...]]
@@ -8,7 +8,8 @@ module LhostEngineTest::Public
                ['5.1.1',   '550', 'userunknown',     true]],
       '04' => [['5.1.1',   '550', 'userunknown',     true]],
       '05' => [['5.4.4',   '',    'hostunknown',     true]],
-      '06' => [['5.4.4',   '',    'notaccept',       true]],}
+      '06' => [['5.4.4',   '',    'notaccept',       true]],
+    }
   end
 end
 

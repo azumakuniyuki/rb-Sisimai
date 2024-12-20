@@ -58,12 +58,12 @@ module Sisimai::Lhost
           v = dscontents[-1]
           if e.include?('@') && e.index(' ').nil?
             # kijitora@notes.example.jp
-            if v['recipient']
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] ||= e
+            v["recipient"] = e if v["recipient"].empty?
             recipients += 1
           else
             next if e.empty?
@@ -83,11 +83,9 @@ module Sisimai::Lhost
                 # No character set in Content-Type header
                 encodedmsg = removedmsg
               end
-              v['diagnosis'] ||= ''
               v['diagnosis'] << encodedmsg
             else
               # Error message does not include multi-byte character
-              v['diagnosis'] ||= ''
               v['diagnosis'] << e
             end
           end

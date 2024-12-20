@@ -4,6 +4,7 @@ module Sisimai::Lhost
   module Postfix
     class << self
       require 'sisimai/lhost'
+      require 'sisimai/smtp/reply'
       require 'sisimai/smtp/command'
 
       # Postfix manual - bounce(5) - http://www.postfix.org/bounce.5.html
@@ -73,7 +74,7 @@ module Sisimai::Lhost
 
             elsif e['command'] == 'RCPT'
               # RCPT TO: <...>
-              if v['recipient']
+              if v["recipient"] != ""
                 # There are multiple recipient addresses in the transcript of session
                 dscontents << Sisimai::Lhost.DELIVERYSTATUS
                 v = dscontents[-1]
@@ -84,9 +85,9 @@ module Sisimai::Lhost
 
             next if p['reply'].to_i < 400
             commandset << e['command']
-            v['diagnosis'] ||= p['text'].join(' ')
-            v['replycode'] ||= p['reply']
-            v['status']    ||= p['status']
+            v['diagnosis'] = p['text'].join(' ') if v["diagnosis"].empty?
+            v['replycode'] = p['reply'] if v["replycode"].empty?
+            v['status']    = p['status'] if v["status"].empty?
           end
         else
           fieldtable = Sisimai::RFC1894.FIELDTABLE
@@ -105,17 +106,18 @@ module Sisimai::Lhost
             next if (readcursor & Indicators[:deliverystatus]) == 0
             next if e.empty?
 
-            if f = Sisimai::RFC1894.match(e)
+            f = Sisimai::RFC1894.match(e)
+            if f > 0
               # "e" matched with any field defined in RFC3464
               next unless o = Sisimai::RFC1894.field(e)
               v = dscontents[-1]
 
-              if o[-1] == 'addr'
+              if o[3] == 'addr'
                 # Final-Recipient: rfc822; kijitora@example.jp
                 # X-Actual-Recipient: rfc822; kijitora@example.co.jp
                 if o[0] == 'final-recipient'
                   # Final-Recipient: rfc822; kijitora@example.jp
-                  if v['recipient']
+                  if v["recipient"] != ""
                     # There are multiple recipient addresses in the message body.
                     dscontents << Sisimai::Lhost.DELIVERYSTATUS
                     v = dscontents[-1]
@@ -126,7 +128,7 @@ module Sisimai::Lhost
                   # X-Actual-Recipient: rfc822; kijitora@example.co.jp
                   v['alias'] = o[2]
                 end
-              elsif o[-1] == 'code'
+              elsif o[3] == 'code'
                 # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
                 v['spec'] = o[1]
                 v['spec'] = 'SMTP' if v['spec'].upcase == 'X-POSTFIX'
@@ -136,7 +138,7 @@ module Sisimai::Lhost
                 next unless fieldtable[o[0]]
                 v[fieldtable[o[0]]] = o[2]
 
-                next unless f
+                next unless f == 1
                 permessage[fieldtable[o[0]]] = o[2]
               end
             else
@@ -160,7 +162,7 @@ module Sisimai::Lhost
                 # Alternative error message and recipient
                 if e.include?(' (in reply to ') || e.include?('command)')
                   # 5.1.1 <userunknown@example.co.jp>... User Unknown (in reply to RCPT TO
-                  q = Sisimai::SMTP::Command.find(e); commandset << q if q
+                  cv = Sisimai::SMTP::Command.find(e) || ""; commandset << cv unless cv.empty?
                   anotherset['diagnosis'] ||= ''
                   anotherset['diagnosis'] << ' ' << e
 
@@ -203,7 +205,7 @@ module Sisimai::Lhost
 
         end
 
-        unless recipients > 0
+        if recipients == 0
           # Fallback: get a recipient address from error messages
           if anotherset['recipient'].to_s.size > 0
             # Set a recipient address
@@ -239,13 +241,9 @@ module Sisimai::Lhost
               # More detailed error message is in "anotherset"
               as = '' # status
               ar = '' # replycode
-
-              e['status']    ||= ''
-              e['replycode'] ||= ''
-
               if e['status'].empty? || e['status'].start_with?('4.0.0', '5.0.0')
                 # Check the value of D.S.N. in anotherset
-                as = Sisimai::SMTP::Status.find(anotherset['diagnosis']) || ''
+                as = Sisimai::SMTP::Status.find(anotherset['diagnosis'])
                 if as.size > 0 && as[-4, 4] != '.0.0'
                   # The D.S.N. is neither an empty nor *.0.0
                   e['status'] = as
@@ -254,7 +252,7 @@ module Sisimai::Lhost
 
               if e['replycode'].empty? || e['replycode'].end_with?('00')
                 # Check the value of SMTP reply code in $anotherset
-                ar = Sisimai::SMTP::Reply.find(anotherset['diagnosis']) || ''
+                ar = Sisimai::SMTP::Reply.find(anotherset['diagnosis'])
                 if ar.size > 0 && ar.end_with?('00') == false
                   # The SMTP reply code is neither an empty nor *00
                   e['replycode'] = ar
@@ -276,8 +274,8 @@ module Sisimai::Lhost
 
           e['diagnosis'] = Sisimai::String.sweep(e['diagnosis']) || ''
           e['command']   = commandset.shift || Sisimai::SMTP::Command.find(e['diagnosis'])
-          e['command'] ||= 'HELO' if e['diagnosis'].include?('refused to talk to me:')
-          e['spec']    ||= 'SMTP' if Sisimai::String.aligned(e['diagnosis'], ['host ', ' said:'])
+          e['command']   = 'HELO' if e["command"].empty? && e['diagnosis'].include?('refused to talk to me:')
+          e['spec']      = 'SMTP' if e["spec"].empty?    && Sisimai::String.aligned(e['diagnosis'], ['host ', ' said:'])
         end
 
         return { 'ds' => dscontents, 'rfc822' => emailparts[1] }

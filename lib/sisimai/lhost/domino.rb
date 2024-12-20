@@ -9,15 +9,15 @@ module Sisimai::Lhost
       Boundaries = ['Content-Type: message/rfc822'].freeze
       StartingOf = { message: ['Your message'] }.freeze
       MessagesOf = {
-        'userunknown' => [
-          'not listed in Domino Directory',
-          'not listed in public Name & Address Book',
+        "filtered"    => ["Cannot route mail to user"],
+        "systemerror" => ["Several matches found in Domino Directory"],
+        "userunknown" => [
+          "not listed in Domino Directory",
+          "not listed in public Name & Address Book",
           "non répertorié dans l'annuaire Domino",
-          'no se encuentra en el Directorio de Domino',
-          'Domino ディレクトリには見つかりません',
+          "no se encuentra en el Directorio de Domino",
+          "Domino ディレクトリには見つかりません",
         ],
-        'filtered' => ['Cannot route mail to user'],
-        'systemerror' => ['Several matches found in Domino Directory'],
       }.freeze
 
       # @abstract Decodes the bounce message from HCL Domino (formerly IBM Domino Server (formerly Lotus Domino))
@@ -68,12 +68,13 @@ module Sisimai::Lhost
 
           if e.start_with?('was not delivered to:')
             # was not delivered to:
-            if v['recipient']
+            #   kijitora@example.net
+            if v["recipient"] != ""
               # There are multiple recipient addresses in the message body.
               dscontents << Sisimai::Lhost.DELIVERYSTATUS
               v = dscontents[-1]
             end
-            v['recipient'] ||= e
+            v['recipient'] = e if v["recipient"].empty?
             recipients += 1
 
           elsif e.start_with?('  ') && e.include?('@') && e.index(' ', 3).nil?
@@ -83,9 +84,10 @@ module Sisimai::Lhost
 
           elsif e.start_with?('because:')
             # because:
+            #   User some.name (kijitora@example.net) not listed in Domino Directory
             v['diagnosis'] = e
           else
-            if v['diagnosis'].to_s == 'because:'
+            if v['diagnosis'] == "because:"
               # Error message, continued from the line "because:"
               v['diagnosis'] = e
 
@@ -93,27 +95,23 @@ module Sisimai::Lhost
               #   Subject: Nyaa
               subjecttxt = e[11, e.size]
 
-            elsif f = Sisimai::RFC1894.match(e)
-              # There are some fields defined in RFC3464, try to match 
-              o = Sisimai::RFC1894.field(e) || next
-              next if o[-1] == 'addr'
+            else
+              # Other fields defined in RFC3464
+              f = Sisimai::RFC1894.match(e); next if f < 1
+              o = Sisimai::RFC1894.field(e); next if o.nil?
+              next if o[3] == 'addr'
 
-              if o[-1] == 'code'
+              if o[3] == 'code'
                 # Diagnostic-Code: SMTP; 550 5.1.1 <userunknown@example.jp>... User Unknown
-                v['spec']      = o[1] if v['spec'].to_s.empty?
-                v['diagnosis'] = o[2] if v['diagnosis'].to_s.empty?
+                v['spec']      = o[1] if v['spec'].empty?
+                v['diagnosis'] = o[2] if v['diagnosis'].empty?
               else
                 # Other DSN fields defined in RFC3464
                 next unless fieldtable[o[0]]
                 v[fieldtable[o[0]]] = o[2]
 
-                next unless f
+                next unless f == 1
                 permessage[fieldtable[o[0]]] = o[2]
-              end
-            else
-              if v['diagnosis'] && e.start_with?("\s", "\t")
-                # The line is a continued line of "Diagnostic-Code:" field
-                v['diagnosis'] += e.sub(/\A[\s\t]+/, '')
               end
             end
           end
@@ -128,8 +126,8 @@ module Sisimai::Lhost
           MessagesOf.each_key do |r|
             # Check each regular expression of Domino error messages
             next unless MessagesOf[r].any? { |a| e['diagnosis'].include?(a) }
-            e['reason']   = r
-            e['status'] ||= Sisimai::SMTP::Status.code(r.to_s, false) || ''
+            e['reason'] = r
+            e['status'] = Sisimai::SMTP::Status.code(r, false) if e["status"].empty?
             break
           end
         end

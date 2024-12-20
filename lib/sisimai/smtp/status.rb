@@ -479,6 +479,8 @@ module Sisimai
     # reason from D.S.N. value, and getting D.S.N. from the text including D.S.N.
     module Status
       class << self
+        require "sisimai/string"
+
         CodePatterns = [
           %r/[ ]?[(][#]([45][.]\d[.]\d+)[)]?[ ]?/,  # #5.5.1
           %r/\b\d{3}[- ][#]?([45][.]\d[.]\d+)\b/,   # 550-5.1.1 OR 550 5.5.1
@@ -492,7 +494,7 @@ module Sisimai
           '4.1.7'  => 'rejected',       # Bad sender's mailbox address syntax
           '4.1.8'  => 'rejected',       # Bad sender's system address
           '4.1.9'  => 'systemerror',    # Message relayed to non-compliant mailer
-          '4.2.1'  => 'suspend',        # Mailbox disabled, not accepting messages
+          '4.2.1'  => 'blocked',        # Mailbox disabled, not accepting messages
           '4.2.2'  => 'mailboxfull',    # Mailbox full
           '4.2.3'  => 'exceedlimit',    # Message length exceeds administrative limit
           '4.2.4'  => 'filtered',       # Mailing list expansion problem
@@ -696,7 +698,7 @@ module Sisimai
         # @see      code
         # @since v5.0.0
         def test(argv1 = '')
-          return nil   if argv1.to_s.empty?
+          return false if argv1.to_s.empty?
           return false if argv1.size < 5
           return false if argv1.size > 7
 
@@ -717,8 +719,8 @@ module Sisimai
         # @param    [String] argv2  An SMTP Reply Code or 2 or 4 or 5
         # @return   [String, Nil]   An SMTP Status Code
         def find(argv1 = nil, argv2 = '0')
-          return nil if argv1.to_s.empty?
-          return nil if argv1.size < 7
+          return "" if argv1.to_s.empty?
+          return "" if argv1.size < 7
 
           givenclass = argv2[0, 1]
           eestatuses = if givenclass == '2' || givenclass == '4' || givenclass == '5' 
@@ -745,7 +747,7 @@ module Sisimai
               p1 = p0 + 5
             end
           end
-          return nil if lookingfor.size == 0
+          return "" if lookingfor.size == 0
 
           statuscode = []   # List of SMTP Status Code, Keep the order of appearances
           anotherone = ''   # Alternative code
@@ -811,10 +813,13 @@ module Sisimai
             next if characters[6] > 47 && characters[6] < 58
             statuscode << readbuffer
           end
-
           statuscode << anotherone if anotherone.size > 0
-          return nil if statuscode.size == 0
-          return statuscode.shift
+          return "" if statuscode.size == 0
+
+          # Select one from picked status codes
+          cv = statuscode.shift; statuscode.each { |e| cv = Sisimai::SMTP::Status.prefer(cv, e, "") }
+
+          return cv
         end
 
         # Return the preferred value selected from the arguments
@@ -860,11 +865,16 @@ module Sisimai
 
           return statuscode if zeroindex2['error'] > 0        # An SMTP status code is "X.0.0"
           return codeinmesg if statuscode == '4.4.7'          # "4.4.7" is an ambiguous code
+          return codeinmesg if statuscode == '4.7.0'          # "4.7.0" indicates "too many errors"
           return codeinmesg if statuscode.start_with?('5.3.') # "5.3.Z" is an error of a system
+          return codeinmesg if statuscode.end_with?('.5.1')   # "X.5.1" indicates an invalid command
+          return codeinmesg if statuscode.end_with?('.5.2')   # "X.5.2" indicates a syntax error
+          return codeinmesg if statuscode.end_with?('.5.4')   # "X.5.4" indicates an invalid command arguments
+          return codeinmesg if statuscode.end_with?('.5.5')   # "X.5.5" indicates a wrong protocol version
 
           if statuscode == '5.1.1'
             # "5.1.1" is a code of "userunknown"
-            return statuscode if zeroindex1['error'] > 0
+            return statuscode if codeinmesg.start_with?('5.5.') || zeroindex1['error'] > 0
             return codeinmesg
 
           elsif statuscode == '5.1.3'
