@@ -11,7 +11,7 @@ v5.1.0p4
   - **Keep compatibility with the Go language version of Sisimai** #311 #318
     - **THERE ARE SOME BREAKING CHANGES AT INTERNAL APIs**
     - `Sisimai::SMTP::Error` has been renamed to `Sisimai::SMTP::Failure` and the following methods
-      implemented:
+      implemented: #309
       - `is_temporary()`
       - `is_hardbounce()`
       - `is_softbounce()`
@@ -62,7 +62,8 @@ v5.1.0p4
     - `Sisimai::MDA` has been renamed to `Sisimai::LDA`
     - `Sisimai::RFC1123.is_validhostname()` has been renamed to `is_internethost()`
     - Implement `Sisimai::RFC1123.find()`
-    - `Sisimai::RFC1894.field()` detect a comment string (returns an array which have 5 elements)
+    - #312 `Sisimai::RFC1894.field()` method detect a comment string (returns an array which have
+      5 elements: ["field-name", "value-type", "value", "field-group", "comment"])
   - Code improvement and bug fix at `Sisimai::Lhost::Exim`
     - Remove needless condition for getting error messages
     - Rewrite code for getting an SMTP reply code and a delivery status code
