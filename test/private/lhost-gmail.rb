@@ -29,7 +29,7 @@ module LhostEngineTest::Private
       '01025' => [['5.7.0',   '554', 'filtered',        false]],
       '01026' => [['5.0.910', '550', 'filtered',        false]],
       '01027' => [['5.7.1',   '550', 'securityerror',   false]],
-      '01028' => [['5.0.930', '500', 'systemerror',     false]],
+      '01028' => [['5.0.976', '500', 'failedstarttls',  false]],
       '01029' => [['5.0.901', '',    'onhold',          false]],
       '01030' => [['5.7.1',   '554', 'blocked',         false]],
       '01031' => [['5.7.1',   '550', 'blocked',         false]],
