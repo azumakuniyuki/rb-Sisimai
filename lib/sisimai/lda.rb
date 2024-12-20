@@ -70,7 +70,7 @@ module Sisimai
       def find(argvs)
         return nil if argvs.nil?
         return ""  if argvs["diagnosticcode"].empty?
-        return ""  if argvs["smtpcommand"] != "" && argvs["smtpcomand"] != "DATA"
+        return ""  if argvs["command"] != "" && argvs["command"] != "DATA"
 
         deliversby = ""   # [String] Local Delivery Agent name
         reasontext = ""   # [String] Error reason

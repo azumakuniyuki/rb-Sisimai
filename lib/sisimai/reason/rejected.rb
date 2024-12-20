@@ -102,7 +102,7 @@ module Sisimai
 
           # Check the value of Diagnosic-Code: header with patterns
           issuedcode = argvs['diagnosticcode'].downcase
-          thecommand = argvs['smtpcommand'] || ''
+          thecommand = argvs['command'] || ''
           if thecommand == 'MAIL'
             # The session was rejected at 'MAIL FROM' command
             return true if match(issuedcode)

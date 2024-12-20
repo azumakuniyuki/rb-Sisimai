@@ -390,10 +390,10 @@ class LhostCode < Minitest::Test
           end
 
           # ---------------------------------------------------------------------------------------
-          # SMTPCOMMAND
-          cv = rr.smtpcommand
+          # COMMAND
+          cv = rr.command
           cr = %w[CONN HELO EHLO MAIL RCPT DATA QUIT]
-          ct = sprintf("%s [%s-%02d] #smtpcommand =", ce, e, errorindex)
+          ct = sprintf("%s [%s-%02d] #command =", ce, e, errorindex)
 
           assert_instance_of String, cv
           refute_nil cv, sprintf("%s %s", ct, cv)

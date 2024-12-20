@@ -59,7 +59,7 @@ class ReasonChildrenTest < Minitest::Test
 
         cw['reason'] = 'undefined'
         cw['diagnosticcode'] = Reasons[e][0]
-        cw['smtpcommand'] = if e.match(/(Rejected|NotAccept)/) then 'MAIL' else cv.smtpcommand end
+        cw['command'] = if e.match(/(Rejected|NotAccept)/) then 'MAIL' else cv.command end
         assert_equal true, cx.true(cw)
       end
 

@@ -53,7 +53,7 @@ module Sisimai
         def true(argvs)
           r = argvs['reason'] || ''
           return false if r.start_with?('securityerror', 'systemerror', 'undefined')
-          return false if %w[CONN EHLO HELO].include?(argvs['smtpcommand'])
+          return false if %w[CONN EHLO HELO].include?(argvs['command'])
           return match(argvs['diagnosticcode'].downcase)
         end
 
