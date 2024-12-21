@@ -107,9 +107,8 @@ class LhostCode < Minitest::Test
             bf = cf.split('/')[-1].sub(/[.]eml\z/, '')
             next if skiptonext['public'].include?(File.basename(bf))
           end
+          printf("\n%s [%s-00] need to be inspected", cf, e); next
         end
-
-        warn cf unless listoffact
         recipients = listoffact.size
         errorindex = 0
 
