@@ -479,7 +479,7 @@ module Sisimai
     # reason from D.S.N. value, and getting D.S.N. from the text including D.S.N.
     module Status
       class << self
-        require "sisimai/string"
+        require "sisimai/rfc791"
 
         CodePatterns = [
           %r/[ ]?[(][#]([45][.]\d[.]\d+)[)]?[ ]?/,  # #5.5.1
@@ -733,7 +733,7 @@ module Sisimai
           esmtperror = ' ' + argv1 + ' '
           lookingfor = []
 
-          Sisimai::String.ipv4(esmtperror).each do |e|
+          Sisimai::RFC791.find(esmtperror).each do |e|
             # Rewrite an IPv4 address in the given string(argv1) with '***.***.***.***'
             p0 = esmtperror.index(e) || next
             esmtperror[p0, e.size] = '***.***.***.***'
