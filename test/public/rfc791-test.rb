@@ -2,9 +2,21 @@ require 'minitest/autorun'
 require 'sisimai/rfc791'
 
 class RFC791Test < Minitest::Test
-  Methods = { class: %w[find] }
+  Methods = { class: %w[is_ipv4address find] }
 
-  def test_ipv4
+  def test_is_upv4address
+    addr0 = ["123.456.78.9"]
+    addr1 = ["192.0.2.22"]
+
+    addr0.each do |e|
+      assert_equal false, Sisimai::RFC791.is_ipv4address(e)
+    end
+    addr1.each do |e|
+      assert_equal true,  Sisimai::RFC791.is_ipv4address(e)
+    end
+  end
+
+  def test_find
     ip4address = [
       ['host smtp.example.jp 127.0.0.4 SMTP error from remote mail server', '127.0.0.4'],
       ['mx.example.jp (192.0.2.2) reason: 550 5.2.0 Mail rejete.', '192.0.2.2'],

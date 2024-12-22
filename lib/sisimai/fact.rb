@@ -2,6 +2,7 @@ module Sisimai
   # Sisimai::Fact generate the list of decoded bounce data
   class Fact
     require 'sisimai/message'
+    require 'sisimai/rfc791'
     require 'sisimai/rfc1123'
     require 'sisimai/rfc1894'
     require 'sisimai/rfc5322'
@@ -246,7 +247,7 @@ module Sisimai
             ee.each do |w|
               # get a hostname from the string like "127.0.0.1 x109-20.example.com 192.0.2.20"
               # or "mx.sp.example.jp 192.0.2.135"
-              next if w =~ /\A\d{1,3}[.]\d{1,3}[.]\d{1,3}[.]\d{1,3}\z/; # Skip if it is an IPv4 address
+              next if Sisimai::RFC791.is_ipv4address(w)
               piece[v] = w
               break
             end
