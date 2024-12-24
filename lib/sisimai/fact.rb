@@ -27,6 +27,7 @@ module Sisimai
       :destination,     # [String] The domain part of the "recipient"
       :diagnosticcode,  # [String] Diagnostic-Code: Header
       :diagnostictype,  # [String] The 1st part of Diagnostic-Code: Header
+      :feedbackid,      # [String] The value of Feedback-ID: header of the original message
       :feedbacktype,    # [String] Feedback Type
       :hardbounce,      # [Boolean] true = Hard bounce, false = is not a hard bounce
       :lhost,           # [String] local host name/Local MTA
@@ -76,6 +77,7 @@ module Sisimai
       @diagnostictype = argvs['diagnostictype']
       @deliverystatus = argvs['deliverystatus']
       @destination    = argvs['recipient'].host
+      @feedbackid     = argvs["feedbackid"]
       @feedbacktype   = argvs['feedbacktype']
       @hardbounce     = argvs['hardbounce']
       @lhost          = argvs['lhost']
@@ -379,6 +381,7 @@ module Sisimai
 
         # Other accessors
         thing['catch']          = piece['catch'] || nil
+        thing["feedbackid"]     = ""
         thing['hardbounce']     = piece['hardbounce']
         thing['replycode']      = Sisimai::SMTP::Reply.find(piece['diagnosticcode']) if thing['replycode'].empty?
         thing['timestamp']      = TimeModule.parse(::Time.at(piece['timestamp']).to_s)
@@ -470,6 +473,9 @@ module Sisimai
         thing["action"] = "delayed"   if thing["action"].empty? && thing["reason"] == "expired"
         thing["action"] = "failed"    if thing["action"].empty? && cx[0] == "4" || cx[0] == "5"
 
+        # Feedback-ID: 1.us-west-2.QHuyeCQrGtIIMGKQfVdUhP9hCQR2LglVOrRamBc+Prk=:AmazonSES
+        thing["feedbackid"] = rfc822data["feedback-id"] || ""
+
         listoffact << Sisimai::Fact.new(thing)
       end
       return listoffact
@@ -481,8 +487,8 @@ module Sisimai
       data = {}
       stringdata = %w[
         action alias catch command decodedby deliverystatus destination diagnosticcode diagnostictype
-        feedbacktype lhost listid messageid origin reason replycode rhost senderdomain subject
-        timezoneoffset token
+        feedbackid feedbacktype lhost listid messageid origin reason replycode rhost senderdomain
+        subject timezoneoffset token
       ]
 
       begin

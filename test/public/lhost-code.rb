@@ -36,6 +36,11 @@ class LhostCode < Minitest::Test
         rfc3464/01024 rfc3464/01061 rfc3464/01081
       ],
     }
+    feedbackid = [
+      "lhost-amazonses-05", "lhost-amazonses-06", "lhost-amazonses-07", "lhost-amazonses-08", 
+      "arf-14", "lhost-einsundeins-03", "lhost-exchange2007-05", "lhost-exchange2007-06",
+      "lhost-exim-61", "lhost-postfix-64", "rhost-franceptt-04", 
+    ]
 
     if isnotlhost.include?(enginename)
       # ARF, RFC3464, RFC3834
@@ -225,6 +230,16 @@ class LhostCode < Minitest::Test
             # Except the value of "reason" is "feedback"
             refute_empty cv,     sprintf("%s %s", ct, cv)
             assert_match cr, cv, sprintf("%s %s", ct, cv)
+          end
+
+          # ---------------------------------------------------------------------------------------
+          # FEEDBACKID
+          cv = rr.feedbackid
+          ct = sprintf("%s [%s-%02d] #feedbackid =", ce, e, errorindex)
+
+          assert_instance_of String, cv
+          if feedbackid.any? { |a| cf.include?(a) }
+            refute_empty cv, sprintf("%s %s", ct, cv)
           end
 
           # ---------------------------------------------------------------------------------------

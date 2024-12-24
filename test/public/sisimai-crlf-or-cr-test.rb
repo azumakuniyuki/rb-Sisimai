@@ -45,7 +45,7 @@ class EmailCRLFTest < Minitest::Test
           next if ee.send(eee).class.to_s.start_with?('Sisimai::')
           next if eee == 'subject'
 
-          if eee == 'catch'
+          if eee == 'catch' || eee == "feedbackid"
             assert_empty dx['catch']
           else
             assert_equal ee.send(eee.to_sym), dx[eee]
