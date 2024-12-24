@@ -64,7 +64,7 @@ module Sisimai
             if p1
               # Delete quoted strings, quote symbols(>)
               cq = Sisimai::String.sweep(cq[cq.index(':') + 1, cq.size])
-              aftersplit[2] = aftersplit[2].gsub(/^[>]+[ ]/, '').gsub(/^[>]$/, '')
+              aftersplit[2] = aftersplit[2].gsub(/^[>][ ]/, '').gsub(/^[>]$/, '')
             end
             thing['header']['subject'] = cq
           end
