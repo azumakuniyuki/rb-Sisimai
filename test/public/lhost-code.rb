@@ -27,15 +27,6 @@ class LhostCode < Minitest::Test
     nameprefix = ''
     reasonlist = Sisimai::Reason.index.map { |e| e = e.downcase }
     reasonlist << "delivered" << "feedback" << "undefined" << "vacation"
-    skiptonext = {
-      'public'  => %w[lhost-postfix-49 lhost-postfix-50],
-      'private' => %w[
-        arf/01003 arf/01005 arf/01009 arf/01015
-        lhost-exim/01084 lhost-mailmarshalsmtp/01001
-        lhost-postfix/01200 lhost-postfix/01201
-        rfc3464/01024 rfc3464/01061 rfc3464/01081
-      ],
-    }
     feedbackid = [
       "lhost-amazonses-05", "lhost-amazonses-06", "lhost-amazonses-07", "lhost-amazonses-08", 
       "arf-14", "lhost-einsundeins-03", "lhost-exchange2007-05", "lhost-exchange2007-06",
@@ -107,10 +98,8 @@ class LhostCode < Minitest::Test
         unless listoffact
           if privateset
             bf = cf.split('/', 4)[-1].sub(/[-][0-9a-f]{32}[.]eml\z/, '')
-            next if skiptonext['private'].include?(bf)
           else
             bf = cf.split('/')[-1].sub(/[.]eml\z/, '')
-            next if skiptonext['public'].include?(File.basename(bf))
           end
           printf("\n%s [%s-00] need to be inspected", cf, e); next
         end
