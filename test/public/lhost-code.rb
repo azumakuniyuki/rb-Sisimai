@@ -27,15 +27,11 @@ class LhostCode < Minitest::Test
     nameprefix = ''
     reasonlist = Sisimai::Reason.index.map { |e| e = e.downcase }
     reasonlist << "delivered" << "feedback" << "undefined" << "vacation"
-    skiptonext = {
-      'public'  => %w[lhost-postfix-49 lhost-postfix-50],
-      'private' => %w[
-        arf/01003 arf/01005 arf/01009 arf/01015
-        lhost-exim/01084 lhost-mailmarshalsmtp/01001
-        lhost-postfix/01200 lhost-postfix/01201
-        rfc3464/01024 rfc3464/01061 rfc3464/01081
-      ],
-    }
+    feedbackid = [
+      "lhost-amazonses-05", "lhost-amazonses-06", "lhost-amazonses-07", "lhost-amazonses-08", 
+      "arf-14", "lhost-einsundeins-03", "lhost-exchange2007-05", "lhost-exchange2007-06",
+      "lhost-exim-61", "lhost-postfix-64", "rhost-franceptt-04", 
+    ]
 
     if isnotlhost.include?(enginename)
       # ARF, RFC3464, RFC3834
@@ -102,14 +98,11 @@ class LhostCode < Minitest::Test
         unless listoffact
           if privateset
             bf = cf.split('/', 4)[-1].sub(/[-][0-9a-f]{32}[.]eml\z/, '')
-            next if skiptonext['private'].include?(bf)
           else
             bf = cf.split('/')[-1].sub(/[.]eml\z/, '')
-            next if skiptonext['public'].include?(File.basename(bf))
           end
+          printf("\n%s [%s-00] need to be inspected", cf, e); next
         end
-
-        warn cf unless listoffact
         recipients = listoffact.size
         errorindex = 0
 
@@ -226,6 +219,16 @@ class LhostCode < Minitest::Test
             # Except the value of "reason" is "feedback"
             refute_empty cv,     sprintf("%s %s", ct, cv)
             assert_match cr, cv, sprintf("%s %s", ct, cv)
+          end
+
+          # ---------------------------------------------------------------------------------------
+          # FEEDBACKID
+          cv = rr.feedbackid
+          ct = sprintf("%s [%s-%02d] #feedbackid =", ce, e, errorindex)
+
+          assert_instance_of String, cv
+          if feedbackid.any? { |a| cf.include?(a) }
+            refute_empty cv, sprintf("%s %s", ct, cv)
           end
 
           # ---------------------------------------------------------------------------------------
@@ -360,10 +363,10 @@ class LhostCode < Minitest::Test
           end
 
           # ---------------------------------------------------------------------------------------
-          # SMTPAGENT
-          cv = rr.smtpagent
+          # DECODEDBY
+          cv = rr.decodedby
           cr = %r/\A[-.0-9A-Za-z]+\z/
-          ct = sprintf("%s [%s-%02d] #smtpagent =", ce, e, errorindex)
+          ct = sprintf("%s [%s-%02d] #decodedby =", ce, e, errorindex)
 
           assert_instance_of String, cv
           refute_empty cv,     sprintf("%s %s", ct, cv)
@@ -390,10 +393,10 @@ class LhostCode < Minitest::Test
           end
 
           # ---------------------------------------------------------------------------------------
-          # SMTPCOMMAND
-          cv = rr.smtpcommand
+          # COMMAND
+          cv = rr.command
           cr = %w[CONN HELO EHLO MAIL RCPT DATA QUIT]
-          ct = sprintf("%s [%s-%02d] #smtpcommand =", ce, e, errorindex)
+          ct = sprintf("%s [%s-%02d] #command =", ce, e, errorindex)
 
           assert_instance_of String, cv
           refute_nil cv, sprintf("%s %s", ct, cv)

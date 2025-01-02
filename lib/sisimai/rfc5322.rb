@@ -2,7 +2,7 @@ module Sisimai
   # Sisimai::RFC5322 provide methods for checking email address.
   module RFC5322
     class << self
-      require 'sisimai/string'
+      require 'sisimai/rfc791'
       require 'sisimai/address'
       HeaderTable = {
         :messageid => %w[message-id],
@@ -119,7 +119,7 @@ module Sisimai
           next if token[e].nil?
           next if token[e].empty?
           next unless token[e].start_with?('[')
-          token[e] = Sisimai::String.ipv4(token[e]).shift || ''
+          token[e] = Sisimai::RFC791.find(token[e]).shift || ''
         end
         token['from'] ||= ''
 
@@ -128,7 +128,7 @@ module Sisimai
           break if token['from'] == 'localhost'
           break if token['from'] == 'localhost.localdomain'
           break unless token['from'].include?('.')  # A hostname without a domain name
-          break unless Sisimai::String.ipv4(token['from']).empty?
+          break unless Sisimai::RFC791.find(token['from']).empty?
 
           # No need to rewrite token['from']
           right = true

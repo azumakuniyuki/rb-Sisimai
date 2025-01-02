@@ -10,6 +10,7 @@ class ReasonChildrenTest < Minitest::Test
     'ContentError'    => ['550 5.6.0 the headers in this message contain improperly-formatted binary content'],
     'ExceedLimit'     => ['5.2.3 Message too large'],
     'Expired'         => ['421 4.4.7 Delivery time expired'],
+    'FailedSTARTTLS'  => ['538 STARTTLS is required to send mail'],
     'Filtered'        => ['550 5.1.2 User reject'],
     'HasMoved'        => ['550 5.1.6 address neko@cat.cat has been replaced by neko@example.jp'],
     'HostUnknown'     => ['550 5.2.1 Host Unknown'],
@@ -59,7 +60,7 @@ class ReasonChildrenTest < Minitest::Test
 
         cw['reason'] = 'undefined'
         cw['diagnosticcode'] = Reasons[e][0]
-        cw['smtpcommand'] = if e.match(/(Rejected|NotAccept)/) then 'MAIL' else cv.smtpcommand end
+        cw['command'] = if e.match(/(Rejected|NotAccept)/) then 'MAIL' else cv.command end
         assert_equal true, cx.true(cw)
       end
 

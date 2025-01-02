@@ -191,7 +191,7 @@ module Sisimai
             end
             return true unless matchother # Did not match with other message patterns
 
-          elsif argvs['smtpcommand'] == 'RCPT'
+          elsif argvs['command'] == 'RCPT'
             # When the SMTP command is not "RCPT", the session rejected by other
             # reason, maybe.
             return true if match(issuedcode)

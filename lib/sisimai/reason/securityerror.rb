@@ -29,8 +29,6 @@ module Sisimai
           'insecure mail relay',
           'recipient address rejected: access denied',
           "sorry, you don't authenticate or the domain isn't in my list of allowed rcpthosts",
-          'starttls is required to send mail',
-          'tls required but not supported',   # SendGrid:the recipient mailserver does not support TLS or have a valid certificate
           'unauthenticated senders not allowed',
           'verification failure',
           'you are not authorized to send mail, authentication is required',
@@ -57,7 +55,7 @@ module Sisimai
           return false
         end
 
-        # The bounce reason is security error or not
+        # The bounce reason is SecurityError or not
         # @param    [Sisimai::Fact] argvs   Object to be detected the reason
         # @return   [True,False]            true: is security error
         #                                   false: is not security error

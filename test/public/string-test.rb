@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'sisimai/string'
 
 class StringTest < Minitest::Test
-  Methods = { class: %w[token is_8bit sweep aligned ipv4 to_plain to_utf8] }
+  Methods = { class: %w[token is_8bit sweep aligned to_plain to_utf8] }
 
   def test_methods
     Methods[:class].each { |e| assert_respond_to Sisimai::String, e }
@@ -66,27 +66,6 @@ class StringTest < Minitest::Test
       Sisimai::String.aligned()
       Sisimai::String.aligned(nil)
       Sisimai::String.aligned("nekochan", [], 1)
-    end
-  end
-
-  def test_ipv4
-    ip4address = [
-      ['host smtp.example.jp 127.0.0.4 SMTP error from remote mail server', '127.0.0.4'],
-      ['mx.example.jp (192.0.2.2) reason: 550 5.2.0 Mail rejete.', '192.0.2.2'],
-      ['Client host [192.0.2.49] blocked using cbl.abuseat.org (state 13).', '192.0.2.49'],
-      ['127.0.0.1', '127.0.0.1'],
-      ['365.31.7.1', ''],
-      ['a.b.c.d', ''],
-    ]
-    ip4address.each do |e|
-      assert_equal e[1], Sisimai::String.ipv4(e[0]).shift.to_s
-    end
-    assert_nil Sisimai::String.ipv4('')
-    assert_instance_of Array, Sisimai::String.ipv4('3.14')
-
-    ce = assert_raises ArgumentError do
-      Sisimai::String.ipv4()
-      Sisimai::String.ipv4("nekochan", nil)
     end
   end
 

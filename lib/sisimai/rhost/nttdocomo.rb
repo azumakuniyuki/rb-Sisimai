@@ -17,7 +17,7 @@ module Sisimai
         def find(argvs)
           return argvs['reason'] unless argvs['reason'].empty?
           statuscode = argvs['deliverystatus']          || ''
-          thecommand = argvs['smtpcommand']             || ''
+          thecommand = argvs['command']                 || ''
           esmtperror = argvs['diagnosticcode'].downcase || ''
           reasontext = ''
 

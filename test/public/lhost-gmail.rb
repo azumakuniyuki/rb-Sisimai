@@ -7,7 +7,7 @@ module LhostEngineTest::Public
       '04' => [['5.7.1',   '554', 'blocked',         false]],
       '05' => [['5.7.1',   '550', 'securityerror',   false]],
       '06' => [['4.2.2',   '450', 'mailboxfull',     false]],
-      '07' => [['5.0.930', '500', 'systemerror',     false]],
+      '07' => [['5.0.976', '500', 'failedstarttls',  false]],
       '08' => [['5.0.947', '',    'expired',         false]],
       '09' => [['4.0.947', '',    'expired',         false]],
       '10' => [['5.0.947', '',    'expired',         false]],

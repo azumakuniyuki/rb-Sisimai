@@ -79,6 +79,7 @@ class SisimaiTest < Minitest::Test
         assert_equal ee.timestamp.to_time.to_i, cv['timestamp']
 
         cv.each_key do |eee|
+          next if eee == "smtpcommand"
           next if ee.send(eee).class.to_s.start_with?('Sisimai::')
           next if eee == 'subject'
 
@@ -187,7 +188,7 @@ class SisimaiTest < Minitest::Test
         assert_instance_of ::String, ee['addresser']
         assert_instance_of ::String, ee['recipient']
 
-        %w[addresser recipient destination reason timestamp token smtpagent origin].each do |eee|
+        %w[addresser recipient destination reason timestamp token decodedby origin].each do |eee|
           assert ee[eee]
         end
       end

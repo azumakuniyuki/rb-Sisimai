@@ -28,7 +28,7 @@ module Sisimai::Lhost
         # We recommend contacting the other email provider for further information about the
         # cause of this error. The error that the other server returned was:
         # 500 Remote server does not support TLS (state 6).
-        '6'  => { 'command' => 'MAIL', 'reason' => 'systemerror' },
+        '6'  => { 'command' => 'MAIL', 'reason' => 'failedstarttls' },
 
         # https://www.google.td/support/forum/p/gmail/thread?tid=08a60ebf5db24f7b&hl=en
         # Technical details of permanent failure:
@@ -44,7 +44,7 @@ module Sisimai::Lhost
         # We recommend contacting the other email provider for further information about the
         # cause of this error. The error that the other server returned was:
         # 454 454 TLS missing certificate: error:0200100D:system library:fopen:Permission denied (#4.3.0) (state 9).
-        '9'  => { 'command' => 'AUTH', 'reason' => 'systemerror' },
+        '9'  => { 'command' => 'AUTH', 'reason' => 'failedstarttls' },
 
         # https://www.google.com/support/forum/p/gmail/thread?tid=5cfab8c76ec88638&hl=en
         # Technical details of permanent failure:

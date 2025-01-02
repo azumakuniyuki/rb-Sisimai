@@ -44,11 +44,11 @@ module Sisimai
         # @since 4.22.0
         # @see http://www.ietf.org/rfc/rfc2822.txt
         def true(argvs)
-          # The value of "reason" isn't "visusdetected" when the value of "smtpcommand" is an SMTP
-          # command to be sent before the SMTP DATA command because all the MTAs read the headers
-          # and the entire message body after the DATA command.
+          # The value of "reason" isn't "visusdetected" when the value of "command" is an SMTP command
+          # to be sent before the SMTP DATA command because all the MTAs read the headers and the
+          # entire message body after the DATA command.
           return true  if argvs['reason'] == 'virusdetected'
-          return false if %w[CONN EHLO HELO MAIL RCPT].include?(argvs['smtpcommand'])
+          return false if %w[CONN EHLO HELO MAIL RCPT].include?(argvs['command'])
           return match(argvs['diagnosticcode'].downcase)
         end
 

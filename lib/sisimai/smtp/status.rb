@@ -479,7 +479,7 @@ module Sisimai
     # reason from D.S.N. value, and getting D.S.N. from the text including D.S.N.
     module Status
       class << self
-        require "sisimai/string"
+        require "sisimai/rfc791"
 
         CodePatterns = [
           %r/[ ]?[(][#]([45][.]\d[.]\d+)[)]?[ ]?/,  # #5.5.1
@@ -597,7 +597,7 @@ module Sisimai
           '5.7.27' => 'notaccept',      # MX resource record of a destination host is Null MX: RFC7505
           '5.7.28' => 'spamdetected',   # The message appears to be part of a mail flood of similar abusive messages.
           '5.7.29' => 'authfailure',    # This status code may be returned when a message fails ARC validation.
-          '5.7.30' => 'securityerror',  # REQUIRETLS support required
+          '5.7.30' => 'failedstarttls', # REQUIRETLS support required
         }.freeze
 
         InternalCode = {
@@ -608,6 +608,7 @@ module Sisimai
             'contenterror'    => '4.0.960',
             # 'exceedlimit'   => '4.0.923',
             'expired'         => '4.0.947',
+            'failedstarttls'  => '4.0.976',
             'filtered'        => '4.0.924',
             # 'hasmoved'      => '4.0.916',
             # 'hostunknown'   => '4.0.912',
@@ -638,6 +639,7 @@ module Sisimai
             'contenterror'    => '5.0.960',
             'exceedlimit'     => '5.0.923',
             'expired'         => '5.0.947',
+            'failedstarttls'  => '5.0.976',
             'filtered'        => '5.0.910',
             'hasmoved'        => '5.0.916',
             'hostunknown'     => '5.0.912',
@@ -731,7 +733,7 @@ module Sisimai
           esmtperror = ' ' + argv1 + ' '
           lookingfor = []
 
-          Sisimai::String.ipv4(esmtperror).each do |e|
+          Sisimai::RFC791.find(esmtperror).each do |e|
             # Rewrite an IPv4 address in the given string(argv1) with '***.***.***.***'
             p0 = esmtperror.index(e) || next
             esmtperror[p0, e.size] = '***.***.***.***'

@@ -20,7 +20,7 @@ class LDATest < Minitest::Test
   def test_find
     assert_nil Sisimai::LDA.find(nil)
     assert_empty Sisimai::LDA.find({"diagnosticcode" => ""})
-    assert_empty Sisimai::LDA.find({"diagnosticcode" => "nyaan", "smtpcommand" => "RCPT"})
+    assert_empty Sisimai::LDA.find({"diagnosticcode" => "nyaan", "command" => "RCPT"})
 
     Mailset.each_key do |e|
       mailbox = Sisimai::Mail.new("./set-of-emails/maildir/bsd/" + e + ".eml")
@@ -34,7 +34,7 @@ class LDATest < Minitest::Test
         assert_instance_of Array, message["ds"]
 
         message["ds"].each do |f|
-          factobj = { "diagnosticcode" => f["diagnosis"], "smtpcommand" => f["command"] }
+          factobj = { "diagnosticcode" => f["diagnosis"], "command" => f["command"] }
           v = Sisimai::LDA.find(factobj)
 
           assert_instance_of ::String, v

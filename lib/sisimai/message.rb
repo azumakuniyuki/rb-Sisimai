@@ -64,7 +64,7 @@ module Sisimai
             if p1
               # Delete quoted strings, quote symbols(>)
               cq = Sisimai::String.sweep(cq[cq.index(':') + 1, cq.size])
-              aftersplit[2] = aftersplit[2].gsub(/^[>]+[ ]/, '').gsub(/^[>]$/, '')
+              aftersplit[2] = aftersplit[2].gsub(/^[>][ ]/, '').gsub(/^[>]$/, '')
             end
             thing['header']['subject'] = cq
           end
@@ -98,7 +98,7 @@ module Sisimai
         return thing
       end
 
-      def load(argvs); ' ***warning: Sisimai::Message->load will be removed at v5.1.1'; return []; end
+      def load(argvs); ' ***warning: Sisimai::Message.load will be removed at v5.3.0'; return []; end
 
       # Divide email data up headers and a body part.
       # @param         [String] email  Email data

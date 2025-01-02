@@ -54,15 +54,15 @@ module Sisimai
           return false if tempreason == 'suspend'
 
           issuedcode = argvs['diagnosticcode'].downcase || ''
-          thecommand = argvs['smtpcommand']             || ''
+          thecommand = argvs['command']                 || ''
           if tempreason == 'filtered'
             # Delivery status code points "filtered".
             return true if Sisimai::Reason::UserUnknown.match(issuedcode)
             return true if match(issuedcode)
           else
-            # The value of "reason" isn't "filtered" when the value of "smtpcommand" is an SMTP
-            # command to be sent before the SMTP DATA command because all the MTAs read the headers
-            # and the entire message body after the DATA command.
+            # The value of "reason" isn't "filtered" when the value of "command" is an SMTP command
+            # to be sent before the SMTP DATA command because all the MTAs read the headers and the
+            # entire message body after the DATA command.
             return false if %w[CONN EHLO HELO MAIL RCPT].include?(thecommand)
             return true  if match(issuedcode)
             return true  if Sisimai::Reason::UserUnknown.match(issuedcode)
