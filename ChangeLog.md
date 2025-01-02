@@ -3,12 +3,21 @@ RELEASE NOTES for Ruby version of Sisimai
 - releases: "https://github.com/sisimai/rb-sisimai/releases"
 - download: "https://rubygems.org/gems/sisimai"
 
-v5.1.0p4
+v5.1.0p5
 ---------------------------------------------------------------------------------------------------
 - release: ""
 - version: ""
 - changes:
-  - **Keep compatibility with the Go language version of Sisimai** #311 #318
+  - **Keep compatibility with the Go language version of Sisimai** #311 #318 #327
+    - **BREAKING CHANGES AT EXTERNAL USER APIs**
+        - Changes in accessors of `Sisimai::Fact` and key names in JSON string
+          - `smtpagent` has been renamed to `decodedby` #323
+          - `smtpcommand` has been renamed to `command` #323
+          - Removed accessors/keys are still available until v5.5.0
+          - New accessor and key `feedbackid`, it is a field for the `Feedback-ID:` header of the
+            original message #328
+        - New bounce reason `Sisimai::Reason::Suppressed`
+        - New bounce reason `Sisimai::Reason::FailedSTARTTLS` #322
     - **THERE ARE SOME BREAKING CHANGES AT INTERNAL APIs**
     - `Sisimai::SMTP::Error` has been renamed to `Sisimai::SMTP::Failure` and the following methods
       implemented: #309
@@ -21,7 +30,6 @@ v5.1.0p4
       - Fix bug in code to check the domain part of an email address as a remote hostname
       - Add a new error message pattern: `hosted tenant which has no mail-enabled subscriptions'`
         in `Sisimai::Rhost::Microsoft`
-    - Implement a new bounce reason `Sisimai::Reason::Suppressed`
     - Remove `hardbounce` accessor from `Sisimai::Lhost` #313
     - Implement `Sisimai::RFC3464::ThirdParty`
     - Remove the following MTA modules from `Sisimai::Lhost` #315
@@ -60,6 +68,9 @@ v5.1.0p4
       - MessageLabs
       - Outlook
     - `Sisimai::MDA` has been renamed to `Sisimai::LDA`
+    - `Sisimai::RFC791` for the IPv4 address implemented #319
+      - `Sisimai::String.ipv4` has been moved/renamed to `Sisimai::RFC791.find`
+      - Implement `Sisimai::RFC791.is_ipv4address`
     - `Sisimai::RFC1123.is_validhostname()` has been renamed to `is_internethost()`
     - Implement `Sisimai::RFC1123.find()`
     - #312 `Sisimai::RFC1894.field()` method detect a comment string (returns an array which have
