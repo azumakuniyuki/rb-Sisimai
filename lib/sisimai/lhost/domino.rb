@@ -28,6 +28,7 @@ module Sisimai::Lhost
       def inquire(mhead, mbody)
         return nil unless mhead['subject'].start_with?('DELIVERY FAILURE:', 'DELIVERY_FAILURE:')
 
+        require 'sisimai/rfc1123'
         require 'sisimai/rfc1894'
         fieldtable = Sisimai::RFC1894.FIELDTABLE
         permessage = {}     # (Hash) Store values of each Per-Message field
@@ -108,6 +109,7 @@ module Sisimai::Lhost
               else
                 # Other DSN fields defined in RFC3464
                 next unless fieldtable[o[0]]
+                next if o[3] == "host" && Sisimai::RFC1123.is_internethost(o[2]) == false
                 v[fieldtable[o[0]]] = o[2]
 
                 next unless f == 1

@@ -5,6 +5,7 @@ module Sisimai
       require 'sisimai/lhost'
       require 'sisimai/string'
       require 'sisimai/address'
+      require 'sisimai/rfc1123'
       require 'sisimai/rfc1894'
       require 'sisimai/rfc2045'
       require 'sisimai/rfc5322'
@@ -179,6 +180,7 @@ module Sisimai
                 v["diagnosis"] << " " + o[4] + " "
               end
               next unless FieldTable[o[0]]
+              next if o[3] == "host" && Sisimai::RFC1123.is_internethost(o[2]) == false
               v[FieldTable[o[0]]] = o[2]
 
               next unless f == 1
