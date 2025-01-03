@@ -7,7 +7,7 @@ module Sisimai
         # dovecot/src/deliver/deliver.c
         # 11: #define DEFAULT_MAIL_REJECTION_HUMAN_REASON \
         # 12: "Your message to <%t> was automatically rejected:%n%r"
-        "dovecot"    => ["Your message to ", " was automatically rejected:"],
+        "dovecot"    => ["Your message to <", "> was automatically rejected:"],
         "mail.local" => ["mail.local: "],
         "procmail"   => ["procmail: ", "/procmail "],
         "maildrop"   => ["maildrop: "],
