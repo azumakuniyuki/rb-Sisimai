@@ -80,7 +80,7 @@ module Sisimai
           return "" if argvs["diagnosticcode"].include?("-") == false
 
           errorindex = argvs["diagnosticcode"].index("-")
-          errorlabel = argvs["diagnosticcode"][errorindex - 3, errorindex + 3]
+          errorlabel = argvs["diagnosticcode"][errorindex - 3, 6]
           reasontext = ''
 
           ErrorCodes.each_key do |e|
