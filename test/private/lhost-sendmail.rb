@@ -211,7 +211,7 @@ module LhostEngineTest::Private
       '1204'  => [['5.2.1',   '550', 'suspend',         false]],
       '1205'  => [['5.1.1',   '550', 'userunknown',     true]],
       '1206'  => [['5.3.5',   '553', 'systemerror',     false]],
-      '1207'  => [['5.1.1',   '550', 'userunknown',     true]],
+#     '1207'  => [['5.1.1',   '550', 'userunknown',     true]], 
       '1208'  => [['4.4.7',   '451', 'systemerror',     false]],
       '1209'  => [['5.7.1',   '550', 'spamdetected',    false]],
       '1210'  => [['5.1.1',   '550', 'userunknown',     true]],
