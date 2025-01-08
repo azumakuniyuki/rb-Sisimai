@@ -50,7 +50,6 @@ module Sisimai
         #                                   false: is not suspended
         # @see http://www.ietf.org/rfc/rfc2822.txt
         def true(argvs)
-          return nil  if argvs['deliverystatus'].empty?
           return true if argvs['reason'] == 'suspend'
           return true if argvs['replycode'].to_i == 525
           return match(argvs['diagnosticcode'].downcase)
