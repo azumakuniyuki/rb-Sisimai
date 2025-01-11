@@ -56,7 +56,7 @@ delete your own text from the attached returned message.
 Content-Description: Delivery report
 Content-Type: message/delivery-status
 
-Reporting-MTA: dns; omr-m013e.mx.aol.example.com
+Reporting-MTA: dns; omr-m013e.mx.aol.com
 X-Outbound-Mail-Relay-Queue-ID: F209A380008E
 X-Outbound-Mail-Relay-Sender: rfc822; kijitora@aol.example.com
 Arrival-Date: Tue,  2 May 2017 01:16:01 -0400 (EDT)
