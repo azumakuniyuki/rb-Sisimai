@@ -25,18 +25,16 @@ module Sisimai
         "YahooInc"    => [".yahoodns.net"],
       }.freeze
 
-      # Detect the bounce reason from certain remote hosts
+      # Returns the rhost class name
       # @param    [Hash]   argvs  Decoded email data
-      # @return   [String]        The value of bounce reason
-      def find(argvs)
-        return "" if argvs["diagnosticcode"].empty?
+      # @return   [String]        rhost class name
+      def name(argvs)
+        return "" if argvs.nil?
 
+        rhostclass = ""
         clienthost = argvs["lhost"].downcase
         remotehost = argvs["rhost"].downcase
         domainpart = argvs["destination"].downcase
-        rhostclass = ""
-        modulename = ""
-        return "" if (remotehost + domainpart).empty?
 
         catch :FINDRHOST do
           # Try to match the hostname patterns with the following order:
@@ -46,14 +44,14 @@ module Sisimai
           RhostClass.each_key do |e|
             # Try to match the domain part of the recipient address with each value of RhostClass
             next unless RhostClass[e].any? { |a| a.end_with?(domainpart) }
-            modulename = 'Sisimai::Rhost::' << e
+            rhostclass = e
             throw :FINDRHOST
           end
 
           RhostClass.each_key do |e|
             # Try to match the remote host with each value of RhostClass
             next unless RhostClass[e].any? { |a| remotehost.end_with?(a) }
-            modulename = 'Sisimai::Rhost::' << e
+            rhostclass = e
             throw :FINDRHOST
           end
 
@@ -61,13 +59,24 @@ module Sisimai
           RhostClass.each_key do |e|
             # Try to match the client host with each value of RhostClass
             next unless RhostClass[e].any? { |a| clienthost.end_with?(a) }
-            modulename = 'Sisimai::Rhost::' << e
+            rhostclass = e
             throw :FINDRHOST
           end
         end
-        return "" if modulename.empty?
+        return rhostclass
+      end
 
-        rhostclass = "sisimai/rhost/" << modulename.downcase.split("::")[2]; require rhostclass
+      # Detect the bounce reason from certain remote hosts
+      # @param    [Hash]   argvs  Decoded email data
+      # @return   [String]        The value of bounce reason
+      def find(argvs)
+        return "" if argvs.nil?
+
+        rhostclass = name(argvs); return "" if rhostclass.empty?
+        modulepath = "sisimai/rhost/"   << rhostclass.downcase; require modulepath
+        modulename = "Sisimai::Rhost::" << rhostclass
+
+        #rhostclass = "sisimai/rhost/" << modulename.downcase.split("::")[2]; require rhostclass
         reasontext = Module.const_get(modulename).find(argvs)
         return "" if reasontext.empty?
         return reasontext
