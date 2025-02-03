@@ -5,9 +5,9 @@ class SMTPFailure < Minitest::Test
   Methods = { class: %w[is_permanent is_temporary is_hardbounce is_softbounce] }
   Bounces = {
     soft: [
-      'blocked', 'contenterror', 'exceedlimit', 'expired', 'filtered', 'mailboxfull', 'mailererror',
-      'mesgtoobig', 'networkerror', 'norelaying', 'rejected', 'securityerror', 'spamdetected',
-      'suspend', 'systemerror', 'systemfull', 'toomanyconn', 'undefined', 'onhold',
+      'blocked', 'contenterror', 'exceedlimit', 'expired', 'failedstarttls', 'filtered', 'mailboxfull',
+      'mailererror', 'mesgtoobig', 'networkerror', 'norelaying', 'rejected', 'securityerror', 'spamdetected',
+      'suppressed', 'suspend', 'systemerror', 'systemfull', 'toomanyconn', 'undefined', 'onhold',
     ],
     hard: ['userunknown', 'hostunknown', 'hasmoved', 'notaccept'],
   }
