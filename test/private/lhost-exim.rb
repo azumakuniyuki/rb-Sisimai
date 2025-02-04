@@ -152,7 +152,7 @@ module LhostEngineTest::Private
       '1139'  => [['5.0.918', '550', 'rejected',        false]],
       '1140'  => [['5.0.945', '',    'toomanyconn',     false]],
       '1141'  => [['5.0.910', '',    'filtered',        false]],
-      '1142'  => [['5.0.971', '',    'virusdetected',   false]],
+      '1142'  => [['5.0.981', '',    'virusdetected',   false]],
       '1143'  => [['5.0.911', '550', 'userunknown',     true]],
       '1145'  => [['5.0.934', '500', 'mesgtoobig',      false]],
       '1146'  => [['5.0.911', '550', 'userunknown',     true]],
