@@ -3,7 +3,7 @@ RELEASE NOTES for Ruby version of Sisimai
 - releases: "https://github.com/sisimai/rb-sisimai/releases"
 - download: "https://rubygems.org/gems/sisimai"
 
-v5.1.0p5
+v5.1.0p6
 ---------------------------------------------------------------------------------------------------
 - release: ""
 - version: ""
@@ -30,6 +30,8 @@ v5.1.0p5
       - Fix bug in code to check the domain part of an email address as a remote hostname
       - Add a new error message pattern: `hosted tenant which has no mail-enabled subscriptions'`
         in `Sisimai::Rhost::Microsoft`
+      - Implement `name()` method
+      - Bug fix in `Sisimai::Rhost::Facebook`
     - Remove `hardbounce` accessor from `Sisimai::Lhost` #313
     - Implement `Sisimai::RFC3464::ThirdParty`
     - Remove the following MTA modules from `Sisimai::Lhost` #315
@@ -75,6 +77,7 @@ v5.1.0p5
     - Implement `Sisimai::RFC1123.find()`
     - #312 `Sisimai::RFC1894.field()` method detect a comment string (returns an array which have
       5 elements: ["field-name", "value-type", "value", "field-group", "comment"])
+    - `Reporting-MTA` indicates `lhost` in `Sisimai::RFC1894` (bug fix)
   - Code improvement and bug fix at `Sisimai::Lhost::Exim`
     - Remove needless condition for getting error messages
     - Rewrite code for getting an SMTP reply code and a delivery status code
@@ -89,6 +92,7 @@ v5.1.0p5
     - `Sisimai::Reason::Filtered`
     - `Sisimai::Reason::MailboxFull`
     - `Sisimai::Reason::MesgTooBig`
+    - `Sisimai::Reason::RequirePTR`
     - `Sisimai::Reason::SpamDetected`
     - `Sisimai::Reason::SystemError`
   - Remove regular expressions from error message patterns at the following classes: #308
@@ -99,6 +103,7 @@ v5.1.0p5
   - Bug fix: Unstable matching for getting an `Sisimai::Rhost::*` module name when the bounce mail
     sent from Microsoft to Aol (Random key sort order of the Hash)
   - Add `sv-SE` in `Sisimai::Lhost::Exchange2007`
+  - Large scale code improvement in `Sisimai::Lhost::V5sendmail`
 
 v5.1.0
 ---------------------------------------------------------------------------------------------------
