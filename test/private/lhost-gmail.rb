@@ -48,7 +48,9 @@ module LhostEngineTest::Private
       '1044'  => [['5.0.972', '',    'policyviolation', false]],
       '1045'  => [['5.0.947', '',    'expired',         false]],
       '1046'  => [['5.1.1',   '550', 'userunknown',     true]],
-      '1047'  => [['5.1.1',   '550', 'userunknown',     true]],
+      '1047'  => [['5.1.1',   '550', 'userunknown',     true],
+                  ['5.1.1',   '550', 'userunknown',     true],
+                  ['5.1.1',   '550', 'userunknown',     true]],
       '1048'  => [['5.0.922', '',    'mailboxfull',     false]],
     }
   end

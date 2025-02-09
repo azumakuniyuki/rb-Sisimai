@@ -30,7 +30,7 @@ This is the mail delivery agent at Symantec Email Security.cloud.
 
 I was unable to deliver your message to the following addresses:
 
-kijitora@example.org
+kijitora@example.messagelabs.com
 
 Reason: 550-Please turn on SMTP Authentication in your mail client.=20
 550-mail0.bemta0.messagelabs.com [198.51.100.21]:22222 is not permitted to
@@ -58,7 +58,7 @@ Diagnostic-Code: smtp; 550-Please turn on SMTP Authentication in your mail clien
 550 relay through this server without authentication.
 Status: 5.0.0
 Action: failed
-Final-Recipient: rfc822; kijitora@example.org
+Final-Recipient: rfc822; kijitora@example.messagelabs.com
 
 --dsn_9273597409704_98239857098
 Content-Type: text/rfc822-headers
@@ -72,10 +72,10 @@ X-Msg-Ref: server-0.tower-0.messagelabs.com!0000000002!00000000!2
 Received: (qmail 2222 invoked from network); 17 Jul 2017 23:34:45 -0000
 Received: from nekochan.example.net (unknown [192.0.2.222])
 	by neko2.example.com (Postfix) with ESMTP id AAAAAAAA
-	for <kijitora@example.org>; Thu, 17 Jul 2017 23:34:45 +0900 (JST)
+	for <kijitora@example.messagelabs.com>; Thu, 17 Jul 2017 23:34:45 +0900 (JST)
 Received: from [192.0.2.192] (localhost [127.0.0.1])
 	by smtp.example.net (Postfix) with ESMTPA id BBBBBBBB
-	for <kijitora@example.org>; Thu, 17 Jul 2017 23:34:45 +0900 (JST)
+	for <kijitora@example.messagelabs.com>; Thu, 17 Jul 2017 23:34:45 +0900 (JST)
 Received: from [192.0.2.127] (unknown [127.0.0.1])
 	by smtp.example.net (Postfix) whith ESMTP id 00000000AA;
 	Thu, 17 Jul 2017 23:34:45 +0900 (JST)
@@ -83,7 +83,7 @@ Content-Type: text/plain
 MIME-Version: 1.0
 Subject: Nyaan by Nekochan
 From: Nekochan <nekochan@example.com>
-To: kijitora@example.org
+To: kijitora@example.messagelabs.com
 Date: Thu, 17 Jul 2017 23:34:45 +0900
 Message-ID: <000000000222.0000.0000000000000000202@NEKO.NYAAN>
 

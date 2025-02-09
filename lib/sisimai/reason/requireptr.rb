@@ -13,6 +13,7 @@ module Sisimai
           'all mail servers must have a ptr record with a valid reverse dns entry',
           'bad dns ptr resource record',
           'cannot find your hostname',
+          "cannot resolve your address.",
           'client host rejected: cannot find your hostname',  # Yahoo!
           'fix reverse dns for ',
           'ips with missing ptr records',

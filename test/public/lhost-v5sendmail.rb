@@ -12,7 +12,7 @@ module LhostEngineTest::Public
                ['5.0.912', '550', 'hostunknown',     true],
                ['5.0.911', '550', 'userunknown',     true]],
       '06' => [['5.0.909', '550', 'norelaying',      false]],
-      '07' => [['5.0.971', '501', 'blocked',         false],
+      '07' => [['5.0.971', '554', 'blocked',         false],
                ['5.0.912', '550', 'hostunknown',     true],
                ['5.0.911', '550', 'userunknown',     true]],
     }

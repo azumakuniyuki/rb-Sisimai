@@ -18,8 +18,7 @@ module Sisimai
         # @return   [Boolean]       0: Is not a valid SMTP command, 1: Is a valid SMTP command
         # @since v5.0.0
         def test(argv0 = '')
-          return false if argv0.empty?
-          return false if argv0.size < 4
+          return false if argv0.nil? || argv0.empty? || argv0.size < 4
           return true  if Availables.any? { |a| argv0.include?(a) }
           return false
         end

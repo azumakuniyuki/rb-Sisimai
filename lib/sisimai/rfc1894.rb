@@ -95,7 +95,7 @@ module Sisimai
           'original-recipient' => 'alias',
           'received-from-mta'  => 'lhost',
           'remote-mta'         => 'rhost',
-          'reporting-mta'      => 'rhost',
+          'reporting-mta'      => 'lhost',
           'status'             => 'status',
           'x-actual-recipient' => 'alias',
         }

@@ -25,7 +25,7 @@ module LhostEngineTest::Private
       '1021'  => [['5.4.4',   '550', 'hostunknown',     true]],
       '1022'  => [['5.5.1',   '550', 'blocked',         false]],
       '1023'  => [['5.7.1',   '550', 'suspend',         false]],
-      '1024'  => [['5.4.1',   '550', 'filtered',        false]],
+      '1024'  => [['5.4.1',   '550', 'userunknown',      true]],
       '1025'  => [['5.2.1',   '550', 'suspend',         false]],
       '1026'  => [['5.7.1',   '554', 'norelaying',      false]],
       '1027'  => [['5.2.2',   '552', 'mailboxfull',     false]],

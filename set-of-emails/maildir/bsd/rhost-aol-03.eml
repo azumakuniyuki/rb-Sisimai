@@ -1218,13 +1218,13 @@ Final-Recipient: rfc822; sabineko@example.jp
 Original-Recipient: rfc822;sabineko@example.jp
 Action: failed
 Status: 5.2.2
-Remote-MTA: dns; mx.example.jp
+Remote-MTA: dns; example.mx.aol.com
 Diagnostic-Code: smtp; 550 5.2.2 <sabineko@example.jp>... Mailbox Full
 Final-Recipient: rfc822; mikeneko@example.jp
 Original-Recipient: rfc822;mikeneko@example.jp
 Action: failed
 Status: 5.1.1
-Remote-MTA: dns; mx.example.jp
+Remote-MTA: dns; example.mx.aol.com
 Diagnostic-Code: smtp; 550 5.1.1 <mikeneko@example.jp>... User Unknown
 
 ------=_Part_803174_1699560241.1416609112578

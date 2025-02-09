@@ -1213,7 +1213,7 @@ WG3_tGm3wK97AkCk_kersGeVAZUn7vlTynIHYuQdvcN6iz8A--' width=3D'1' height=3D'1=
 Content-Type: message/delivery-status
 Content-Transfer-Encoding: 7bit
 
-Reporting-MTA: dns; omr-m04.mx.aol.example.com
+Reporting-MTA: dns; omr-m04.mx.aol.com
 X-Outbound-Mail-Relay-Queue-ID: 48A7F700000A5
 X-Outbound-Mail-Relay-Sender: rfc822; shironeko@example.jp
 Arrival-Date: Fri, 21 Nov 2014 17:14:10 -0500 (EST)

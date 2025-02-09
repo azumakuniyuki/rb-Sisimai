@@ -81,6 +81,7 @@ module Sisimai
           ['is in an ', 'rbl on '],
           ['mail server at ', ' is blocked'],
           ['mail from ',' refused:'],
+          ["mail from "," refused, see ", "orbs"],
           ['message from ', ' rejected based on blacklist'],
           ['messages from ', ' temporarily deferred due to user complaints'], # Yahoo!
           ['server ip ', ' listed as abusive'],

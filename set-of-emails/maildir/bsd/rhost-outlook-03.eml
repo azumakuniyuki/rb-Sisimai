@@ -37,7 +37,7 @@ Delivery to the following recipients failed.
 --9B095B5ADSN=_01D0005535AED5520005E489BLU004?OMC3S23.h
 Content-Type: message/delivery-status
 
-Reporting-MTA: dns;BLU004-OMC3S23.hotmail.example.org
+Reporting-MTA: dns;BLU004-OMC3S23.hotmail.com
 Received-From-MTA: dns;BLU436-SMTP66
 Arrival-Date: Fri, 21 Nov 2014 14:17:51 -0800
 
